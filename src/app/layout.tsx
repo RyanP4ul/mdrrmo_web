@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   keywords: ["MMODRM", "Disaster Management", "Emergency Response", "MDRRMO"],
   authors: [{ name: "MMODRM" }],
   icons: {
-    icon: "/logo.svg",
+    icon: "/mmodrm-logo.png",
   },
 };
 

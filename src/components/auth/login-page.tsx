@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import Image from 'next/image';
+import { Eye, EyeOff, AlertCircle, Shield } from 'lucide-react';
 import { useAppStore } from '@/lib/store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -72,9 +73,14 @@ export function LoginPage() {
               transition={{ delay: 0.2, duration: 0.4 }}
               className="flex justify-center"
             >
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-lg shadow-blue-500/30">
-                <Shield className="w-8 h-8 text-white" />
-              </div>
+              <Image
+                src="/mmodrm-logo.png"
+                alt="MMODRM Logo"
+                width={64}
+                height={64}
+                className="shrink-0"
+                priority
+              />
             </motion.div>
 
             <motion.div

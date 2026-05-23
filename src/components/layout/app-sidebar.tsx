@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import {
   LayoutDashboard,
   Users,
@@ -74,9 +75,14 @@ export function AppSidebar() {
       {/* Header with branding */}
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-md shadow-blue-500/20 shrink-0">
-            <Shield className="w-5 h-5 text-white" />
-          </div>
+          <Image
+            src="/mmodrm-logo.png"
+            alt="MMODRM Logo"
+            width={40}
+            height={40}
+            className="shrink-0"
+            priority
+          />
           <div className="min-w-0">
             <h2 className="text-base font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
               MMODRM

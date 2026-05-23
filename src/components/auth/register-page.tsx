@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, User, Mail, MapPin, FileCheck, Upload, Check, ArrowLeft, ArrowRight } from 'lucide-react';
+import Image from 'next/image';
 import { useAppStore } from '@/lib/store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -171,9 +172,14 @@ export function RegisterPage() {
               transition={{ delay: 0.2, duration: 0.4 }}
               className="flex justify-center"
             >
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-lg shadow-blue-500/30">
-                <Shield className="w-7 h-7 text-white" />
-              </div>
+              <Image
+                src="/mmodrm-logo.png"
+                alt="MMODRM Logo"
+                width={56}
+                height={56}
+                className="shrink-0"
+                priority
+              />
             </motion.div>
 
             <motion.div
