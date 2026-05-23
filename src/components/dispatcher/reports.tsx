@@ -36,14 +36,14 @@ const ITEMS_PER_PAGE = 6;
 const priorityStyles: Record<PriorityLevel, string> = {
   low: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
   medium: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-  high: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
+  high: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
   critical: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
 };
 
 const statusStyles: Record<ReportStatus, string> = {
   pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
   acknowledged: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-  dispatched: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
+  dispatched: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
   resolved: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
   invalid: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
 };
@@ -57,8 +57,8 @@ const INCIDENT_COLORS: Record<string, string> = {
   Landslide: 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400',
   'Power Outage': 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
   Drowning: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-400',
-  Earthquake: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
-  'Structural Collapse': 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
+  Earthquake: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+  'Structural Collapse': 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-400',
 };
 
 function getTypeBadge(type: string) {
@@ -140,8 +140,8 @@ export function DispatcherReports() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="flex size-10 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-900/30">
-          <FileText className="size-5 text-orange-600 dark:text-orange-400" />
+        <div className="flex size-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
+          <FileText className="size-5 text-blue-600 dark:text-blue-400" />
         </div>
         <div>
           <h2 className="text-xl font-bold">Emergency Reports</h2>
@@ -240,7 +240,7 @@ export function DispatcherReports() {
                     setSearchQuery('');
                     handleFilterChange();
                   }}
-                  className="text-orange-600 hover:text-orange-700"
+                  className="text-blue-600 hover:text-blue-700"
                 >
                   Clear filters
                 </Button>
@@ -271,7 +271,7 @@ export function DispatcherReports() {
           paginatedReports.map((report) => (
             <Card
               key={report.id}
-              className="cursor-pointer transition-all hover:shadow-md hover:border-orange-300 dark:hover:border-orange-700"
+              className="cursor-pointer transition-all hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700"
               onClick={() => handleReportClick(report.id)}
             >
               <CardContent className="p-4">

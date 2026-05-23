@@ -150,11 +150,11 @@ export function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-red-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 p-4 py-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 p-4 py-8">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-orange-200/30 dark:bg-orange-900/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-red-200/30 dark:bg-red-900/10 rounded-full blur-3xl" />
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200/30 dark:bg-blue-900/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-200/30 dark:bg-indigo-900/10 rounded-full blur-3xl" />
       </div>
 
       <motion.div
@@ -163,7 +163,7 @@ export function RegisterPage() {
         transition={{ duration: 0.5, ease: 'easeOut' }}
         className="w-full max-w-lg relative z-10"
       >
-        <Card className="border-orange-100 dark:border-gray-800 shadow-xl shadow-orange-100/50 dark:shadow-black/20">
+        <Card className="border-blue-100 dark:border-gray-800 shadow-xl shadow-blue-100/50 dark:shadow-black/20">
           <CardHeader className="text-center space-y-4 pb-2">
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
@@ -171,7 +171,7 @@ export function RegisterPage() {
               transition={{ delay: 0.2, duration: 0.4 }}
               className="flex justify-center"
             >
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center shadow-lg shadow-orange-500/30">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-lg shadow-blue-500/30">
                 <Shield className="w-7 h-7 text-white" />
               </div>
             </motion.div>
@@ -181,7 +181,7 @@ export function RegisterPage() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.4 }}
             >
-              <CardTitle className="text-xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+              <CardTitle className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 Create Account
               </CardTitle>
               <CardDescription className="text-sm text-muted-foreground mt-1">
@@ -205,21 +205,21 @@ export function RegisterPage() {
                           backgroundColor: isCompleted
                             ? '#16a34a'
                             : isCurrent
-                              ? '#f97316'
+                              ? '#2563eb'
                               : undefined,
                         }}
                         className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
                           isCompleted
                             ? 'bg-green-600 text-white'
                             : isCurrent
-                              ? 'bg-orange-500 text-white shadow-md shadow-orange-500/30'
-                              : 'bg-orange-100 dark:bg-gray-800 text-muted-foreground'
+                              ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30'
+                              : 'bg-blue-100 dark:bg-gray-800 text-muted-foreground'
                         }`}
                       >
                         {isCompleted ? <Check className="w-4 h-4" /> : <StepIcon className="w-4 h-4" />}
                       </motion.div>
                       <span className={`text-[10px] font-medium hidden sm:block ${
-                        isCurrent ? 'text-orange-600 dark:text-orange-400' : 'text-muted-foreground'
+                        isCurrent ? 'text-blue-600 dark:text-blue-400' : 'text-muted-foreground'
                       }`}>
                         {step.title}
                       </span>
@@ -227,7 +227,7 @@ export function RegisterPage() {
                     {index < STEPS.length - 1 && (
                       <div
                         className={`w-8 sm:w-12 h-0.5 mx-1 mb-4 sm:mb-0 transition-colors ${
-                          currentStep > step.id ? 'bg-green-500' : 'bg-orange-200 dark:bg-gray-700'
+                          currentStep > step.id ? 'bg-green-500' : 'bg-blue-200 dark:bg-gray-700'
                         }`}
                       />
                     )}
@@ -443,9 +443,9 @@ export function RegisterPage() {
                         />
                         <label
                           htmlFor="id-upload"
-                          className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-orange-200 dark:border-gray-700 rounded-xl cursor-pointer hover:border-orange-400 dark:hover:border-orange-600 hover:bg-orange-50/50 dark:hover:bg-gray-800/50 transition-colors"
+                          className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-blue-200 dark:border-gray-700 rounded-xl cursor-pointer hover:border-blue-400 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-gray-800/50 transition-colors"
                         >
-                          <Upload className="w-8 h-8 text-orange-400 dark:text-orange-500 mb-2" />
+                          <Upload className="w-8 h-8 text-blue-400 dark:text-blue-500 mb-2" />
                           <span className="text-sm text-muted-foreground">
                             {formData.idFile ? formData.idFile.name : 'Click to upload your ID'}
                           </span>
@@ -457,8 +457,8 @@ export function RegisterPage() {
                     </div>
 
                     {/* Review summary */}
-                    <div className="p-3 rounded-lg bg-orange-50 dark:bg-gray-800/50 border border-orange-100 dark:border-gray-700">
-                      <p className="text-xs font-semibold text-orange-700 dark:text-orange-400 mb-2">Registration Summary</p>
+                    <div className="p-3 rounded-lg bg-blue-50 dark:bg-gray-800/50 border border-blue-100 dark:border-gray-700">
+                      <p className="text-xs font-semibold text-blue-700 dark:text-blue-400 mb-2">Registration Summary</p>
                       <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted-foreground">
                         <span>Name:</span>
                         <span className="text-foreground">{formData.firstName} {formData.lastName}</span>
@@ -485,7 +485,7 @@ export function RegisterPage() {
                   type="button"
                   variant="outline"
                   onClick={handleBack}
-                  className="flex-1 h-11 border-orange-200 dark:border-gray-700 hover:bg-orange-50 dark:hover:bg-gray-800"
+                  className="flex-1 h-11 border-blue-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-gray-800"
                 >
                   <ArrowLeft className="w-4 h-4 mr-1" />
                   Back
@@ -496,7 +496,7 @@ export function RegisterPage() {
                 <Button
                   type="button"
                   onClick={handleNext}
-                  className="flex-1 h-11 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-semibold shadow-md shadow-orange-500/25"
+                  className="flex-1 h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-md shadow-blue-500/25"
                 >
                   Next
                   <ArrowRight className="w-4 h-4 ml-1" />
@@ -529,7 +529,7 @@ export function RegisterPage() {
               <button
                 type="button"
                 onClick={() => navigateTo('login')}
-                className="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-semibold transition-colors"
+                className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-semibold transition-colors"
               >
                 Sign In
               </button>

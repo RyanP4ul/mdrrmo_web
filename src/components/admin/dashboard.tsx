@@ -51,8 +51,8 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 const activityIcons: Record<string, React.ReactNode> = {
-  report: <AlertTriangle className="size-4 text-amber-500" />,
-  dispatch: <ShieldCheck className="size-4 text-orange-500" />,
+  report: <AlertTriangle className="size-4 text-sky-500" />,
+  dispatch: <ShieldCheck className="size-4 text-blue-500" />,
   resolve: <CheckCircle className="size-4 text-green-500" />,
   user: <UserPlus className="size-4 text-blue-500" />,
   announcement: <Megaphone className="size-4 text-purple-500" />,
@@ -62,7 +62,7 @@ function getPriorityBadge(priority: PriorityLevel) {
   const styles: Record<PriorityLevel, string> = {
     low: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
     medium: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-    high: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
+    high: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
     critical: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
   };
   return (
@@ -90,8 +90,8 @@ export function AdminDashboard() {
                   {adminDashboardStats.totalUsers.toLocaleString()}
                 </p>
               </div>
-              <div className="flex size-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
-                <Users className="size-6 text-amber-600 dark:text-amber-400" />
+              <div className="flex size-12 items-center justify-center rounded-full bg-sky-100 dark:bg-sky-900/30">
+                <Users className="size-6 text-sky-600 dark:text-sky-400" />
               </div>
             </div>
             <div className="mt-3 flex items-center gap-1 text-xs">
@@ -171,8 +171,8 @@ export function AdminDashboard() {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-900/30">
-                <FileWarning className="size-5 text-orange-600 dark:text-orange-400" />
+              <div className="flex size-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                <FileWarning className="size-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Reports Today</p>
@@ -185,8 +185,8 @@ export function AdminDashboard() {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/30">
-                <Activity className="size-5 text-amber-600 dark:text-amber-400" />
+              <div className="flex size-10 items-center justify-center rounded-lg bg-sky-100 dark:bg-sky-900/30">
+                <Activity className="size-5 text-sky-600 dark:text-sky-400" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Avg Resolution Time</p>
@@ -217,7 +217,7 @@ export function AdminDashboard() {
         <Card className="lg:col-span-2">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Map className="size-5 text-orange-500" />
+              <Map className="size-5 text-blue-500" />
               <CardTitle>Incident Heat Map</CardTitle>
             </div>
             <CardDescription>Geographic distribution of incidents</CardDescription>
@@ -302,7 +302,7 @@ export function AdminDashboard() {
 
         {/* Latest Emergency Report */}
         {latestCriticalReport && (
-          <Card className="border-orange-200 dark:border-orange-900/50">
+          <Card className="border-blue-200 dark:border-blue-900/50">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <AlertOctagon className="size-5 text-red-500" />

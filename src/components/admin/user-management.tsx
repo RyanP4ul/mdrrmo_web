@@ -70,7 +70,7 @@ const ITEMS_PER_PAGE = 8;
 
 function getRoleBadge(role: Role) {
   const styles: Record<Role, string> = {
-    admin: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
+    admin: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
     dispatcher: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
     resident: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
   };
@@ -320,7 +320,7 @@ export function UserManagement() {
         </div>
         <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-orange-600 hover:bg-orange-700">
+            <Button className="bg-blue-600 hover:bg-blue-700">
               <UserPlus className="size-4" />
               Add User
             </Button>
@@ -337,7 +337,7 @@ export function UserManagement() {
               <Button variant="outline" onClick={() => { setAddDialogOpen(false); setFormData(emptyForm); }}>
                 Cancel
               </Button>
-              <Button className="bg-orange-600 hover:bg-orange-700" onClick={handleAddUser}>
+              <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleAddUser}>
                 Add User
               </Button>
             </DialogFooter>
@@ -413,7 +413,7 @@ export function UserManagement() {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="size-8">
-                          <AvatarFallback className="bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 text-xs">
+                          <AvatarFallback className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 text-xs">
                             {getInitials(user.firstName, user.lastName)}
                           </AvatarFallback>
                         </Avatar>
@@ -535,7 +535,7 @@ export function UserManagement() {
             <Button variant="outline" onClick={() => { setEditDialogOpen(false); setSelectedUser(null); setFormData(emptyForm); }}>
               Cancel
             </Button>
-            <Button className="bg-orange-600 hover:bg-orange-700" onClick={handleEditUser}>
+            <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleEditUser}>
               Save Changes
             </Button>
           </DialogFooter>

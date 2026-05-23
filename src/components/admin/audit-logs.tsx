@@ -49,7 +49,7 @@ function getActionBadge(action: string) {
     UPDATE_USER: 'bg-yellow-100 text-yellow-800 border-0 dark:bg-yellow-900/30 dark:text-yellow-400',
     DELETE_ANNOUNCEMENT: 'bg-red-100 text-red-800 border-0 dark:bg-red-900/30 dark:text-red-400',
     RESOLVE_REPORT: 'bg-purple-100 text-purple-800 border-0 dark:bg-purple-900/30 dark:text-purple-400',
-    ASSIGN_TEAM: 'bg-orange-100 text-orange-800 border-0 dark:bg-orange-900/30 dark:text-orange-400',
+    ASSIGN_TEAM: 'bg-blue-100 text-blue-800 border-0 dark:bg-blue-900/30 dark:text-blue-400',
   };
 
   const colorClass = colorMap[action] || 'bg-gray-100 text-gray-800 border-0 dark:bg-gray-900/30 dark:text-gray-400';
@@ -104,8 +104,8 @@ export function AuditLogs() {
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="flex size-10 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-900/30">
-          <Activity className="size-5 text-orange-600 dark:text-orange-400" />
+        <div className="flex size-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
+          <Activity className="size-5 text-blue-600 dark:text-blue-400" />
         </div>
         <div>
           <h2 className="text-xl font-bold">Audit Logs</h2>

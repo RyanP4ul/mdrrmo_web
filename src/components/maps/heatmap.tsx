@@ -100,7 +100,7 @@ export function Heatmap({ height = '400px' }: HeatmapProps) {
         <Skeleton className="w-full h-full rounded-lg" />
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-pulse size-10 mx-auto mb-2 rounded-full bg-orange-200 dark:bg-orange-900/30" />
+            <div className="animate-pulse size-10 mx-auto mb-2 rounded-full bg-blue-200 dark:bg-blue-900/30" />
             <p className="text-sm text-muted-foreground">Loading map...</p>
           </div>
         </div>

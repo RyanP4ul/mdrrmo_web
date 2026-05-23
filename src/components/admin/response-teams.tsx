@@ -112,8 +112,8 @@ export function ResponseTeams() {
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="flex size-10 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-900/30">
-          <Shield className="size-5 text-orange-600 dark:text-orange-400" />
+        <div className="flex size-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
+          <Shield className="size-5 text-blue-600 dark:text-blue-400" />
         </div>
         <div>
           <h2 className="text-xl font-bold">Response Teams</h2>
@@ -217,7 +217,7 @@ export function ResponseTeams() {
                           <Badge
                             key={spec}
                             variant="outline"
-                            className="text-xs border-orange-300 text-orange-700 dark:border-orange-700 dark:text-orange-400"
+                            className="text-xs border-blue-300 text-blue-700 dark:border-blue-700 dark:text-blue-400"
                           >
                             {spec}
                           </Badge>
@@ -277,7 +277,7 @@ export function ResponseTeams() {
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Shield className="size-5 text-orange-500" />
+              <Shield className="size-5 text-blue-500" />
               {selectedTeam?.teamName}
             </DialogTitle>
             <DialogDescription>
@@ -296,7 +296,7 @@ export function ResponseTeams() {
                   <Badge
                     key={spec}
                     variant="outline"
-                    className="text-xs border-orange-300 text-orange-700 dark:border-orange-700 dark:text-orange-400"
+                    className="text-xs border-blue-300 text-blue-700 dark:border-blue-700 dark:text-blue-400"
                   >
                     {spec}
                   </Badge>

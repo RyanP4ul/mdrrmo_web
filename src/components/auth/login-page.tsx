@@ -50,12 +50,12 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-red-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 p-4">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-orange-200/30 dark:bg-orange-900/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-red-200/30 dark:bg-red-900/10 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-amber-200/20 dark:bg-amber-900/5 rounded-full blur-3xl" />
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200/30 dark:bg-blue-900/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-200/30 dark:bg-indigo-900/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-sky-200/20 dark:bg-sky-900/5 rounded-full blur-3xl" />
       </div>
 
       <motion.div
@@ -64,7 +64,7 @@ export function LoginPage() {
         transition={{ duration: 0.5, ease: 'easeOut' }}
         className="w-full max-w-md relative z-10"
       >
-        <Card className="border-orange-100 dark:border-gray-800 shadow-xl shadow-orange-100/50 dark:shadow-black/20">
+        <Card className="border-blue-100 dark:border-gray-800 shadow-xl shadow-blue-100/50 dark:shadow-black/20">
           <CardHeader className="text-center space-y-4 pb-2">
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
@@ -72,7 +72,7 @@ export function LoginPage() {
               transition={{ delay: 0.2, duration: 0.4 }}
               className="flex justify-center"
             >
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center shadow-lg shadow-orange-500/30">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-lg shadow-blue-500/30">
                 <Shield className="w-8 h-8 text-white" />
               </div>
             </motion.div>
@@ -82,7 +82,7 @@ export function LoginPage() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.4 }}
             >
-              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 MMODRM
               </CardTitle>
               <CardDescription className="text-sm text-muted-foreground mt-1">
@@ -122,7 +122,7 @@ export function LoginPage() {
                   <Label htmlFor="password">Password</Label>
                   <button
                     type="button"
-                    className="text-xs text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium transition-colors"
+                    className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors"
                     onClick={() => {
                       toast.info('Password reset functionality coming soon');
                     }}
@@ -152,7 +152,7 @@ export function LoginPage() {
 
               <Button
                 type="submit"
-                className="w-full h-11 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-semibold shadow-md shadow-orange-500/25 transition-all duration-200"
+                className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-md shadow-blue-500/25 transition-all duration-200"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -171,7 +171,7 @@ export function LoginPage() {
             <div className="mt-6 space-y-3">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-orange-200 dark:border-gray-700" />
+                  <span className="w-full border-t border-blue-200 dark:border-gray-700" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
                   <span className="bg-card px-2 text-muted-foreground">Demo Accounts</span>
@@ -182,13 +182,13 @@ export function LoginPage() {
                 <button
                   type="button"
                   onClick={() => handleDemoLogin('admin@mmodrm.gov')}
-                  className="flex items-center gap-2 p-2.5 rounded-lg border border-orange-200 dark:border-gray-700 hover:bg-orange-50 dark:hover:bg-gray-800 transition-colors text-left group"
+                  className="flex items-center gap-2 p-2.5 rounded-lg border border-blue-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors text-left group"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
-                    <Shield className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                  <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                    <Shield className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold text-orange-700 dark:text-orange-400">Admin</p>
+                    <p className="text-xs font-semibold text-blue-700 dark:text-blue-400">Admin</p>
                     <p className="text-[10px] text-muted-foreground truncate">admin@mmodrm.gov</p>
                   </div>
                 </button>
@@ -196,13 +196,13 @@ export function LoginPage() {
                 <button
                   type="button"
                   onClick={() => handleDemoLogin('dispatcher@mmodrm.gov')}
-                  className="flex items-center gap-2 p-2.5 rounded-lg border border-amber-200 dark:border-gray-700 hover:bg-amber-50 dark:hover:bg-gray-800 transition-colors text-left group"
+                  className="flex items-center gap-2 p-2.5 rounded-lg border border-sky-200 dark:border-gray-700 hover:bg-sky-50 dark:hover:bg-gray-800 transition-colors text-left group"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                    <Shield className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                  <div className="w-8 h-8 rounded-lg bg-sky-100 dark:bg-sky-900/30 flex items-center justify-center">
+                    <Shield className="w-4 h-4 text-sky-600 dark:text-sky-400" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold text-amber-700 dark:text-amber-400">Dispatcher</p>
+                    <p className="text-xs font-semibold text-sky-700 dark:text-sky-400">Dispatcher</p>
                     <p className="text-[10px] text-muted-foreground truncate">dispatcher@mmodrm.gov</p>
                   </div>
                 </button>
@@ -216,7 +216,7 @@ export function LoginPage() {
               <button
                 type="button"
                 onClick={() => navigateTo('register')}
-                className="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-semibold transition-colors"
+                className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-semibold transition-colors"
               >
                 Register
               </button>

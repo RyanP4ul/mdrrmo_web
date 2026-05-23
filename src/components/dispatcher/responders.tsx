@@ -336,7 +336,7 @@ export function Responders() {
               onClick={() => toggleSpecialization(spec)}
               className={`rounded-full px-3 py-1 text-xs font-medium transition-colors border ${
                 teamForm.specializations.includes(spec)
-                  ? 'bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-700'
+                  ? 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-700'
                   : 'bg-muted text-muted-foreground border-border hover:bg-muted/80'
               }`}
             >
@@ -413,15 +413,15 @@ export function Responders() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex size-10 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-900/30">
-            <ShieldCheck className="size-5 text-orange-600 dark:text-orange-400" />
+          <div className="flex size-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
+            <ShieldCheck className="size-5 text-blue-600 dark:text-blue-400" />
           </div>
           <div>
             <h2 className="text-xl font-bold">Response Teams</h2>
             <p className="text-sm text-muted-foreground">Manage emergency response teams &amp; personnel</p>
           </div>
         </div>
-        <Button onClick={openAddDialog} className="gap-2 bg-orange-600 hover:bg-orange-700 text-white">
+        <Button onClick={openAddDialog} className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
           <Plus className="size-4" />
           Add Team
         </Button>
@@ -491,7 +491,7 @@ export function Responders() {
                     setSearchQuery('');
                     handleFilterChange();
                   }}
-                  className="text-orange-600 hover:text-orange-700"
+                  className="text-blue-600 hover:text-blue-700"
                 >
                   Clear filters
                 </Button>
@@ -523,8 +523,8 @@ export function Responders() {
                 {/* Team Header */}
                 <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between border-b bg-muted/30">
                   <div className="flex items-center gap-3">
-                    <div className="flex size-10 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-900/30">
-                      <ShieldCheck className="size-5 text-orange-600 dark:text-orange-400" />
+                    <div className="flex size-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                      <ShieldCheck className="size-5 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div>
                       <h3 className="font-semibold">{team.teamName}</h3>
@@ -545,7 +545,7 @@ export function Responders() {
                       variant="ghost"
                       size="sm"
                       onClick={() => openEditDialog(team.id)}
-                      className="gap-1 text-orange-600 hover:text-orange-700"
+                      className="gap-1 text-blue-600 hover:text-blue-700"
                     >
                       <Pencil className="size-3" />
                       Edit
@@ -570,7 +570,7 @@ export function Responders() {
                       <Badge
                         key={spec}
                         variant="outline"
-                        className="text-xs border-orange-300 text-orange-700 dark:border-orange-700 dark:text-orange-400"
+                        className="text-xs border-blue-300 text-blue-700 dark:border-blue-700 dark:text-blue-400"
                       >
                         {spec}
                       </Badge>
@@ -647,7 +647,7 @@ export function Responders() {
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Plus className="size-5 text-orange-600" />
+              <Plus className="size-5 text-blue-600" />
               Add Response Team
             </DialogTitle>
             <DialogDescription>
@@ -659,7 +659,7 @@ export function Responders() {
             <Button variant="outline" onClick={() => setShowAddDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={handleAddTeam} className="bg-orange-600 hover:bg-orange-700 text-white">
+            <Button onClick={handleAddTeam} className="bg-blue-600 hover:bg-blue-700 text-white">
               Create Team
             </Button>
           </DialogFooter>
@@ -671,7 +671,7 @@ export function Responders() {
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Pencil className="size-5 text-orange-600" />
+              <Pencil className="size-5 text-blue-600" />
               Edit Response Team
             </DialogTitle>
             <DialogDescription>
@@ -683,7 +683,7 @@ export function Responders() {
             <Button variant="outline" onClick={() => setShowEditDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={handleEditTeam} className="bg-orange-600 hover:bg-orange-700 text-white">
+            <Button onClick={handleEditTeam} className="bg-blue-600 hover:bg-blue-700 text-white">
               Save Changes
             </Button>
           </DialogFooter>

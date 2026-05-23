@@ -48,9 +48,9 @@ const CATEGORIES = [
 ];
 
 const CATEGORY_COLORS: Record<string, string> = {
-  'Weather Advisory': 'bg-amber-100 text-amber-800 border-0 dark:bg-amber-900/30 dark:text-amber-400',
+  'Weather Advisory': 'bg-sky-100 text-sky-800 border-0 dark:bg-sky-900/30 dark:text-sky-400',
   Evacuation: 'bg-red-100 text-red-800 border-0 dark:bg-red-900/30 dark:text-red-400',
-  'Traffic Advisory': 'bg-orange-100 text-orange-800 border-0 dark:bg-orange-900/30 dark:text-orange-400',
+  'Traffic Advisory': 'bg-blue-100 text-blue-800 border-0 dark:bg-blue-900/30 dark:text-blue-400',
   Information: 'bg-green-100 text-green-800 border-0 dark:bg-green-900/30 dark:text-green-400',
   'Relief Operations': 'bg-purple-100 text-purple-800 border-0 dark:bg-purple-900/30 dark:text-purple-400',
 };
@@ -178,15 +178,15 @@ export function Announcements() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex size-10 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-900/30">
-            <Megaphone className="size-5 text-orange-600 dark:text-orange-400" />
+          <div className="flex size-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
+            <Megaphone className="size-5 text-blue-600 dark:text-blue-400" />
           </div>
           <div>
             <h2 className="text-xl font-bold">Announcements</h2>
             <p className="text-sm text-muted-foreground">Manage public announcements and advisories</p>
           </div>
         </div>
-        <Button onClick={handleOpenAdd} className="bg-orange-600 hover:bg-orange-700 text-white">
+        <Button onClick={handleOpenAdd} className="bg-blue-600 hover:bg-blue-700 text-white">
           <Plus className="size-4 mr-1" />
           Add Announcement
         </Button>
@@ -400,7 +400,7 @@ export function Announcements() {
             <Button variant="outline" onClick={() => setFormOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSave} className="bg-orange-600 hover:bg-orange-700 text-white">
+            <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 text-white">
               {editingId ? 'Save Changes' : 'Create'}
             </Button>
           </DialogFooter>

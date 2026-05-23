@@ -44,7 +44,7 @@ export function AppHeader() {
   const notificationCount = 3; // Placeholder
 
   return (
-    <header className="sticky top-0 z-30 w-full border-b border-orange-100 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md">
+    <header className="sticky top-0 z-30 w-full border-b border-blue-100 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md">
       <div className="flex items-center justify-between h-14 px-4 md:px-6">
         {/* Left side: Sidebar toggle + Title */}
         <div className="flex items-center gap-3">
@@ -62,7 +62,7 @@ export function AppHeader() {
             <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
           </div>
 
-          <Separator orientation="vertical" className="h-6 hidden md:block bg-orange-100 dark:bg-gray-800" />
+          <Separator orientation="vertical" className="h-6 hidden md:block bg-blue-100 dark:bg-gray-800" />
 
           <h1 className="text-lg font-semibold text-foreground">{title}</h1>
         </div>
@@ -89,7 +89,7 @@ export function AppHeader() {
             <DropdownMenuContent align="end" className="w-72">
               <DropdownMenuLabel className="flex items-center justify-between">
                 <span>Notifications</span>
-                <Badge variant="secondary" className="text-[10px] bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400">
+                <Badge variant="secondary" className="text-[10px] bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
                   {notificationCount} new
                 </Badge>
               </DropdownMenuLabel>
@@ -103,14 +103,14 @@ export function AppHeader() {
               </DropdownMenuItem>
               <DropdownMenuItem className="flex flex-col items-start gap-1 p-3 cursor-pointer">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-orange-500" />
+                  <div className="w-2 h-2 rounded-full bg-blue-500" />
                   <span className="text-sm font-medium">Team Alpha dispatched</span>
                 </div>
                 <span className="text-xs text-muted-foreground pl-4">12 min ago</span>
               </DropdownMenuItem>
               <DropdownMenuItem className="flex flex-col items-start gap-1 p-3 cursor-pointer">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-amber-500" />
+                  <div className="w-2 h-2 rounded-full bg-sky-500" />
                   <span className="text-sm font-medium">Report RPT004 resolved</span>
                 </div>
                 <span className="text-xs text-muted-foreground pl-4">30 min ago</span>
@@ -121,9 +121,9 @@ export function AppHeader() {
           {/* User Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-2 px-2 hover:bg-orange-50 dark:hover:bg-gray-800">
-                <Avatar className="w-8 h-8 border border-orange-200 dark:border-orange-800">
-                  <AvatarFallback className="bg-gradient-to-br from-orange-400 to-red-500 text-white text-xs font-bold">
+              <Button variant="ghost" className="flex items-center gap-2 px-2 hover:bg-blue-50 dark:hover:bg-gray-800">
+                <Avatar className="w-8 h-8 border border-blue-200 dark:border-blue-800">
+                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-xs font-bold">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
@@ -131,7 +131,7 @@ export function AppHeader() {
                   <span className="text-sm font-medium leading-none">
                     {currentUser?.firstName} {currentUser?.lastName}
                   </span>
-                  <span className="text-[10px] text-orange-600 dark:text-orange-400 capitalize leading-tight">
+                  <span className="text-[10px] text-blue-600 dark:text-blue-400 capitalize leading-tight">
                     {currentUser?.role}
                   </span>
                 </div>
@@ -150,11 +150,11 @@ export function AppHeader() {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="cursor-pointer">
-                <User className="mr-2 h-4 w-4 text-orange-500" />
+                <User className="mr-2 h-4 w-4 text-blue-500" />
                 <span>Profile</span>
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">
-                <Settings className="mr-2 h-4 w-4 text-orange-500" />
+                <Settings className="mr-2 h-4 w-4 text-blue-500" />
                 <span>Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />

@@ -55,7 +55,7 @@ function getStatusBadge(status: ReportStatus) {
   const styles: Record<ReportStatus, string> = {
     pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
     acknowledged: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-    dispatched: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
+    dispatched: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
     resolved: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
     invalid: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
   };
@@ -68,7 +68,7 @@ function getPriorityBadge(priority: PriorityLevel) {
   const styles: Record<PriorityLevel, string> = {
     low: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
     medium: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-    high: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
+    high: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
     critical: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
   };
   return (
