@@ -36,7 +36,7 @@ function LocationMapInner({ lat, lng, zoom, label }: Omit<LocationMapProps, 'hei
       scrollWheelZoom={true}
     >
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        attribution=''
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <Marker position={[lat, lng]} icon={customIcon}>

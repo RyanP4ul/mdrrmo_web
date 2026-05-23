@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useMemo } from 'react';
 import {
   Users,
   AlertTriangle,
@@ -13,6 +14,9 @@ import {
   Megaphone,
   UserPlus,
   ShieldCheck,
+  Filter,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import {
   Card,
@@ -23,6 +27,14 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Separator } from '@/components/ui/separator';
 import {
   ChartContainer,
   ChartTooltip,
@@ -37,7 +49,7 @@ import {
   mockReports,
 } from '@/lib/mock-data';
 import type { PriorityLevel } from '@/lib/types';
-import { Heatmap } from '@/components/maps/heatmap';
+import { Heatmap, INCIDENT_COLORS, INCIDENT_TYPES } from '@/components/maps/heatmap';
 
 const chartConfig = {
   Flood: { label: 'Flood', color: '#f97316' },
@@ -72,7 +84,122 @@ function getPriorityBadge(priority: PriorityLevel) {
   );
 }
 
+// Incident Type Filter Component
+function IncidentTypeFilter({
+  hiddenTypes,
+  onToggleType,
+  onToggleAll,
+  allTypes,
+}: {
+  hiddenTypes: Set<string>;
+  onToggleType: (type: string) => void;
+  onToggleAll: () => void;
+  allTypes: string[];
+}) {
+  const allHidden = hiddenTypes.size === allTypes.length;
+  const noneHidden = hiddenTypes.size === 0;
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
+          <Filter className="size-3.5" />
+          Filter Types
+          {hiddenTypes.size > 0 && (
+            <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-[10px]">
+              {hiddenTypes.size} hidden
+            </Badge>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-64 p-0" align="end">
+        <div className="p-3">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-semibold">Incident Types</p>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 text-xs gap-1 px-2"
+              onClick={onToggleAll}
+            >
+              {allHidden ? (
+                <>
+                  <Eye className="size-3" />
+                  Show All
+                </>
+              ) : (
+                <>
+                  <EyeOff className="size-3" />
+                  Hide All
+                </>
+              )}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Toggle visibility of each type
+          </p>
+        </div>
+        <Separator />
+        <div className="p-2 max-h-64 overflow-y-auto custom-scrollbar">
+          {allTypes.map((type) => {
+            const isHidden = hiddenTypes.has(type);
+            const color = INCIDENT_COLORS[type] || '#6b7280';
+            return (
+              <label
+                key={type}
+                className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted/50 cursor-pointer transition-colors"
+              >
+                <Checkbox
+                  checked={!isHidden}
+                  onCheckedChange={() => onToggleType(type)}
+                  className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                />
+                <span
+                  className="size-2.5 rounded-full shrink-0"
+                  style={{ backgroundColor: color }}
+                />
+                <span className={`text-sm ${isHidden ? 'text-muted-foreground line-through' : ''}`}>
+                  {type}
+                </span>
+              </label>
+            );
+          })}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 export function AdminDashboard() {
+  const [hiddenTypes, setHiddenTypes] = useState<Set<string>>(new Set());
+
+  const toggleType = (type: string) => {
+    setHiddenTypes((prev) => {
+      const next = new Set(prev);
+      if (next.has(type)) {
+        next.delete(type);
+      } else {
+        next.add(type);
+      }
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    setHiddenTypes((prev) => {
+      if (prev.size === INCIDENT_TYPES.length) {
+        return new Set(); // show all
+      }
+      return new Set(INCIDENT_TYPES); // hide all
+    });
+  };
+
+  // Filter chart data based on hidden types
+  const filteredChartData = useMemo(
+    () => reportsByType.filter((entry) => !hiddenTypes.has(entry.type)),
+    [hiddenTypes]
+  );
+
   const latestCriticalReport = mockReports
     .filter((r) => r.status === 'pending' || r.priority === 'critical')
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
@@ -216,14 +343,22 @@ export function AdminDashboard() {
         {/* Incident Heat Map */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <div className="flex items-center gap-2">
-              <Map className="size-5 text-blue-500" />
-              <CardTitle>Incident Heat Map</CardTitle>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Map className="size-5 text-blue-500" />
+                <CardTitle>Incident Heat Map</CardTitle>
+              </div>
+              <IncidentTypeFilter
+                hiddenTypes={hiddenTypes}
+                onToggleType={toggleType}
+                onToggleAll={toggleAll}
+                allTypes={INCIDENT_TYPES}
+              />
             </div>
             <CardDescription>Geographic distribution of incidents</CardDescription>
           </CardHeader>
           <CardContent>
-            <Heatmap height="300px" />
+            <Heatmap height="300px" hiddenTypes={hiddenTypes} />
           </CardContent>
         </Card>
 
@@ -263,40 +398,65 @@ export function AdminDashboard() {
         {/* Reports Type Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>Incident Types — Last 7 Days</CardTitle>
-            <CardDescription>Breakdown of emergency reports by type</CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Incident Types — Last 7 Days</CardTitle>
+                <CardDescription>Breakdown of emergency reports by type</CardDescription>
+              </div>
+              <IncidentTypeFilter
+                hiddenTypes={hiddenTypes}
+                onToggleType={toggleType}
+                onToggleAll={toggleAll}
+                allTypes={INCIDENT_TYPES}
+              />
+            </div>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
-              <BarChart data={reportsByType} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis
-                  dataKey="type"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  fontSize={12}
-                />
-                <YAxis
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  fontSize={12}
-                  allowDecimals={false}
-                />
-                <ChartTooltip
-                  content={<ChartTooltipContent />}
-                />
-                <Bar
-                  dataKey="count"
-                  radius={[4, 4, 0, 0]}
+            {filteredChartData.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-[300px] text-muted-foreground">
+                <EyeOff className="size-10 mb-2 opacity-40" />
+                <p className="text-sm">All incident types are hidden</p>
+                <Button
+                  variant="link"
+                  size="sm"
+                  className="text-blue-500 mt-1"
+                  onClick={() => setHiddenTypes(new Set())}
                 >
-                  {reportsByType.map((entry, index) => (
-                    <rect key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ChartContainer>
+                  Show all types
+                </Button>
+              </div>
+            ) : (
+              <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
+                <BarChart data={filteredChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis
+                    dataKey="type"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    fontSize={12}
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    fontSize={12}
+                    allowDecimals={false}
+                  />
+                  <ChartTooltip
+                    content={<ChartTooltipContent />}
+                  />
+                  <Bar
+                    dataKey="count"
+                    radius={[4, 4, 0, 0]}
+                  >
+                    {filteredChartData.map((entry, index) => (
+                      <rect key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ChartContainer>
+            )}
           </CardContent>
         </Card>
 

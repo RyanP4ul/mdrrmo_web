@@ -1,12 +1,15 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import {
   AlertTriangle,
   Clock,
   MapPin,
   Radio,
   ShieldCheck,
+  Filter,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import {
   Card,
@@ -18,10 +21,17 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { mockReports, mockResponseTeams } from '@/lib/mock-data';
 import { useAppStore } from '@/lib/store';
 import type { PriorityLevel, ReportStatus } from '@/lib/types';
-import { Heatmap } from '@/components/maps/heatmap';
+import { Heatmap, INCIDENT_COLORS, INCIDENT_TYPES } from '@/components/maps/heatmap';
 
 const priorityStyles: Record<PriorityLevel, string> = {
   low: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
@@ -51,7 +61,7 @@ function getTimeAgo(timestamp: string): string {
   return `${diffDays}d ago`;
 }
 
-const INCIDENT_COLORS: Record<string, string> = {
+const REPORT_TYPE_COLORS: Record<string, string> = {
   Flood: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
   Fire: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
   'Vehicular Accident': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
@@ -65,7 +75,7 @@ const INCIDENT_COLORS: Record<string, string> = {
 };
 
 function getTypeBadge(type: string) {
-  const style = INCIDENT_COLORS[type] || 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
+  const style = REPORT_TYPE_COLORS[type] || 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
   return (
     <Badge className={`${style} border-0 text-xs`}>
       {type}
@@ -73,23 +83,158 @@ function getTypeBadge(type: string) {
   );
 }
 
+// Incident Type Filter Component
+function IncidentTypeFilter({
+  hiddenTypes,
+  onToggleType,
+  onToggleAll,
+  allTypes,
+}: {
+  hiddenTypes: Set<string>;
+  onToggleType: (type: string) => void;
+  onToggleAll: () => void;
+  allTypes: string[];
+}) {
+  const allHidden = hiddenTypes.size === allTypes.length;
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
+          <Filter className="size-3.5" />
+          Filter Types
+          {hiddenTypes.size > 0 && (
+            <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-[10px]">
+              {hiddenTypes.size} hidden
+            </Badge>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-64 p-0" align="end">
+        <div className="p-3">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-semibold">Incident Types</p>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 text-xs gap-1 px-2"
+              onClick={onToggleAll}
+            >
+              {allHidden ? (
+                <>
+                  <Eye className="size-3" />
+                  Show All
+                </>
+              ) : (
+                <>
+                  <EyeOff className="size-3" />
+                  Hide All
+                </>
+              )}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Toggle visibility of each type
+          </p>
+        </div>
+        <Separator />
+        <div className="p-2 max-h-64 overflow-y-auto custom-scrollbar">
+          {allTypes.map((type) => {
+            const isHidden = hiddenTypes.has(type);
+            const color = INCIDENT_COLORS[type] || '#6b7280';
+            return (
+              <label
+                key={type}
+                className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted/50 cursor-pointer transition-colors"
+              >
+                <Checkbox
+                  checked={!isHidden}
+                  onCheckedChange={() => onToggleType(type)}
+                  className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                />
+                <span
+                  className="size-2.5 rounded-full shrink-0"
+                  style={{ backgroundColor: color }}
+                />
+                <span className={`text-sm ${isHidden ? 'text-muted-foreground line-through' : ''}`}>
+                  {type}
+                </span>
+              </label>
+            );
+          })}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 export function DispatcherDashboard() {
   const { setSelectedReportId, navigateTo } = useAppStore();
+  const [hiddenTypes, setHiddenTypes] = useState<Set<string>>(new Set());
+
+  const toggleType = (type: string) => {
+    setHiddenTypes((prev) => {
+      const next = new Set(prev);
+      if (next.has(type)) {
+        next.delete(type);
+      } else {
+        next.add(type);
+      }
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    setHiddenTypes((prev) => {
+      if (prev.size === INCIDENT_TYPES.length) {
+        return new Set(); // show all
+      }
+      return new Set(INCIDENT_TYPES); // hide all
+    });
+  };
+
+  // Mapping from heatmap incident types to report types
+  const heatmapToReportMap: Record<string, string[]> = {
+    Flood: ['Flood'],
+    Fire: ['Fire'],
+    Accident: ['Vehicular Accident'],
+    Medical: ['Medical Emergency'],
+    Typhoon: ['Typhoon'],
+    Landslide: ['Landslide'],
+    'Power Outage': ['Power Outage'],
+    Drowning: ['Drowning'],
+    Earthquake: ['Earthquake'],
+    Collapse: ['Structural Collapse'],
+  };
 
   const pendingReports = useMemo(
     () =>
       mockReports
-        .filter((r) => r.status === 'pending')
+        .filter((r) => {
+          if (r.status !== 'pending') return false;
+          for (const [heatmapType, reportTypes] of Object.entries(heatmapToReportMap)) {
+            if (reportTypes.includes(r.type) && hiddenTypes.has(heatmapType)) return false;
+          }
+          if (hiddenTypes.has(r.type)) return false;
+          return true;
+        })
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()),
-    []
+    [hiddenTypes, heatmapToReportMap]
   );
 
   const activeReports = useMemo(
     () =>
       mockReports
-        .filter((r) => r.status === 'dispatched' || r.status === 'acknowledged')
+        .filter((r) => {
+          if (r.status !== 'dispatched' && r.status !== 'acknowledged') return false;
+          for (const [heatmapType, reportTypes] of Object.entries(heatmapToReportMap)) {
+            if (reportTypes.includes(r.type) && hiddenTypes.has(heatmapType)) return false;
+          }
+          if (hiddenTypes.has(r.type)) return false;
+          return true;
+        })
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()),
-    []
+    [hiddenTypes, heatmapToReportMap]
   );
 
   const handleReportClick = (reportId: string) => {
@@ -106,14 +251,22 @@ export function DispatcherDashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="flex size-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
-          <Radio className="size-5 text-blue-600 dark:text-blue-400" />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex size-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
+            <Radio className="size-5 text-blue-600 dark:text-blue-400" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold">Dispatcher Dashboard</h2>
+            <p className="text-sm text-muted-foreground">Live incident monitoring & dispatch</p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-xl font-bold">Dispatcher Dashboard</h2>
-          <p className="text-sm text-muted-foreground">Live incident monitoring & dispatch</p>
-        </div>
+        <IncidentTypeFilter
+          hiddenTypes={hiddenTypes}
+          onToggleType={toggleType}
+          onToggleAll={toggleAll}
+          allTypes={INCIDENT_TYPES}
+        />
       </div>
 
       {/* Quick Stats */}
@@ -168,7 +321,7 @@ export function DispatcherDashboard() {
           <CardDescription>Geographic distribution of active incidents in Dagupan City</CardDescription>
         </CardHeader>
         <CardContent>
-          <Heatmap height="500px" />
+          <Heatmap height="500px" hiddenTypes={hiddenTypes} />
         </CardContent>
       </Card>
 
@@ -190,8 +343,25 @@ export function DispatcherDashboard() {
             <ScrollArea className="h-[350px]">
               {pendingReports.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <ShieldCheck className="size-10 text-muted-foreground/40" />
-                  <p className="mt-2 text-sm text-muted-foreground">No pending reports</p>
+                  {hiddenTypes.size > 0 ? (
+                    <>
+                      <EyeOff className="size-10 text-muted-foreground/40" />
+                      <p className="mt-2 text-sm text-muted-foreground">All types hidden or no pending reports</p>
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="text-blue-500 mt-1"
+                        onClick={() => setHiddenTypes(new Set())}
+                      >
+                        Show all types
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <ShieldCheck className="size-10 text-muted-foreground/40" />
+                      <p className="mt-2 text-sm text-muted-foreground">No pending reports</p>
+                    </>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-2 px-4 pb-4">
@@ -247,8 +417,25 @@ export function DispatcherDashboard() {
             <ScrollArea className="h-[350px]">
               {activeReports.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <Radio className="size-10 text-muted-foreground/40" />
-                  <p className="mt-2 text-sm text-muted-foreground">No active reports</p>
+                  {hiddenTypes.size > 0 ? (
+                    <>
+                      <EyeOff className="size-10 text-muted-foreground/40" />
+                      <p className="mt-2 text-sm text-muted-foreground">All types hidden or no active reports</p>
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="text-blue-500 mt-1"
+                        onClick={() => setHiddenTypes(new Set())}
+                      >
+                        Show all types
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Radio className="size-10 text-muted-foreground/40" />
+                      <p className="mt-2 text-sm text-muted-foreground">No active reports</p>
+                    </>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-2 px-4 pb-4">

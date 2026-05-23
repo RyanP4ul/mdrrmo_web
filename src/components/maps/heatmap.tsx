@@ -4,7 +4,7 @@ import { useSyncExternalStore } from 'react';
 import { mockHeatmapData } from '@/lib/mock-data';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const INCIDENT_COLORS: Record<string, string> = {
+export const INCIDENT_COLORS: Record<string, string> = {
   Flood: '#3b82f6',
   Fire: '#ef4444',
   Medical: '#22c55e',
@@ -17,15 +17,22 @@ const INCIDENT_COLORS: Record<string, string> = {
   Collapse: '#92400e',
 };
 
+export const INCIDENT_TYPES = Object.keys(INCIDENT_COLORS);
+
 interface HeatmapProps {
   height?: string;
+  hiddenTypes?: Set<string>;
 }
 
-function HeatmapInner({ height }: { height: string }) {
+function HeatmapInner({ height, hiddenTypes }: { height: string; hiddenTypes?: Set<string> }) {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const L = require('leaflet');
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { MapContainer, TileLayer, Circle, Popup } = require('react-leaflet');
+
+  const visiblePoints = mockHeatmapData.filter(
+    (point: { type: string }) => !hiddenTypes?.has(point.type)
+  );
 
   return (
     <div style={{ height, width: '100%' }} className="relative rounded-lg overflow-hidden">
@@ -36,10 +43,10 @@ function HeatmapInner({ height }: { height: string }) {
         scrollWheelZoom={true}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          attribution=''
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {mockHeatmapData.map((point: { lat: number; lng: number; intensity: number; type: string }, index: number) => {
+        {visiblePoints.map((point: { lat: number; lng: number; intensity: number; type: string }, index: number) => {
           const radius = 10 + point.intensity * 20;
           const color = INCIDENT_COLORS[point.type] || '#6b7280';
           return (
@@ -70,7 +77,9 @@ function HeatmapInner({ height }: { height: string }) {
       <div className="absolute bottom-3 left-3 z-[1000] rounded-lg bg-white/95 dark:bg-gray-900/95 p-3 shadow-lg backdrop-blur-sm">
         <p className="text-xs font-semibold mb-2 text-gray-700 dark:text-gray-300">Incident Types</p>
         <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-          {Object.entries(INCIDENT_COLORS).map(([type, color]) => (
+          {Object.entries(INCIDENT_COLORS)
+            .filter(([type]) => !hiddenTypes?.has(type))
+            .map(([type, color]) => (
             <div key={type} className="flex items-center gap-1.5">
               <span
                 className="inline-block size-2.5 rounded-full shrink-0"
@@ -87,7 +96,7 @@ function HeatmapInner({ height }: { height: string }) {
 
 const emptySubscribe = () => () => {};
 
-export function Heatmap({ height = '400px' }: HeatmapProps) {
+export function Heatmap({ height = '400px', hiddenTypes }: HeatmapProps) {
   const mounted = useSyncExternalStore(
     emptySubscribe,
     () => true,
@@ -108,7 +117,7 @@ export function Heatmap({ height = '400px' }: HeatmapProps) {
     );
   }
 
-  return <HeatmapInner height={height} />;
+  return <HeatmapInner height={height} hiddenTypes={hiddenTypes} />;
 }
 
 export default Heatmap;
