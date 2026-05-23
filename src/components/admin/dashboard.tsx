@@ -211,10 +211,57 @@ export function AdminDashboard() {
         </Card>
       </div>
 
-      {/* Charts and Activity Row */}
+      {/* Heat Map and Activity Row */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Reports Type Chart */}
+        {/* Incident Heat Map */}
         <Card className="lg:col-span-2">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Map className="size-5 text-orange-500" />
+              <CardTitle>Incident Heat Map</CardTitle>
+            </div>
+            <CardDescription>Geographic distribution of incidents</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Heatmap height="300px" />
+          </CardContent>
+        </Card>
+
+        {/* Recent Activity */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+            <CardDescription>Latest system events</CardDescription>
+          </CardHeader>
+          <CardContent className="p-0">
+            <ScrollArea className="h-[320px]">
+              <div className="space-y-1 px-6">
+                {recentActivity.map((activity) => (
+                  <div
+                    key={activity.id}
+                    className="flex items-start gap-3 rounded-lg p-3 transition-colors hover:bg-muted/50"
+                  >
+                    <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-muted">
+                      {activityIcons[activity.type] || <Activity className="size-4 text-muted-foreground" />}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium leading-tight">{activity.action}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {activity.user} &middot; {activity.time}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Bottom Row: Incident Types Chart & Latest Report */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {/* Reports Type Chart */}
+        <Card>
           <CardHeader>
             <CardTitle>Incident Types — Last 7 Days</CardTitle>
             <CardDescription>Breakdown of emergency reports by type</CardDescription>
@@ -250,53 +297,6 @@ export function AdminDashboard() {
                 </Bar>
               </BarChart>
             </ChartContainer>
-          </CardContent>
-        </Card>
-
-        {/* Recent Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Latest system events</CardDescription>
-          </CardHeader>
-          <CardContent className="p-0">
-            <ScrollArea className="h-[320px]">
-              <div className="space-y-1 px-6">
-                {recentActivity.map((activity) => (
-                  <div
-                    key={activity.id}
-                    className="flex items-start gap-3 rounded-lg p-3 transition-colors hover:bg-muted/50"
-                  >
-                    <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-muted">
-                      {activityIcons[activity.type] || <Activity className="size-4 text-muted-foreground" />}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium leading-tight">{activity.action}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {activity.user} &middot; {activity.time}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Bottom Row: Heat Map & Latest Report */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Incident Heat Map Placeholder */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Map className="size-5 text-orange-500" />
-              <CardTitle>Incident Heat Map</CardTitle>
-            </div>
-            <CardDescription>Geographic distribution of incidents</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Heatmap height="300px" />
           </CardContent>
         </Card>
 
