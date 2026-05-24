@@ -338,63 +338,30 @@ export function AdminDashboard() {
         </Card>
       </div>
 
-      {/* Heat Map and Activity Row */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Incident Heat Map */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Map className="size-5 text-blue-500" />
-                <CardTitle>Incident Heat Map</CardTitle>
-              </div>
-              <IncidentTypeFilter
-                hiddenTypes={hiddenTypes}
-                onToggleType={toggleType}
-                onToggleAll={toggleAll}
-                allTypes={INCIDENT_TYPES}
-              />
+      {/* Incident Heat Map - Full Width */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Map className="size-5 text-blue-500" />
+              <CardTitle>Incident Heat Map</CardTitle>
             </div>
-            <CardDescription>Geographic distribution of incidents</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Heatmap height="300px" hiddenTypes={hiddenTypes} />
-          </CardContent>
-        </Card>
+            <IncidentTypeFilter
+              hiddenTypes={hiddenTypes}
+              onToggleType={toggleType}
+              onToggleAll={toggleAll}
+              allTypes={INCIDENT_TYPES}
+            />
+          </div>
+          <CardDescription>Geographic distribution of incidents</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Heatmap height="500px" hiddenTypes={hiddenTypes} />
+        </CardContent>
+      </Card>
 
-        {/* Recent Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Latest system events</CardDescription>
-          </CardHeader>
-          <CardContent className="p-0">
-            <ScrollArea className="h-[320px]">
-              <div className="space-y-1 px-6">
-                {recentActivity.map((activity) => (
-                  <div
-                    key={activity.id}
-                    className="flex items-start gap-3 rounded-lg p-3 transition-colors hover:bg-muted/50"
-                  >
-                    <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-muted">
-                      {activityIcons[activity.type] || <Activity className="size-4 text-muted-foreground" />}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium leading-tight">{activity.action}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {activity.user} &middot; {activity.time}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Bottom Row: Incident Types Chart & Latest Report */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      {/* Bottom Row: Incident Types Chart, Latest Report & Recent Activity */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Reports Type Chart */}
         <Card>
           <CardHeader>
@@ -505,6 +472,36 @@ export function AdminDashboard() {
             </CardContent>
           </Card>
         )}
+
+        {/* Recent Activity */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+            <CardDescription>Latest system events</CardDescription>
+          </CardHeader>
+          <CardContent className="p-0">
+            <ScrollArea className="h-[400px]">
+              <div className="space-y-1 px-6">
+                {recentActivity.map((activity) => (
+                  <div
+                    key={activity.id}
+                    className="flex items-start gap-3 rounded-lg p-3 transition-colors hover:bg-muted/50"
+                  >
+                    <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-muted">
+                      {activityIcons[activity.type] || <Activity className="size-4 text-muted-foreground" />}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium leading-tight">{activity.action}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {activity.user} &middot; {activity.time}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
