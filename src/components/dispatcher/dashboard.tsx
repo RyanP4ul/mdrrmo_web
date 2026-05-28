@@ -629,104 +629,111 @@ export function DispatcherDashboard() {
         </Card>
       </div>
 
-      {/* Vehicle Tracker Map - Full Width */}
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Truck className="size-5 text-blue-500" />
-              <CardTitle>Vehicle Tracker</CardTitle>
-            </div>
-            {selectedVehicle && (
-              <Badge
-                className="border-0 text-xs"
-                style={{
-                  backgroundColor: VEHICLE_STATUS_COLORS[selectedVehicle.status] + '22',
-                  color: VEHICLE_STATUS_COLORS[selectedVehicle.status],
-                }}
-              >
-                {VEHICLE_TYPE_ICONS[selectedVehicle.vehicleType]} {selectedVehicle.id} — {selectedVehicle.teamName}
-              </Badge>
-            )}
-          </div>
-          <CardDescription>Real-time location and status of response vehicles in Dagupan City</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <VehicleTracker
-            height="500px"
-            hiddenStatuses={hiddenStatuses}
-            selectedVehicleId={selectedVehicleId}
-            onSelectVehicle={setSelectedVehicleId}
-          />
-        </CardContent>
-      </Card>
-
-      {/* Reports Section: Incoming, Active, Resolved */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Incoming Pending Reports */}
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="size-5 text-red-500" />
-              <CardTitle>Incoming Reports</CardTitle>
-              <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border-0 ml-2">
-                {pendingReports.length}
-              </Badge>
-            </div>
-            <CardDescription>Pending reports awaiting dispatch</CardDescription>
-          </CardHeader>
-          <CardContent className="p-0">
-            <ScrollArea className="h-[350px]">
-              {pendingReports.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <ShieldCheck className="size-10 text-muted-foreground/40" />
-                  <p className="mt-2 text-sm text-muted-foreground">No pending reports</p>
-                </div>
-              ) : (
-                <div className="space-y-2 px-4 pb-4">
-                  {pendingReports.map((report) => (
-                    <button
-                      key={report.id}
-                      onClick={() => handleReportClick(report.id)}
-                      className="w-full text-left rounded-lg border border-border/50 bg-card p-3 transition-all hover:bg-muted/50 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-sm"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            {getTypeBadge(report.type)}
-                            <Badge className={`${priorityStyles[report.priority]} border-0 text-xs capitalize`}>
-                              {report.priority}
+      {/* Incoming Reports (md-4) + Vehicle Tracker (md-8) */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
+        {/* Incoming Pending Reports - Left Side */}
+        <div className="md:col-span-4">
+          <Card className="h-full flex flex-col">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="size-5 text-red-500" />
+                <CardTitle>Incoming Reports</CardTitle>
+                <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border-0 ml-2">
+                  {pendingReports.length}
+                </Badge>
+              </div>
+              <CardDescription>Pending reports awaiting dispatch</CardDescription>
+            </CardHeader>
+            <CardContent className="p-0 flex-1 min-h-0">
+              <ScrollArea className="h-[500px]">
+                {pendingReports.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <ShieldCheck className="size-10 text-muted-foreground/40" />
+                    <p className="mt-2 text-sm text-muted-foreground">No pending reports</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2 px-4 pb-4">
+                    {pendingReports.map((report) => (
+                      <button
+                        key={report.id}
+                        onClick={() => handleReportClick(report.id)}
+                        className="w-full text-left rounded-lg border border-border/50 bg-card p-3 transition-all hover:bg-muted/50 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-sm"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              {getTypeBadge(report.type)}
+                              <Badge className={`${priorityStyles[report.priority]} border-0 text-xs capitalize`}>
+                                {report.priority}
+                              </Badge>
+                            </div>
+                            <p className="text-sm font-medium truncate">{report.location}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                              {report.description}
+                            </p>
+                            <div className="flex items-center gap-1.5 mt-1.5 text-[10px] text-muted-foreground">
+                              <User className="size-2.5" />
+                              <span>{report.reportedBy.name}</span>
+                              <span>•</span>
+                              <Phone className="size-2.5" />
+                              <span>{report.reportedBy.contact}</span>
+                            </div>
+                          </div>
+                          <div className="flex flex-col items-end gap-1 shrink-0">
+                            <Badge className={`${statusStyles[report.status]} border-0 text-xs capitalize`}>
+                              {report.status}
                             </Badge>
-                          </div>
-                          <p className="text-sm font-medium truncate">{report.location}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                            {report.description}
-                          </p>
-                          <div className="flex items-center gap-1.5 mt-1.5 text-[10px] text-muted-foreground">
-                            <User className="size-2.5" />
-                            <span>{report.reportedBy.name}</span>
-                            <span>•</span>
-                            <Phone className="size-2.5" />
-                            <span>{report.reportedBy.contact}</span>
+                            <span className="text-[10px] text-muted-foreground">
+                              {getTimeAgo(report.timestamp)}
+                            </span>
                           </div>
                         </div>
-                        <div className="flex flex-col items-end gap-1 shrink-0">
-                          <Badge className={`${statusStyles[report.status]} border-0 text-xs capitalize`}>
-                            {report.status}
-                          </Badge>
-                          <span className="text-[10px] text-muted-foreground">
-                            {getTimeAgo(report.timestamp)}
-                          </span>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </ScrollArea>
-          </CardContent>
-        </Card>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        </div>
 
+        {/* Vehicle Tracker Map - Right Side */}
+        <div className="md:col-span-8">
+          <Card className="h-full flex flex-col">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Truck className="size-5 text-blue-500" />
+                  <CardTitle>Vehicle Tracker</CardTitle>
+                </div>
+                {selectedVehicle && (
+                  <Badge
+                    className="border-0 text-xs"
+                    style={{
+                      backgroundColor: VEHICLE_STATUS_COLORS[selectedVehicle.status] + '22',
+                      color: VEHICLE_STATUS_COLORS[selectedVehicle.status],
+                    }}
+                  >
+                    {VEHICLE_TYPE_ICONS[selectedVehicle.vehicleType]} {selectedVehicle.id} — {selectedVehicle.teamName}
+                  </Badge>
+                )}
+              </div>
+              <CardDescription>Real-time location and status of response vehicles in Dagupan City</CardDescription>
+            </CardHeader>
+            <CardContent className="flex-1 min-h-0 pt-0">
+              <VehicleTracker
+                height="500px"
+                hiddenStatuses={hiddenStatuses}
+                selectedVehicleId={selectedVehicleId}
+                onSelectVehicle={setSelectedVehicleId}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Reports Section: Active, Resolved */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Active Reports Monitor */}
         <Card>
           <CardHeader className="pb-3">
