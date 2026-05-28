@@ -60,7 +60,6 @@ const ITEMS_PER_PAGE = 5;
 interface MemberForm {
   id: string;
   name: string;
-  role: string;
   availability: Availability;
 }
 
@@ -72,7 +71,7 @@ interface TeamForm {
 
 const emptyTeamForm: TeamForm = {
   teamName: '',
-  members: [{ id: `M-${Date.now()}`, name: '', role: '', availability: 'available' }],
+  members: [{ id: `M-${Date.now()}`, name: '', availability: 'available' }],
   availability: 'available',
 };
 
@@ -121,7 +120,7 @@ export function Responders() {
   const openAddDialog = () => {
     setTeamForm({
       ...emptyTeamForm,
-      members: [{ id: `M-${Date.now()}`, name: '', role: '', availability: 'available' }],
+      members: [{ id: `M-${Date.now()}`, name: '', availability: 'available' }],
     });
     setShowAddDialog(true);
   };
@@ -144,7 +143,7 @@ export function Responders() {
         ...m,
         id: m.id || `M${Date.now()}-${i}`,
         name: m.name.trim(),
-        role: m.role.trim() || 'Member',
+        role: 'Member',
       })),
       availability: teamForm.availability,
     };
@@ -190,7 +189,7 @@ export function Responders() {
                 ...m,
                 id: m.id || `M${Date.now()}-${i}`,
                 name: m.name.trim(),
-                role: m.role.trim() || 'Member',
+                role: 'Member',
               })),
               availability: teamForm.availability,
             }
@@ -228,7 +227,7 @@ export function Responders() {
       ...prev,
       members: [
         ...prev.members,
-        { id: `M-${Date.now()}`, name: '', role: '', availability: 'available' },
+        { id: `M-${Date.now()}`, name: '', availability: 'available' },
       ],
     }));
   };
@@ -313,24 +312,18 @@ export function Responders() {
                       <X className="size-3" />
                     </Button>
                   </div>
-                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                     <Input
                       placeholder="Name *"
                       value={member.name}
                       onChange={(e) => updateMember(member.id, 'name', e.target.value)}
-                      className="text-sm"
-                    />
-                    <Input
-                      placeholder="Role"
-                      value={member.role}
-                      onChange={(e) => updateMember(member.id, 'role', e.target.value)}
-                      className="text-sm"
+                      className="text-sm flex-1"
                     />
                     <Select
                       value={member.availability}
                       onValueChange={(v) => updateMember(member.id, 'availability', v)}
                     >
-                      <SelectTrigger className="text-sm">
+                      <SelectTrigger className="text-sm w-full sm:w-[140px]">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -495,10 +488,7 @@ export function Responders() {
                           key={member.id}
                           className="flex items-center justify-between rounded-md bg-muted/50 px-3 py-2"
                         >
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium truncate">{member.name}</p>
-                            <p className="text-xs text-muted-foreground">{member.role}</p>
-                          </div>
+                          <p className="text-sm font-medium truncate">{member.name}</p>
                           <Badge
                             className={`border-0 text-[10px] shrink-0 ml-2 ${
                               member.availability === 'available'

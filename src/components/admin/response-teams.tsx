@@ -177,7 +177,7 @@ export function ResponseTeams() {
 
       {/* Table */}
       <Card>
-        <CardContent className="p-0">
+        <CardContent className="p-0 overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -206,7 +206,7 @@ export function ResponseTeams() {
                     <TableCell>
                       <span className="text-sm">
                         {team.members
-                          .map((m) => `${m.name} (${m.role})`)
+                          .map((m) => m.name)
                           .join(', ')}
                       </span>
                     </TableCell>
@@ -310,10 +310,7 @@ export function ResponseTeams() {
                       key={member.id}
                       className="flex items-center justify-between rounded-lg border p-3"
                     >
-                      <div>
-                        <p className="text-sm font-medium">{member.name}</p>
-                        <p className="text-xs text-muted-foreground">{member.role}</p>
-                      </div>
+                      <p className="text-sm font-medium">{member.name}</p>
                       {getMemberAvailabilityBadge(member.availability)}
                     </div>
                   ))}

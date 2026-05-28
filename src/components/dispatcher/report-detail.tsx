@@ -372,9 +372,7 @@ export function ReportDetail() {
                           {team.members.map((member) => (
                             <div key={member.id} className="flex items-center justify-between text-xs">
                               <span>{member.name}</span>
-                              <div className="flex items-center gap-2">
-                                <span className="text-muted-foreground">{member.role}</span>
-                                <Badge
+                              <Badge
                                   className={`border-0 text-[10px] ${
                                     member.availability === 'available'
                                       ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
@@ -383,7 +381,6 @@ export function ReportDetail() {
                                 >
                                   {member.availability}
                                 </Badge>
-                              </div>
                             </div>
                           ))}
                         </div>
