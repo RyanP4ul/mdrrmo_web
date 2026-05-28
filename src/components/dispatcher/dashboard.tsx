@@ -13,6 +13,14 @@ import {
   EyeOff,
   Navigation,
   ChevronRight,
+  Siren,
+  Flame,
+  Heart,
+  Car,
+  Phone,
+  User,
+  MapPinned,
+  Send,
 } from 'lucide-react';
 import {
   Card,
@@ -26,6 +34,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Popover,
   PopoverContent,
@@ -42,6 +53,40 @@ import {
   VEHICLE_TYPE_ICONS,
   VEHICLE_STATUSES,
 } from '@/components/maps/vehicle-tracker';
+import { toast } from 'sonner';
+
+// ─── Accident Types ──────────────────────────────────────────────
+const ACCIDENT_TYPES = [
+  { id: 'medical', label: 'Medical', icon: Heart, color: '#22c55e', bgColor: 'bg-green-100 dark:bg-green-900/30', textColor: 'text-green-700 dark:text-green-400', borderColor: 'border-green-300 dark:border-green-700', activeBg: 'bg-green-500' },
+  { id: 'fire', label: 'Fire', icon: Flame, color: '#ef4444', bgColor: 'bg-red-100 dark:bg-red-900/30', textColor: 'text-red-700 dark:text-red-400', borderColor: 'border-red-300 dark:border-red-700', activeBg: 'bg-red-500' },
+  { id: 'vehicular', label: 'Vehicular', icon: Car, color: '#f59e0b', bgColor: 'bg-amber-100 dark:bg-amber-900/30', textColor: 'text-amber-700 dark:text-amber-400', borderColor: 'border-amber-300 dark:border-amber-700', activeBg: 'bg-amber-500' },
+] as const;
+
+// ─── Urgency Levels ──────────────────────────────────────────────
+const URGENCY_LEVELS = [
+  {
+    id: 'urgent',
+    label: 'Urgent',
+    sublabel: 'Immediate response needed',
+    color: '#ef4444',
+    bgClass: 'bg-red-500',
+    ringClass: 'ring-red-300 dark:ring-red-700',
+    borderActive: 'border-red-400 dark:border-red-600',
+    bgActive: 'bg-red-50 dark:bg-red-950/40',
+    textClass: 'text-red-700 dark:text-red-400',
+  },
+  {
+    id: 'less-urgent',
+    label: 'Less Urgent',
+    sublabel: 'Important but not critical',
+    color: '#eab308',
+    bgClass: 'bg-yellow-500',
+    ringClass: 'ring-yellow-300 dark:ring-yellow-700',
+    borderActive: 'border-yellow-400 dark:border-yellow-600',
+    bgActive: 'bg-yellow-50 dark:bg-yellow-950/40',
+    textClass: 'text-yellow-700 dark:text-yellow-400',
+  },
+] as const;
 
 const priorityStyles: Record<PriorityLevel, string> = {
   low: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
@@ -93,7 +138,7 @@ function getTypeBadge(type: string) {
   );
 }
 
-// Vehicle Status Filter Component
+// ─── Vehicle Status Filter Component ─────────────────────────────
 function VehicleStatusFilter({
   hiddenStatuses,
   onToggleStatus,
@@ -182,6 +227,248 @@ function VehicleStatusFilter({
   );
 }
 
+// ─── Emergency Report Form Component ─────────────────────────────
+function EmergencyReportForm() {
+  const [reporterName, setReporterName] = useState('');
+  const [location, setLocation] = useState('');
+  const [contactNumber, setContactNumber] = useState('');
+  const [accidentType, setAccidentType] = useState<string>('');
+  const [urgency, setUrgency] = useState<string>('');
+  const [description, setDescription] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isFormValid = reporterName.trim() && location.trim() && contactNumber.trim() && accidentType && urgency;
+
+  const handleSubmit = () => {
+    if (!isFormValid) return;
+    setIsSubmitting(true);
+
+    // Simulate submission
+    setTimeout(() => {
+      const typeLabel = ACCIDENT_TYPES.find((t) => t.id === accidentType)?.label || accidentType;
+      const urgencyLabel = URGENCY_LEVELS.find((u) => u.id === urgency)?.label || urgency;
+
+      toast.success('Emergency Report Submitted', {
+        description: `${typeLabel} incident at ${location} — ${urgencyLabel} priority`,
+      });
+
+      // Reset form
+      setReporterName('');
+      setLocation('');
+      setContactNumber('');
+      setAccidentType('');
+      setUrgency('');
+      setDescription('');
+      setIsSubmitting(false);
+    }, 800);
+  };
+
+  const handleReset = () => {
+    setReporterName('');
+    setLocation('');
+    setContactNumber('');
+    setAccidentType('');
+    setUrgency('');
+    setDescription('');
+  };
+
+  return (
+    <Card className="h-full flex flex-col">
+      <CardHeader className="pb-3">
+        <div className="flex items-center gap-2">
+          <div className="flex size-9 items-center justify-center rounded-lg bg-red-100 dark:bg-red-900/30">
+            <Siren className="size-5 text-red-600 dark:text-red-400" />
+          </div>
+          <div>
+            <CardTitle className="text-lg">Emergency Report</CardTitle>
+            <CardDescription>Report a new incident</CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="flex-1 flex flex-col gap-4 pt-0">
+        {/* Reporter Name */}
+        <div className="space-y-1.5">
+          <Label htmlFor="reporter-name" className="text-xs font-medium flex items-center gap-1.5">
+            <User className="size-3 text-muted-foreground" />
+            Reporter Name
+          </Label>
+          <Input
+            id="reporter-name"
+            placeholder="Full name"
+            value={reporterName}
+            onChange={(e) => setReporterName(e.target.value)}
+            className="h-9 text-sm"
+          />
+        </div>
+
+        {/* Accident Location */}
+        <div className="space-y-1.5">
+          <Label htmlFor="accident-location" className="text-xs font-medium flex items-center gap-1.5">
+            <MapPinned className="size-3 text-muted-foreground" />
+            Accident Location
+          </Label>
+          <Input
+            id="accident-location"
+            placeholder="Barangay, street, landmark..."
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            className="h-9 text-sm"
+          />
+        </div>
+
+        {/* Contact Number */}
+        <div className="space-y-1.5">
+          <Label htmlFor="contact-number" className="text-xs font-medium flex items-center gap-1.5">
+            <Phone className="size-3 text-muted-foreground" />
+            Contact Number
+          </Label>
+          <Input
+            id="contact-number"
+            placeholder="+63 9XX XXX XXXX"
+            value={contactNumber}
+            onChange={(e) => setContactNumber(e.target.value)}
+            className="h-9 text-sm"
+          />
+        </div>
+
+        <Separator />
+
+        {/* Accident Type Selection */}
+        <div className="space-y-2">
+          <Label className="text-xs font-medium">Type of Accident</Label>
+          <div className="grid grid-cols-3 gap-2">
+            {ACCIDENT_TYPES.map((type) => {
+              const Icon = type.icon;
+              const isSelected = accidentType === type.id;
+              return (
+                <button
+                  key={type.id}
+                  type="button"
+                  onClick={() => setAccidentType(type.id)}
+                  className={`relative flex flex-col items-center gap-1.5 rounded-lg border-2 p-3 transition-all duration-200 hover:shadow-sm ${
+                    isSelected
+                      ? `${type.borderColor} ${type.bgColor} shadow-sm`
+                      : 'border-border/60 bg-card hover:border-border'
+                  }`}
+                >
+                  {isSelected && (
+                    <div className={`absolute -top-1 -right-1 size-3 rounded-full ${type.activeBg} flex items-center justify-center`}>
+                      <svg className="size-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  )}
+                  <div className={`flex size-10 items-center justify-center rounded-lg ${
+                    isSelected ? type.bgColor : 'bg-muted/50'
+                  }`}>
+                    <Icon className={`size-5 ${isSelected ? type.textColor : 'text-muted-foreground'}`} />
+                  </div>
+                  <span className={`text-xs font-semibold ${isSelected ? type.textColor : 'text-muted-foreground'}`}>
+                    {type.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Urgency Level */}
+        <div className="space-y-2">
+          <Label className="text-xs font-medium">Urgency Level</Label>
+          <div className="space-y-2">
+            {URGENCY_LEVELS.map((level) => {
+              const isSelected = urgency === level.id;
+              return (
+                <button
+                  key={level.id}
+                  type="button"
+                  onClick={() => setUrgency(level.id)}
+                  className={`w-full flex items-center gap-3 rounded-lg border-2 p-3 transition-all duration-200 hover:shadow-sm ${
+                    isSelected
+                      ? `${level.borderActive} ${level.bgActive} shadow-sm`
+                      : 'border-border/60 bg-card hover:border-border'
+                  }`}
+                >
+                  {/* Radio indicator */}
+                  <div className={`flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
+                    isSelected
+                      ? `${level.bgClass} border-transparent`
+                      : 'border-muted-foreground/30 bg-transparent'
+                  }`}>
+                    {isSelected && (
+                      <div className="size-2 rounded-full bg-white" />
+                    )}
+                  </div>
+                  {/* Color indicator dot */}
+                  <div className={`size-3 rounded-full shrink-0 ${level.bgClass}`} />
+                  {/* Text */}
+                  <div className="flex-1 text-left">
+                    <div className="flex items-center gap-2">
+                      <span className={`text-sm font-semibold ${isSelected ? level.textClass : ''}`}>
+                        {level.label}
+                      </span>
+                      {level.id === 'urgent' && (
+                        <Badge className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-0 text-[10px] px-1.5 py-0">
+                          RED
+                        </Badge>
+                      )}
+                      {level.id === 'less-urgent' && (
+                        <Badge className="bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 border-0 text-[10px] px-1.5 py-0">
+                          YELLOW
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{level.sublabel}</p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Additional Details */}
+        <div className="space-y-1.5">
+          <Label htmlFor="report-details" className="text-xs font-medium">
+            Additional Details <span className="text-muted-foreground font-normal">(optional)</span>
+          </Label>
+          <Textarea
+            id="report-details"
+            placeholder="Describe the situation..."
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="min-h-[70px] text-sm resize-none"
+          />
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-2 mt-auto pt-2">
+          <Button
+            variant="outline"
+            className="flex-1 h-9"
+            onClick={handleReset}
+            disabled={isSubmitting}
+          >
+            Clear
+          </Button>
+          <Button
+            className="flex-1 h-9 bg-blue-600 hover:bg-blue-700 text-white gap-1.5"
+            disabled={!isFormValid || isSubmitting}
+            onClick={handleSubmit}
+          >
+            {isSubmitting ? (
+              <div className="size-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <Send className="size-3.5" />
+            )}
+            {isSubmitting ? 'Submitting...' : 'Submit Report'}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── Main Dispatcher Dashboard ───────────────────────────────────
 export function DispatcherDashboard() {
   const { setSelectedReportId, navigateTo } = useAppStore();
   const [hiddenStatuses, setHiddenStatuses] = useState<Set<VehicleStatus>>(new Set());
@@ -309,37 +596,47 @@ export function DispatcherDashboard() {
         </Card>
       </div>
 
-      {/* Vehicle Tracker Map - Full Width */}
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Truck className="size-5 text-blue-500" />
-              <CardTitle>Vehicle Tracker</CardTitle>
-            </div>
-            {selectedVehicle && (
-              <Badge
-                className="border-0 text-xs"
-                style={{
-                  backgroundColor: VEHICLE_STATUS_COLORS[selectedVehicle.status] + '22',
-                  color: VEHICLE_STATUS_COLORS[selectedVehicle.status],
-                }}
-              >
-                {VEHICLE_TYPE_ICONS[selectedVehicle.vehicleType]} {selectedVehicle.id} — {selectedVehicle.teamName}
-              </Badge>
-            )}
-          </div>
-          <CardDescription>Real-time location and status of response vehicles in Dagupan City</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <VehicleTracker
-            height="500px"
-            hiddenStatuses={hiddenStatuses}
-            selectedVehicleId={selectedVehicleId}
-            onSelectVehicle={setSelectedVehicleId}
-          />
-        </CardContent>
-      </Card>
+      {/* Main Row: Emergency Report (md-4) + Vehicle Tracker (md-8) */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
+        {/* Emergency Report Form - Left Side (4 columns) */}
+        <div className="md:col-span-4">
+          <EmergencyReportForm />
+        </div>
+
+        {/* Vehicle Tracker Map - Right Side (8 columns) */}
+        <div className="md:col-span-8">
+          <Card className="h-full flex flex-col">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Truck className="size-5 text-blue-500" />
+                  <CardTitle>Vehicle Tracker</CardTitle>
+                </div>
+                {selectedVehicle && (
+                  <Badge
+                    className="border-0 text-xs"
+                    style={{
+                      backgroundColor: VEHICLE_STATUS_COLORS[selectedVehicle.status] + '22',
+                      color: VEHICLE_STATUS_COLORS[selectedVehicle.status],
+                    }}
+                  >
+                    {VEHICLE_TYPE_ICONS[selectedVehicle.vehicleType]} {selectedVehicle.id} — {selectedVehicle.teamName}
+                  </Badge>
+                )}
+              </div>
+              <CardDescription>Real-time location and status of response vehicles</CardDescription>
+            </CardHeader>
+            <CardContent className="flex-1 min-h-0 pt-0">
+              <VehicleTracker
+                height="680px"
+                hiddenStatuses={hiddenStatuses}
+                selectedVehicleId={selectedVehicleId}
+                onSelectVehicle={setSelectedVehicleId}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
 
       {/* Bottom Row: Vehicle Fleet List & Incoming Reports */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -356,7 +653,7 @@ export function DispatcherDashboard() {
             <CardDescription>Active vehicle fleet overview</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <ScrollArea className="h-[400px]">
+            <ScrollArea className="h-[350px]">
               {visibleVehicles.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <EyeOff className="size-10 text-muted-foreground/40" />
@@ -448,7 +745,7 @@ export function DispatcherDashboard() {
             <CardDescription>Pending reports awaiting dispatch</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <ScrollArea className="h-[400px]">
+            <ScrollArea className="h-[350px]">
               {pendingReports.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <ShieldCheck className="size-10 text-muted-foreground/40" />
@@ -505,7 +802,7 @@ export function DispatcherDashboard() {
             <CardDescription>Currently dispatched / acknowledged incidents</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <ScrollArea className="h-[400px]">
+            <ScrollArea className="h-[350px]">
               {activeReports.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <Radio className="size-10 text-muted-foreground/40" />
