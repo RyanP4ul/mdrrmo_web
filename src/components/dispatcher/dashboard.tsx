@@ -7,9 +7,12 @@ import {
   MapPin,
   Radio,
   ShieldCheck,
+  Truck,
   Filter,
   Eye,
   EyeOff,
+  Navigation,
+  ChevronRight,
 } from 'lucide-react';
 import {
   Card,
@@ -28,10 +31,17 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { mockReports, mockResponseTeams } from '@/lib/mock-data';
+import { mockReports, mockResponseTeams, mockVehicles } from '@/lib/mock-data';
+import type { VehicleStatus } from '@/lib/mock-data';
 import { useAppStore } from '@/lib/store';
 import type { PriorityLevel, ReportStatus } from '@/lib/types';
-import { Heatmap, INCIDENT_COLORS, INCIDENT_TYPES } from '@/components/maps/heatmap';
+import {
+  VehicleTracker,
+  VEHICLE_STATUS_COLORS,
+  VEHICLE_STATUS_LABELS,
+  VEHICLE_TYPE_ICONS,
+  VEHICLE_STATUSES,
+} from '@/components/maps/vehicle-tracker';
 
 const priorityStyles: Record<PriorityLevel, string> = {
   low: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
@@ -83,29 +93,29 @@ function getTypeBadge(type: string) {
   );
 }
 
-// Incident Type Filter Component
-function IncidentTypeFilter({
-  hiddenTypes,
-  onToggleType,
+// Vehicle Status Filter Component
+function VehicleStatusFilter({
+  hiddenStatuses,
+  onToggleStatus,
   onToggleAll,
-  allTypes,
+  allStatuses,
 }: {
-  hiddenTypes: Set<string>;
-  onToggleType: (type: string) => void;
+  hiddenStatuses: Set<VehicleStatus>;
+  onToggleStatus: (status: VehicleStatus) => void;
   onToggleAll: () => void;
-  allTypes: string[];
+  allStatuses: VehicleStatus[];
 }) {
-  const allHidden = hiddenTypes.size === allTypes.length;
+  const allHidden = hiddenStatuses.size === allStatuses.length;
 
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
           <Filter className="size-3.5" />
-          Filter Types
-          {hiddenTypes.size > 0 && (
+          Filter Status
+          {hiddenStatuses.size > 0 && (
             <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-[10px]">
-              {hiddenTypes.size} hidden
+              {hiddenStatuses.size} hidden
             </Badge>
           )}
         </Button>
@@ -113,7 +123,7 @@ function IncidentTypeFilter({
       <PopoverContent className="w-64 p-0" align="end">
         <div className="p-3">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold">Incident Types</p>
+            <p className="text-sm font-semibold">Vehicle Status</p>
             <Button
               variant="ghost"
               size="sm"
@@ -134,30 +144,34 @@ function IncidentTypeFilter({
             </Button>
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Toggle visibility of each type
+            Toggle visibility of each status
           </p>
         </div>
         <Separator />
         <div className="p-2 max-h-64 overflow-y-auto custom-scrollbar">
-          {allTypes.map((type) => {
-            const isHidden = hiddenTypes.has(type);
-            const color = INCIDENT_COLORS[type] || '#6b7280';
+          {allStatuses.map((status) => {
+            const isHidden = hiddenStatuses.has(status);
+            const color = VEHICLE_STATUS_COLORS[status];
+            const count = mockVehicles.filter((v) => v.status === status).length;
             return (
               <label
-                key={type}
+                key={status}
                 className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted/50 cursor-pointer transition-colors"
               >
                 <Checkbox
                   checked={!isHidden}
-                  onCheckedChange={() => onToggleType(type)}
+                  onCheckedChange={() => onToggleStatus(status)}
                   className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                 />
                 <span
                   className="size-2.5 rounded-full shrink-0"
                   style={{ backgroundColor: color }}
                 />
-                <span className={`text-sm ${isHidden ? 'text-muted-foreground line-through' : ''}`}>
-                  {type}
+                <span className={`text-sm flex-1 ${isHidden ? 'text-muted-foreground line-through' : ''}`}>
+                  {VEHICLE_STATUS_LABELS[status]}
+                </span>
+                <span className="text-xs text-muted-foreground font-medium">
+                  ({count})
                 </span>
               </label>
             );
@@ -170,71 +184,49 @@ function IncidentTypeFilter({
 
 export function DispatcherDashboard() {
   const { setSelectedReportId, navigateTo } = useAppStore();
-  const [hiddenTypes, setHiddenTypes] = useState<Set<string>>(new Set());
+  const [hiddenStatuses, setHiddenStatuses] = useState<Set<VehicleStatus>>(new Set());
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
 
-  const toggleType = (type: string) => {
-    setHiddenTypes((prev) => {
+  const toggleStatus = (status: VehicleStatus) => {
+    setHiddenStatuses((prev) => {
       const next = new Set(prev);
-      if (next.has(type)) {
-        next.delete(type);
+      if (next.has(status)) {
+        next.delete(status);
       } else {
-        next.add(type);
+        next.add(status);
       }
       return next;
     });
   };
 
-  const toggleAll = () => {
-    setHiddenTypes((prev) => {
-      if (prev.size === INCIDENT_TYPES.length) {
-        return new Set(); // show all
+  const toggleAllStatuses = () => {
+    setHiddenStatuses((prev) => {
+      if (prev.size === VEHICLE_STATUSES.length) {
+        return new Set();
       }
-      return new Set(INCIDENT_TYPES); // hide all
+      return new Set(VEHICLE_STATUSES);
     });
-  };
-
-  // Mapping from heatmap incident types to report types
-  const heatmapToReportMap: Record<string, string[]> = {
-    Flood: ['Flood'],
-    Fire: ['Fire'],
-    Accident: ['Vehicular Accident'],
-    Medical: ['Medical Emergency'],
-    Typhoon: ['Typhoon'],
-    Landslide: ['Landslide'],
-    'Power Outage': ['Power Outage'],
-    Drowning: ['Drowning'],
-    Earthquake: ['Earthquake'],
-    Collapse: ['Structural Collapse'],
   };
 
   const pendingReports = useMemo(
     () =>
       mockReports
-        .filter((r) => {
-          if (r.status !== 'pending') return false;
-          for (const [heatmapType, reportTypes] of Object.entries(heatmapToReportMap)) {
-            if (reportTypes.includes(r.type) && hiddenTypes.has(heatmapType)) return false;
-          }
-          if (hiddenTypes.has(r.type)) return false;
-          return true;
-        })
+        .filter((r) => r.status === 'pending')
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()),
-    [hiddenTypes, heatmapToReportMap]
+    []
   );
 
   const activeReports = useMemo(
     () =>
       mockReports
-        .filter((r) => {
-          if (r.status !== 'dispatched' && r.status !== 'acknowledged') return false;
-          for (const [heatmapType, reportTypes] of Object.entries(heatmapToReportMap)) {
-            if (reportTypes.includes(r.type) && hiddenTypes.has(heatmapType)) return false;
-          }
-          if (hiddenTypes.has(r.type)) return false;
-          return true;
-        })
+        .filter((r) => r.status === 'dispatched' || r.status === 'acknowledged')
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()),
-    [hiddenTypes, heatmapToReportMap]
+    []
+  );
+
+  const visibleVehicles = useMemo(
+    () => mockVehicles.filter((v) => !hiddenStatuses.has(v.status)),
+    [hiddenStatuses]
   );
 
   const handleReportClick = (reportId: string) => {
@@ -248,6 +240,8 @@ export function DispatcherDashboard() {
     return team ? team.teamName : 'Unknown Team';
   };
 
+  const selectedVehicle = mockVehicles.find((v) => v.id === selectedVehicleId);
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -258,14 +252,14 @@ export function DispatcherDashboard() {
           </div>
           <div>
             <h2 className="text-xl font-bold">Dispatcher Dashboard</h2>
-            <p className="text-sm text-muted-foreground">Live incident monitoring & dispatch</p>
+            <p className="text-sm text-muted-foreground">Live vehicle tracking & dispatch</p>
           </div>
         </div>
-        <IncidentTypeFilter
-          hiddenTypes={hiddenTypes}
-          onToggleType={toggleType}
-          onToggleAll={toggleAll}
-          allTypes={INCIDENT_TYPES}
+        <VehicleStatusFilter
+          hiddenStatuses={hiddenStatuses}
+          onToggleStatus={toggleStatus}
+          onToggleAll={toggleAllStatuses}
+          allStatuses={VEHICLE_STATUSES}
         />
       </div>
 
@@ -283,50 +277,164 @@ export function DispatcherDashboard() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="size-4 text-blue-500" />
-              <span className="text-sm text-muted-foreground">Active</span>
-            </div>
-            <p className="mt-1 text-2xl font-bold">{activeReports.length}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <Clock className="size-4 text-yellow-500" />
-              <span className="text-sm text-muted-foreground">Total Reports</span>
-            </div>
-            <p className="mt-1 text-2xl font-bold">{mockReports.length}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <MapPin className="size-4 text-green-500" />
-              <span className="text-sm text-muted-foreground">Teams Available</span>
+              <Truck className="size-4 text-blue-500" />
+              <span className="text-sm text-muted-foreground">En Route</span>
             </div>
             <p className="mt-1 text-2xl font-bold">
-              {mockResponseTeams.filter((t) => t.availability === 'available').length}
+              {mockVehicles.filter((v) => v.status === 'en-route').length}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Navigation className="size-4 text-green-500" />
+              <span className="text-sm text-muted-foreground">On Scene</span>
+            </div>
+            <p className="mt-1 text-2xl font-bold">
+              {mockVehicles.filter((v) => v.status === 'on-scene').length}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <MapPin className="size-4 text-cyan-500" />
+              <span className="text-sm text-muted-foreground">Available</span>
+            </div>
+            <p className="mt-1 text-2xl font-bold">
+              {mockVehicles.filter((v) => v.status === 'available').length}
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Incident Heatmap - Top 60% */}
+      {/* Vehicle Tracker Map - Full Width */}
       <Card>
         <CardHeader className="pb-3">
-          <div className="flex items-center gap-2">
-            <MapPin className="size-5 text-blue-500" />
-            <CardTitle>Incident Heat Map</CardTitle>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Truck className="size-5 text-blue-500" />
+              <CardTitle>Vehicle Tracker</CardTitle>
+            </div>
+            {selectedVehicle && (
+              <Badge
+                className="border-0 text-xs"
+                style={{
+                  backgroundColor: VEHICLE_STATUS_COLORS[selectedVehicle.status] + '22',
+                  color: VEHICLE_STATUS_COLORS[selectedVehicle.status],
+                }}
+              >
+                {VEHICLE_TYPE_ICONS[selectedVehicle.vehicleType]} {selectedVehicle.id} — {selectedVehicle.teamName}
+              </Badge>
+            )}
           </div>
-          <CardDescription>Geographic distribution of active incidents in Dagupan City</CardDescription>
+          <CardDescription>Real-time location and status of response vehicles in Dagupan City</CardDescription>
         </CardHeader>
         <CardContent>
-          <Heatmap height="500px" hiddenTypes={hiddenTypes} />
+          <VehicleTracker
+            height="500px"
+            hiddenStatuses={hiddenStatuses}
+            selectedVehicleId={selectedVehicleId}
+            onSelectVehicle={setSelectedVehicleId}
+          />
         </CardContent>
       </Card>
 
-      {/* Bottom 40%: Incoming Reports & Active Monitor */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      {/* Bottom Row: Vehicle Fleet List & Incoming Reports */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* Vehicle Fleet List */}
+        <Card className="lg:col-span-1">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
+              <Truck className="size-5 text-blue-500" />
+              <CardTitle>Fleet Status</CardTitle>
+              <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border-0 ml-2">
+                {visibleVehicles.length}
+              </Badge>
+            </div>
+            <CardDescription>Active vehicle fleet overview</CardDescription>
+          </CardHeader>
+          <CardContent className="p-0">
+            <ScrollArea className="h-[400px]">
+              {visibleVehicles.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <EyeOff className="size-10 text-muted-foreground/40" />
+                  <p className="mt-2 text-sm text-muted-foreground">All statuses hidden</p>
+                  <Button
+                    variant="link"
+                    size="sm"
+                    className="text-blue-500 mt-1"
+                    onClick={() => setHiddenStatuses(new Set())}
+                  >
+                    Show all statuses
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-1 px-3 pb-3">
+                  {visibleVehicles.map((vehicle) => {
+                    const isSelected = selectedVehicleId === vehicle.id;
+                    const statusColor = VEHICLE_STATUS_COLORS[vehicle.status];
+                    return (
+                      <button
+                        key={vehicle.id}
+                        onClick={() => setSelectedVehicleId(isSelected ? null : vehicle.id)}
+                        className={`w-full text-left rounded-lg border p-3 transition-all hover:shadow-sm ${
+                          isSelected
+                            ? 'border-blue-300 dark:border-blue-700 bg-blue-50/50 dark:bg-blue-900/20'
+                            : 'border-border/50 bg-card hover:bg-muted/50 hover:border-blue-300 dark:hover:border-blue-700'
+                        }`}
+                      >
+                        <div className="flex items-start gap-2.5">
+                          <div
+                            className="flex size-9 shrink-0 items-center justify-center rounded-lg text-base"
+                            style={{ backgroundColor: statusColor + '18' }}
+                          >
+                            {VEHICLE_TYPE_ICONS[vehicle.vehicleType]}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-1">
+                              <p className="text-sm font-medium truncate">{vehicle.teamName}</p>
+                              <ChevronRight className={`size-3.5 shrink-0 transition-transform ${isSelected ? 'rotate-90 text-blue-500' : 'text-muted-foreground'}`} />
+                            </div>
+                            <div className="flex items-center gap-1.5 mt-1">
+                              <span
+                                className="inline-block size-1.5 rounded-full shrink-0"
+                                style={{ backgroundColor: statusColor }}
+                              />
+                              <span className="text-[10px] font-medium" style={{ color: statusColor }}>
+                                {VEHICLE_STATUS_LABELS[vehicle.status]}
+                              </span>
+                              <span className="text-[10px] text-muted-foreground">
+                                • {vehicle.id}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-3 mt-1.5 text-[10px] text-muted-foreground">
+                              {vehicle.speed > 0 ? (
+                                <span className="flex items-center gap-0.5">
+                                  <Navigation className="size-2.5" />
+                                  {vehicle.speed} km/h
+                                </span>
+                              ) : (
+                                <span>Stationary</span>
+                              )}
+                              {vehicle.assignedReportId && (
+                                <span className="text-blue-500 font-medium">
+                                  → {vehicle.assignedReportId}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </ScrollArea>
+          </CardContent>
+        </Card>
+
         {/* Incoming Pending Reports */}
         <Card>
           <CardHeader className="pb-3">
@@ -340,28 +448,11 @@ export function DispatcherDashboard() {
             <CardDescription>Pending reports awaiting dispatch</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <ScrollArea className="h-[350px]">
+            <ScrollArea className="h-[400px]">
               {pendingReports.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
-                  {hiddenTypes.size > 0 ? (
-                    <>
-                      <EyeOff className="size-10 text-muted-foreground/40" />
-                      <p className="mt-2 text-sm text-muted-foreground">All types hidden or no pending reports</p>
-                      <Button
-                        variant="link"
-                        size="sm"
-                        className="text-blue-500 mt-1"
-                        onClick={() => setHiddenTypes(new Set())}
-                      >
-                        Show all types
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <ShieldCheck className="size-10 text-muted-foreground/40" />
-                      <p className="mt-2 text-sm text-muted-foreground">No pending reports</p>
-                    </>
-                  )}
+                  <ShieldCheck className="size-10 text-muted-foreground/40" />
+                  <p className="mt-2 text-sm text-muted-foreground">No pending reports</p>
                 </div>
               ) : (
                 <div className="space-y-2 px-4 pb-4">
@@ -414,28 +505,11 @@ export function DispatcherDashboard() {
             <CardDescription>Currently dispatched / acknowledged incidents</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <ScrollArea className="h-[350px]">
+            <ScrollArea className="h-[400px]">
               {activeReports.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
-                  {hiddenTypes.size > 0 ? (
-                    <>
-                      <EyeOff className="size-10 text-muted-foreground/40" />
-                      <p className="mt-2 text-sm text-muted-foreground">All types hidden or no active reports</p>
-                      <Button
-                        variant="link"
-                        size="sm"
-                        className="text-blue-500 mt-1"
-                        onClick={() => setHiddenTypes(new Set())}
-                      >
-                        Show all types
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <Radio className="size-10 text-muted-foreground/40" />
-                      <p className="mt-2 text-sm text-muted-foreground">No active reports</p>
-                    </>
-                  )}
+                  <Radio className="size-10 text-muted-foreground/40" />
+                  <p className="mt-2 text-sm text-muted-foreground">No active reports</p>
                 </div>
               ) : (
                 <div className="space-y-2 px-4 pb-4">
@@ -456,7 +530,7 @@ export function DispatcherDashboard() {
                           <p className="text-sm font-medium truncate">{report.location}</p>
                           <Separator className="my-2" />
                           <div className="flex items-center gap-1.5">
-                            <ShieldCheck className="size-3 text-blue-500" />
+                            <Truck className="size-3 text-blue-500" />
                             <span className="text-xs text-muted-foreground">
                               Team: <span className="font-medium text-foreground">{getTeamName(report.assignedTeam)}</span>
                             </span>

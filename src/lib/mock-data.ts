@@ -395,6 +395,126 @@ export const mockAuditLogs: AuditLog[] = [
   { id: 'AL012', userId: 'USR001', userName: 'Juan Dela Cruz', action: 'CREATE_USER', details: 'Created new user account for Fernando Aquino', timestamp: '2026-06-01T08:00:00Z', ipAddress: '192.168.1.100' },
 ];
 
+export type VehicleStatus = 'en-route' | 'on-scene' | 'available' | 'returning' | 'offline';
+
+export interface Vehicle {
+  id: string;
+  teamId: string;
+  teamName: string;
+  vehicleType: 'ambulance' | 'fire-truck' | 'rescue-van' | 'police-car' | 'utility-truck';
+  lat: number;
+  lng: number;
+  status: VehicleStatus;
+  speed: number; // km/h
+  heading: number; // degrees 0-360
+  assignedReportId?: string;
+  lastUpdated: string;
+}
+
+export const mockVehicles: Vehicle[] = [
+  {
+    id: 'VH001',
+    teamId: 'TM001',
+    teamName: 'Alpha Rescue Team',
+    vehicleType: 'rescue-van',
+    lat: 16.0410,
+    lng: 120.3390,
+    status: 'en-route',
+    speed: 45,
+    heading: 180,
+    assignedReportId: 'RPT001',
+    lastUpdated: '2026-03-04T08:30:00Z',
+  },
+  {
+    id: 'VH002',
+    teamId: 'TM002',
+    teamName: 'Bravo Medical Unit',
+    vehicleType: 'ambulance',
+    lat: 16.0389,
+    lng: 120.3412,
+    status: 'on-scene',
+    speed: 0,
+    heading: 0,
+    assignedReportId: 'RPT002',
+    lastUpdated: '2026-03-04T07:45:00Z',
+  },
+  {
+    id: 'VH003',
+    teamId: 'TM003',
+    teamName: 'Charlie Engineering Squad',
+    vehicleType: 'utility-truck',
+    lat: 16.0460,
+    lng: 120.3350,
+    status: 'returning',
+    speed: 35,
+    heading: 90,
+    lastUpdated: '2026-03-04T08:20:00Z',
+  },
+  {
+    id: 'VH004',
+    teamId: 'TM004',
+    teamName: 'Delta Search & Rescue',
+    vehicleType: 'rescue-van',
+    lat: 16.0520,
+    lng: 120.3270,
+    status: 'offline',
+    speed: 0,
+    heading: 0,
+    lastUpdated: '2026-03-04T06:00:00Z',
+  },
+  {
+    id: 'VH005',
+    teamId: 'TM005',
+    teamName: 'Echo Fire Response',
+    vehicleType: 'fire-truck',
+    lat: 16.0430,
+    lng: 120.3365,
+    status: 'en-route',
+    speed: 50,
+    heading: 270,
+    assignedReportId: 'RPT011',
+    lastUpdated: '2026-03-04T08:35:00Z',
+  },
+  {
+    id: 'VH006',
+    teamId: 'TM001',
+    teamName: 'Alpha Rescue Team',
+    vehicleType: 'ambulance',
+    lat: 16.0395,
+    lng: 120.3380,
+    status: 'on-scene',
+    speed: 0,
+    heading: 0,
+    assignedReportId: 'RPT009',
+    lastUpdated: '2026-03-04T08:15:00Z',
+  },
+  {
+    id: 'VH007',
+    teamId: 'TM002',
+    teamName: 'Bravo Medical Unit',
+    vehicleType: 'ambulance',
+    lat: 16.0445,
+    lng: 120.3335,
+    status: 'available',
+    speed: 0,
+    heading: 0,
+    lastUpdated: '2026-03-04T08:25:00Z',
+  },
+  {
+    id: 'VH008',
+    teamId: 'TM005',
+    teamName: 'Echo Fire Response',
+    vehicleType: 'fire-truck',
+    lat: 16.0427,
+    lng: 120.3370,
+    status: 'on-scene',
+    speed: 0,
+    heading: 0,
+    assignedReportId: 'RPT005',
+    lastUpdated: '2026-03-04T07:30:00Z',
+  },
+];
+
 export const mockHeatmapData = [
   { lat: 16.0433, lng: 120.3372, intensity: 0.9, type: 'Flood' },
   { lat: 16.0389, lng: 120.3412, intensity: 0.8, type: 'Fire' },
