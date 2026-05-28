@@ -8,6 +8,8 @@ export type PriorityLevel = 'low' | 'medium' | 'high' | 'critical';
 
 export type Availability = 'available' | 'unavailable';
 
+export type MemberStatus = 'active' | 'inactive' | 'on-leave' | 'off-duty';
+
 export interface User {
   id: string;
   firstName: string;
@@ -50,8 +52,8 @@ export interface EmergencyReport {
 export interface ResponseTeam {
   id: string;
   teamName: string;
-  members: { id: string; name: string; role: string; availability: Availability }[];
-  availability: Availability;
+  members: { id: string; name: string; role: string; status: MemberStatus }[];
+  status: MemberStatus;
   specializations: string[];
 }
 

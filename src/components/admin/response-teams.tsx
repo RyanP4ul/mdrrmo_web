@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { mockResponseTeams } from '@/lib/mock-data';
-import type { ResponseTeam, Availability } from '@/lib/types';
+import type { ResponseTeam, MemberStatus } from '@/lib/types';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -47,39 +47,34 @@ const ALL_SPECIALIZATIONS = [
   'Hazmat Response',
 ];
 
-function getAvailabilityBadge(availability: Availability) {
-  if (availability === 'available') {
-    return (
-      <Badge className="bg-green-100 text-green-800 border-0 dark:bg-green-900/30 dark:text-green-400">
-        Available
-      </Badge>
-    );
-  }
+const MEMBER_STATUS_OPTIONS: { value: MemberStatus; label: string; color: string }[] = [
+  { value: 'active', label: 'Active', color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' },
+  { value: 'inactive', label: 'Inactive', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
+  { value: 'on-leave', label: 'On Leave', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' },
+  { value: 'off-duty', label: 'Off Duty', color: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400' },
+];
+
+function getStatusBadge(status: MemberStatus) {
+  const opt = MEMBER_STATUS_OPTIONS.find((s) => s.value === status);
   return (
-    <Badge className="bg-red-100 text-red-800 border-0 dark:bg-red-900/30 dark:text-red-400">
-      Unavailable
+    <Badge className={`${opt?.color ?? 'bg-gray-100 text-gray-800'} border-0`}>
+      {opt?.label ?? status}
     </Badge>
   );
 }
 
-function getMemberAvailabilityBadge(availability: Availability) {
-  if (availability === 'available') {
-    return (
-      <Badge className="bg-green-100 text-green-800 border-0 text-xs dark:bg-green-900/30 dark:text-green-400">
-        Available
-      </Badge>
-    );
-  }
+function getMemberStatusBadge(status: MemberStatus) {
+  const opt = MEMBER_STATUS_OPTIONS.find((s) => s.value === status);
   return (
-    <Badge className="bg-red-100 text-red-800 border-0 text-xs dark:bg-red-900/30 dark:text-red-400">
-      Unavailable
+    <Badge className={`${opt?.color ?? 'bg-gray-100 text-gray-800'} border-0 text-xs`}>
+      {opt?.label ?? status}
     </Badge>
   );
 }
 
 export function ResponseTeams() {
   const [search, setSearch] = useState('');
-  const [availabilityFilter, setAvailabilityFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [specializationFilter, setSpecializationFilter] = useState<string>('All');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTeam, setSelectedTeam] = useState<ResponseTeam | null>(null);
@@ -88,14 +83,14 @@ export function ResponseTeams() {
   const filteredTeams = useMemo(() => {
     return mockResponseTeams.filter((team) => {
       const matchesSearch = team.teamName.toLowerCase().includes(search.toLowerCase());
-      const matchesAvailability =
-        availabilityFilter === 'all' || team.availability === availabilityFilter;
+      const matchesStatus =
+        statusFilter === 'all' || team.status === statusFilter;
       const matchesSpecialization =
         specializationFilter === 'All' ||
         team.specializations.some((s) => s === specializationFilter);
-      return matchesSearch && matchesAvailability && matchesSpecialization;
+      return matchesSearch && matchesStatus && matchesSpecialization;
     });
-  }, [search, availabilityFilter, specializationFilter]);
+  }, [search, statusFilter, specializationFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filteredTeams.length / ITEMS_PER_PAGE));
   const paginatedTeams = filteredTeams.slice(
@@ -138,19 +133,20 @@ export function ResponseTeams() {
               />
             </div>
             <Select
-              value={availabilityFilter}
+              value={statusFilter}
               onValueChange={(val) => {
-                setAvailabilityFilter(val);
+                setStatusFilter(val);
                 setCurrentPage(1);
               }}
             >
               <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Availability" />
+                <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Availability</SelectItem>
-                <SelectItem value="available">Available</SelectItem>
-                <SelectItem value="unavailable">Unavailable</SelectItem>
+                <SelectItem value="all">All Status</SelectItem>
+                {MEMBER_STATUS_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <Select
@@ -183,7 +179,7 @@ export function ResponseTeams() {
               <TableRow>
                 <TableHead className="w-[200px]">Team Name</TableHead>
                 <TableHead className="min-w-[250px]">Members</TableHead>
-                <TableHead className="w-[130px]">Availability</TableHead>
+                <TableHead className="w-[130px]">Status</TableHead>
                 <TableHead>Specializations</TableHead>
                 <TableHead className="w-[80px] text-center">Details</TableHead>
               </TableRow>
@@ -206,13 +202,11 @@ export function ResponseTeams() {
                     <TableCell>
                       <div className="flex flex-col gap-0.5">
                         {team.members.map((m) => (
-                          <span key={m.id} className="text-sm">
-                            {m.name} <span className="text-xs text-muted-foreground">({m.role})</span>
-                          </span>
+                          <span key={m.id} className="text-sm">{m.name}</span>
                         ))}
                       </div>
                     </TableCell>
-                    <TableCell>{getAvailabilityBadge(team.availability)}</TableCell>
+                    <TableCell>{getStatusBadge(team.status)}</TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
                         {team.specializations.map((spec) => (
@@ -247,7 +241,7 @@ export function ResponseTeams() {
       </Card>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-muted-foreground">
           Showing {paginatedTeams.length} of {filteredTeams.length} team(s)
         </p>
@@ -283,14 +277,14 @@ export function ResponseTeams() {
               {selectedTeam?.teamName}
             </DialogTitle>
             <DialogDescription>
-              Team details and member availability
+              Team details and member status
             </DialogDescription>
           </DialogHeader>
           {selectedTeam && (
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium">Status:</span>
-                {getAvailabilityBadge(selectedTeam.availability)}
+                {getStatusBadge(selectedTeam.status)}
               </div>
               <div className="flex flex-wrap gap-1">
                 <span className="text-sm font-medium mr-1">Specializations:</span>
@@ -312,11 +306,8 @@ export function ResponseTeams() {
                       key={member.id}
                       className="flex items-center justify-between gap-2 rounded-lg border p-3"
                     >
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium">{member.name}</p>
-                        <p className="text-xs text-muted-foreground">{member.role}</p>
-                      </div>
-                      {getMemberAvailabilityBadge(member.availability)}
+                      <p className="text-sm font-medium truncate">{member.name}</p>
+                      {getMemberStatusBadge(member.status)}
                     </div>
                   ))}
                 </div>

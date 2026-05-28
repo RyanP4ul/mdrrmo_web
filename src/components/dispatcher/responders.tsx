@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import {
+  AlertTriangle,
   Search,
   ShieldCheck,
   Plus,
@@ -12,6 +13,8 @@ import {
   ChevronRight,
   X,
   UserPlus,
+  Check,
+  ChevronsUpDown,
 } from 'lucide-react';
 import {
   Card,
@@ -21,7 +24,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
@@ -51,35 +53,99 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import { Input } from '@/components/ui/input';
 import { mockResponseTeams } from '@/lib/mock-data';
-import type { ResponseTeam, Availability } from '@/lib/types';
+import type { ResponseTeam, MemberStatus } from '@/lib/types';
 import { toast } from 'sonner';
 
 const ITEMS_PER_PAGE = 5;
 
+// Predefined Driver/Responder names for combobox
+const DRIVER_RESPONDER_NAMES = [
+  'Roberto Guzman',
+  'Santiago Perez',
+  'Andres Bautista',
+  'Diego Castillo',
+  'Carmen Rivera',
+  'Teresa Flores',
+  'Ricardo Santos',
+  'Antonio Reyes',
+  'Mariano Lopez',
+  'Francisco Diaz',
+  'Gregorio Magno',
+  'Patricia Encarnacion',
+  'Eduardo Villareal',
+  'Luzviminda Torres',
+  'Ramon Espiritu',
+  'Danilo Magbanua',
+  'Jerry Aquino',
+  'Marco Dela Cruz',
+  'Angela Reyes',
+  'Jose Navarro',
+  'Maria Santos',
+  'Fernando Garcia',
+  'Rosa Lim',
+  'Pedro Villanueva',
+];
+
+// Status config
+const MEMBER_STATUS_OPTIONS: { value: MemberStatus; label: string; color: string }[] = [
+  { value: 'active', label: 'Active', color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' },
+  { value: 'inactive', label: 'Inactive', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
+  { value: 'on-leave', label: 'On Leave', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' },
+  { value: 'off-duty', label: 'Off Duty', color: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400' },
+];
+
+const TEAM_STATUS_OPTIONS: { value: MemberStatus; label: string; color: string }[] = [
+  { value: 'active', label: 'Active', color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' },
+  { value: 'inactive', label: 'Inactive', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
+  { value: 'on-leave', label: 'On Leave', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' },
+  { value: 'off-duty', label: 'Off Duty', color: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400' },
+];
+
+function getStatusBadgeStyles(status: MemberStatus): string {
+  return MEMBER_STATUS_OPTIONS.find((s) => s.value === status)?.color ?? 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
+}
+
+function getStatusLabel(status: MemberStatus): string {
+  return MEMBER_STATUS_OPTIONS.find((s) => s.value === status)?.label ?? status;
+}
+
 interface MemberForm {
   id: string;
   name: string;
-  role: string;
-  availability: Availability;
+  status: MemberStatus;
 }
 
 interface TeamForm {
   teamName: string;
   members: MemberForm[];
-  availability: Availability;
+  status: MemberStatus;
 }
 
 const emptyTeamForm: TeamForm = {
   teamName: '',
-  members: [{ id: `M-${Date.now()}`, name: '', role: 'Driver/Responder', availability: 'available' }],
-  availability: 'available',
+  members: [{ id: `M-${Date.now()}`, name: '', status: 'active' }],
+  status: 'active',
 };
 
 export function Responders() {
   const [teams, setTeams] = useState<ResponseTeam[]>([...mockResponseTeams]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [availabilityFilter, setAvailabilityFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
 
   // Dialog states
@@ -89,6 +155,9 @@ export function Responders() {
   const [editingTeamId, setEditingTeamId] = useState<string | null>(null);
   const [deletingTeamId, setDeletingTeamId] = useState<string | null>(null);
   const [teamForm, setTeamForm] = useState<TeamForm>(emptyTeamForm);
+
+  // Combobox open states for each member
+  const [nameComboboxOpen, setNameComboboxOpen] = useState<Record<string, boolean>>({});
 
   const filteredTeams = useMemo(() => {
     let result = [...teams];
@@ -102,12 +171,12 @@ export function Responders() {
       );
     }
 
-    if (availabilityFilter !== 'all') {
-      result = result.filter((t) => t.availability === availabilityFilter);
+    if (statusFilter !== 'all') {
+      result = result.filter((t) => t.status === statusFilter);
     }
 
     return result;
-  }, [teams, searchQuery, availabilityFilter]);
+  }, [teams, searchQuery, statusFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filteredTeams.length / ITEMS_PER_PAGE));
   const paginatedTeams = filteredTeams.slice(
@@ -121,7 +190,7 @@ export function Responders() {
   const openAddDialog = () => {
     setTeamForm({
       ...emptyTeamForm,
-      members: [{ id: `M-${Date.now()}`, name: '', role: 'Driver/Responder', availability: 'available' }],
+      members: [{ id: `M-${Date.now()}`, name: '', status: 'active' }],
     });
     setShowAddDialog(true);
   };
@@ -144,9 +213,9 @@ export function Responders() {
         ...m,
         id: m.id || `M${Date.now()}-${i}`,
         name: m.name.trim(),
-        role: m.role || 'Driver/Responder',
+        role: 'Driver/Responder',
       })),
-      availability: teamForm.availability,
+      status: teamForm.status,
     };
 
     setTeams((prev) => [...prev, newTeam]);
@@ -163,8 +232,8 @@ export function Responders() {
     setEditingTeamId(teamId);
     setTeamForm({
       teamName: team.teamName,
-      members: team.members.map((m) => ({ ...m })),
-      availability: team.availability,
+      members: team.members.map((m) => ({ id: m.id, name: m.name, status: m.status })),
+      status: team.status,
     });
     setShowEditDialog(true);
   };
@@ -190,9 +259,9 @@ export function Responders() {
                 ...m,
                 id: m.id || `M${Date.now()}-${i}`,
                 name: m.name.trim(),
-                role: m.role || 'Driver/Responder',
+                role: 'Driver/Responder',
               })),
-              availability: teamForm.availability,
+              status: teamForm.status,
             }
           : t
       )
@@ -228,7 +297,7 @@ export function Responders() {
       ...prev,
       members: [
         ...prev.members,
-        { id: `M-${Date.now()}`, name: '', role: 'Driver/Responder', availability: 'available' },
+        { id: `M-${Date.now()}`, name: '', status: 'active' },
       ],
     }));
   };
@@ -244,7 +313,7 @@ export function Responders() {
     }));
   };
 
-  const updateMember = (memberId: string, field: keyof MemberForm, value: string) => {
+  const updateMemberField = (memberId: string, field: keyof MemberForm, value: string) => {
     setTeamForm((prev) => ({
       ...prev,
       members: prev.members.map((m) =>
@@ -267,21 +336,22 @@ export function Responders() {
         />
       </div>
 
-      {/* Team Availability */}
+      {/* Team Status */}
       <div className="space-y-2">
-        <Label>Team Availability</Label>
+        <Label>Team Status</Label>
         <Select
-          value={teamForm.availability}
+          value={teamForm.status}
           onValueChange={(v) =>
-            setTeamForm((prev) => ({ ...prev, availability: v as Availability }))
+            setTeamForm((prev) => ({ ...prev, status: v as MemberStatus }))
           }
         >
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="available">Available</SelectItem>
-            <SelectItem value="unavailable">Unavailable</SelectItem>
+            {TEAM_STATUS_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -303,7 +373,7 @@ export function Responders() {
               <Card key={member.id} className="bg-muted/30">
                 <CardContent className="p-3 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">Member</span>
+                    <span className="text-xs text-muted-foreground">Driver/Responder</span>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -314,37 +384,66 @@ export function Responders() {
                     </Button>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <Input
-                      placeholder="Name *"
-                      value={member.name}
-                      onChange={(e) => updateMember(member.id, 'name', e.target.value)}
-                      className="text-sm"
-                    />
-                    <div className="flex flex-col gap-2 sm:flex-row">
-                      <Select
-                        value={member.role}
-                        onValueChange={(v) => updateMember(member.id, 'role', v)}
-                      >
-                        <SelectTrigger className="text-sm w-full sm:flex-1">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Driver/Responder">Driver/Responder</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <Select
-                        value={member.availability}
-                        onValueChange={(v) => updateMember(member.id, 'availability', v)}
-                      >
-                        <SelectTrigger className="text-sm w-full sm:w-[130px]">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="available">Available</SelectItem>
-                          <SelectItem value="unavailable">Unavailable</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    {/* Name Combobox */}
+                    <Popover
+                      open={nameComboboxOpen[member.id] ?? false}
+                      onOpenChange={(open) =>
+                        setNameComboboxOpen((prev) => ({ ...prev, [member.id]: open }))
+                      }
+                    >
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={nameComboboxOpen[member.id] ?? false}
+                          className="w-full justify-between text-sm font-normal h-9"
+                        >
+                          {member.name || 'Select name...'}
+                          <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                        <Command>
+                          <CommandInput placeholder="Search name..." />
+                          <CommandList>
+                            <CommandEmpty>No name found.</CommandEmpty>
+                            <CommandGroup>
+                              {DRIVER_RESPONDER_NAMES.map((name) => (
+                                <CommandItem
+                                  key={name}
+                                  value={name}
+                                  onSelect={() => {
+                                    updateMemberField(member.id, 'name', name);
+                                    setNameComboboxOpen((prev) => ({ ...prev, [member.id]: false }));
+                                  }}
+                                  className="flex items-center gap-2"
+                                >
+                                  <Check
+                                    className={`size-4 ${member.name === name ? 'opacity-100' : 'opacity-0'}`}
+                                  />
+                                  <span className="text-sm">{name}</span>
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+
+                    {/* Status Select */}
+                    <Select
+                      value={member.status}
+                      onValueChange={(v) => updateMemberField(member.id, 'status', v)}
+                    >
+                      <SelectTrigger className="text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {MEMBER_STATUS_OPTIONS.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </CardContent>
               </Card>
@@ -358,7 +457,7 @@ export function Responders() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <div className="flex size-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
             <ShieldCheck className="size-5 text-blue-600 dark:text-blue-400" />
@@ -368,7 +467,7 @@ export function Responders() {
             <p className="text-sm text-muted-foreground">Manage emergency response teams &amp; personnel</p>
           </div>
         </div>
-        <Button onClick={openAddDialog} className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
+        <Button onClick={openAddDialog} className="gap-2 bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto">
           <Plus className="size-4" />
           Add Team
         </Button>
@@ -392,28 +491,29 @@ export function Responders() {
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <Select
-                value={availabilityFilter}
+                value={statusFilter}
                 onValueChange={(v) => {
-                  setAvailabilityFilter(v);
+                  setStatusFilter(v);
                   handleFilterChange();
                 }}
               >
                 <SelectTrigger className="w-[160px]">
-                  <SelectValue placeholder="Availability" />
+                  <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Availability</SelectItem>
-                  <SelectItem value="available">Available</SelectItem>
-                  <SelectItem value="unavailable">Unavailable</SelectItem>
+                  <SelectItem value="all">All Status</SelectItem>
+                  {TEAM_STATUS_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
 
-              {(availabilityFilter !== 'all' || searchQuery) && (
+              {(statusFilter !== 'all' || searchQuery) && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => {
-                    setAvailabilityFilter('all');
+                    setStatusFilter('all');
                     setSearchQuery('');
                     handleFilterChange();
                   }}
@@ -457,15 +557,9 @@ export function Responders() {
                       <p className="text-xs text-muted-foreground">{team.id}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge
-                      className={`border-0 text-xs ${
-                        team.availability === 'available'
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                          : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                      }`}
-                    >
-                      {team.availability}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Badge className={`border-0 text-xs ${getStatusBadgeStyles(team.status)}`}>
+                      {getStatusLabel(team.status)}
                     </Badge>
                     <Button
                       variant="ghost"
@@ -502,18 +596,9 @@ export function Responders() {
                           key={member.id}
                           className="flex items-center justify-between gap-2 rounded-md bg-muted/50 px-3 py-2"
                         >
-                          <div className="min-w-0 flex-1">
-                            <p className="text-sm font-medium truncate">{member.name}</p>
-                            <p className="text-xs text-muted-foreground">{member.role}</p>
-                          </div>
-                          <Badge
-                            className={`border-0 text-[10px] shrink-0 ${
-                              member.availability === 'available'
-                                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                                : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                            }`}
-                          >
-                            {member.availability}
+                          <p className="text-sm font-medium truncate">{member.name}</p>
+                          <Badge className={`border-0 text-[10px] shrink-0 ${getStatusBadgeStyles(member.status)}`}>
+                            {getStatusLabel(member.status)}
                           </Badge>
                         </div>
                       ))}
@@ -528,7 +613,7 @@ export function Responders() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-muted-foreground">
             Page {currentPage} of {totalPages}
           </p>
