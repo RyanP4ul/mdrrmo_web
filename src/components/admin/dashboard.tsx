@@ -51,14 +51,13 @@ import type { PriorityLevel } from '@/lib/types';
 import { Heatmap, INCIDENT_COLORS, INCIDENT_TYPES } from '@/components/maps/heatmap';
 
 const chartConfig = {
-  Flood: { label: 'Flood', color: '#f97316' },
   Fire: { label: 'Fire', color: '#ef4444' },
-  Medical: { label: 'Medical', color: '#22c55e' },
-  Accident: { label: 'Accident', color: '#f59e0b' },
-  Typhoon: { label: 'Typhoon', color: '#a855f7' },
-  Landslide: { label: 'Landslide', color: '#ec4899' },
-  'Power Outage': { label: 'Power Outage', color: '#6b7280' },
-  Other: { label: 'Other', color: '#14b8a6' },
+  'Medical Emergency': { label: 'Medical Emergency', color: '#22c55e' },
+  Disaster: { label: 'Disaster', color: '#3b82f6' },
+  Vehicular: { label: 'Vehicular', color: '#f59e0b' },
+  Trauma: { label: 'Trauma', color: '#ec4899' },
+  Ambulance: { label: 'Ambulance', color: '#06b6d4' },
+  Service: { label: 'Service', color: '#6b7280' },
 } satisfies ChartConfig;
 
 const activityIcons: Record<string, React.ReactNode> = {

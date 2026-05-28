@@ -160,22 +160,19 @@ export const mockUsers: User[] = [
 ];
 
 export const mockIncidentTypes: IncidentType[] = [
-  { id: 'IT001', name: 'Flood', description: 'Flooding in low-lying areas', priority: 'high', createdAt: '2024-01-01T00:00:00Z' },
-  { id: 'IT002', name: 'Fire', description: 'Structural or wildfire incidents', priority: 'critical', createdAt: '2024-01-01T00:00:00Z' },
-  { id: 'IT003', name: 'Earthquake', description: 'Seismic activity and aftershocks', priority: 'critical', createdAt: '2024-01-01T00:00:00Z' },
-  { id: 'IT004', name: 'Typhoon', description: 'Tropical cyclone related incidents', priority: 'critical', createdAt: '2024-01-01T00:00:00Z' },
-  { id: 'IT005', name: 'Landslide', description: 'Soil erosion and landslides', priority: 'high', createdAt: '2024-01-01T00:00:00Z' },
-  { id: 'IT006', name: 'Vehicular Accident', description: 'Road traffic accidents', priority: 'medium', createdAt: '2024-01-01T00:00:00Z' },
-  { id: 'IT007', name: 'Medical Emergency', description: 'Health-related emergencies', priority: 'high', createdAt: '2024-01-01T00:00:00Z' },
-  { id: 'IT008', name: 'Power Outage', description: 'Electrical power failures', priority: 'low', createdAt: '2024-01-01T00:00:00Z' },
-  { id: 'IT009', name: 'Structural Collapse', description: 'Building or infrastructure collapse', priority: 'critical', createdAt: '2024-01-01T00:00:00Z' },
-  { id: 'IT010', name: 'Drowning', description: 'Water-related incidents', priority: 'high', createdAt: '2024-01-01T00:00:00Z' },
+  { id: 'IT001', name: 'Fire', description: 'Structural or wildfire incidents', priority: 'critical', createdAt: '2024-01-01T00:00:00Z' },
+  { id: 'IT002', name: 'Medical Emergency', description: 'Health-related emergencies', priority: 'high', createdAt: '2024-01-01T00:00:00Z' },
+  { id: 'IT003', name: 'Disaster', description: 'Natural disaster and calamity events', priority: 'high', createdAt: '2024-01-01T00:00:00Z' },
+  { id: 'IT004', name: 'Vehicular', description: 'Road traffic accidents', priority: 'medium', createdAt: '2024-01-01T00:00:00Z' },
+  { id: 'IT005', name: 'Trauma', description: 'Physical injury and trauma cases', priority: 'medium', createdAt: '2024-01-01T00:00:00Z' },
+  { id: 'IT006', name: 'Ambulance', description: 'Ambulance and medical transport requests', priority: 'low', createdAt: '2024-01-01T00:00:00Z' },
+  { id: 'IT007', name: 'Service', description: 'General service and assistance requests', priority: 'low', createdAt: '2024-01-01T00:00:00Z' },
 ];
 
 export const mockReports: EmergencyReport[] = [
   {
     id: 'RPT001',
-    type: 'Flood',
+    type: 'Disaster',
     location: 'Barangay Poblacion, Dagupan',
     lat: 16.0433,
     lng: 120.3372,
@@ -200,7 +197,7 @@ export const mockReports: EmergencyReport[] = [
   },
   {
     id: 'RPT003',
-    type: 'Vehicular Accident',
+    type: 'Vehicular',
     location: 'Quezon Boulevard, Dagupan',
     lat: 16.0456,
     lng: 120.3335,
@@ -225,7 +222,7 @@ export const mockReports: EmergencyReport[] = [
   },
   {
     id: 'RPT005',
-    type: 'Typhoon',
+    type: 'Disaster',
     location: 'Dagupan City Proper',
     lat: 16.0427,
     lng: 120.3370,
@@ -234,11 +231,11 @@ export const mockReports: EmergencyReport[] = [
     description: 'Typhoon signal raised. Strong winds and heavy rainfall expected.',
     reportedBy: { id: 'USR001', name: 'Juan Dela Cruz', contact: '+63 917 123 4567' },
     assignedTeam: 'TM001',
-    priority: 'critical',
+    priority: 'high',
   },
   {
     id: 'RPT006',
-    type: 'Landslide',
+    type: 'Trauma',
     location: 'Barangay Salapingao, Dagupan',
     lat: 16.0375,
     lng: 120.3455,
@@ -246,11 +243,11 @@ export const mockReports: EmergencyReport[] = [
     status: 'pending',
     description: 'Minor landslide blocking road access. No casualties reported.',
     reportedBy: { id: 'USR006', name: 'Rosa Lim', contact: '+63 922 678 9012' },
-    priority: 'high',
+    priority: 'medium',
   },
   {
     id: 'RPT007',
-    type: 'Power Outage',
+    type: 'Service',
     location: 'Barangay Mayombo, Dagupan',
     lat: 16.0400,
     lng: 120.3425,
@@ -263,7 +260,7 @@ export const mockReports: EmergencyReport[] = [
   },
   {
     id: 'RPT008',
-    type: 'Drowning',
+    type: 'Ambulance',
     location: 'Bonuan Beach, Dagupan',
     lat: 16.0550,
     lng: 120.3250,
@@ -271,11 +268,11 @@ export const mockReports: EmergencyReport[] = [
     status: 'pending',
     description: 'Person swept away by strong currents at Bonuan Beach.',
     reportedBy: { id: 'USR011', name: 'Fernando Aquino', contact: '+63 927 123 4560' },
-    priority: 'critical',
+    priority: 'low',
   },
   {
     id: 'RPT009',
-    type: 'Flood',
+    type: 'Disaster',
     location: 'Barangay Pantal, Dagupan',
     lat: 16.0395,
     lng: 120.3380,
@@ -283,11 +280,11 @@ export const mockReports: EmergencyReport[] = [
     status: 'acknowledged',
     description: 'Waist-deep flood waters in Pantal area. Residents need evacuation.',
     reportedBy: { id: 'USR004', name: 'Ana Garcia', contact: '+63 920 456 7890' },
-    priority: 'critical',
+    priority: 'high',
   },
   {
     id: 'RPT010',
-    type: 'Structural Collapse',
+    type: 'Trauma',
     location: 'Barangay Carael, Dagupan',
     lat: 16.0470,
     lng: 120.3310,
@@ -307,11 +304,11 @@ export const mockReports: EmergencyReport[] = [
     status: 'pending',
     description: 'Grass fire near residential area spreading quickly due to wind.',
     reportedBy: { id: 'USR003', name: 'Pedro Reyes', contact: '+63 919 345 6789' },
-    priority: 'high',
+    priority: 'critical',
   },
   {
     id: 'RPT012',
-    type: 'Earthquake',
+    type: 'Disaster',
     location: 'Dagupan City',
     lat: 16.0440,
     lng: 120.3390,
@@ -389,7 +386,7 @@ export const mockAuditLogs: AuditLog[] = [
   { id: 'AL002', userId: 'USR002', userName: 'Maria Santos', action: 'UPDATE_REPORT', details: 'Updated report RPT002 status to dispatched', timestamp: '2026-03-04T07:20:00Z', ipAddress: '192.168.1.101' },
   { id: 'AL005', userId: 'USR002', userName: 'Maria Santos', action: 'ASSIGN_TEAM', details: 'Assigned Alpha Rescue Team to report RPT002', timestamp: '2026-03-04T07:25:00Z', ipAddress: '192.168.1.101' },
   { id: 'AL006', userId: 'USR001', userName: 'Juan Dela Cruz', action: 'UPDATE_USER', details: 'Suspended user Rosa Lim (USR006)', timestamp: '2026-03-02T11:00:00Z', ipAddress: '192.168.1.100' },
-  { id: 'AL007', userId: 'USR001', userName: 'Juan Dela Cruz', action: 'CREATE_INCIDENT_TYPE', details: 'Created incident type: Drowning', timestamp: '2026-02-28T09:30:00Z', ipAddress: '192.168.1.100' },
+  { id: 'AL007', userId: 'USR001', userName: 'Juan Dela Cruz', action: 'CREATE_INCIDENT_TYPE', details: 'Created incident type: Trauma', timestamp: '2026-02-28T09:30:00Z', ipAddress: '192.168.1.100' },
   { id: 'AL008', userId: 'USR002', userName: 'Maria Santos', action: 'RESOLVE_REPORT', details: 'Resolved report RPT004', timestamp: '2026-03-04T10:30:00Z', ipAddress: '192.168.1.101' },
   { id: 'AL011', userId: 'USR002', userName: 'Maria Santos', action: 'LOGIN', details: 'Dispatcher logged in successfully', timestamp: '2026-03-04T06:30:00Z', ipAddress: '192.168.1.101' },
   { id: 'AL012', userId: 'USR001', userName: 'Juan Dela Cruz', action: 'CREATE_USER', details: 'Created new user account for Fernando Aquino', timestamp: '2026-06-01T08:00:00Z', ipAddress: '192.168.1.100' },
@@ -516,18 +513,18 @@ export const mockVehicles: Vehicle[] = [
 ];
 
 export const mockHeatmapData = [
-  { lat: 16.0433, lng: 120.3372, intensity: 0.9, type: 'Flood' },
+  { lat: 16.0433, lng: 120.3372, intensity: 0.9, type: 'Disaster' },
   { lat: 16.0389, lng: 120.3412, intensity: 0.8, type: 'Fire' },
-  { lat: 16.0456, lng: 120.3335, intensity: 0.5, type: 'Accident' },
-  { lat: 16.0512, lng: 120.3298, intensity: 0.6, type: 'Medical' },
-  { lat: 16.0427, lng: 120.3370, intensity: 0.95, type: 'Typhoon' },
-  { lat: 16.0375, lng: 120.3455, intensity: 0.7, type: 'Landslide' },
-  { lat: 16.0400, lng: 120.3425, intensity: 0.3, type: 'Power Outage' },
-  { lat: 16.0550, lng: 120.3250, intensity: 0.85, type: 'Drowning' },
-  { lat: 16.0395, lng: 120.3380, intensity: 0.75, type: 'Flood' },
+  { lat: 16.0456, lng: 120.3335, intensity: 0.5, type: 'Vehicular' },
+  { lat: 16.0512, lng: 120.3298, intensity: 0.6, type: 'Medical Emergency' },
+  { lat: 16.0427, lng: 120.3370, intensity: 0.95, type: 'Disaster' },
+  { lat: 16.0375, lng: 120.3455, intensity: 0.7, type: 'Trauma' },
+  { lat: 16.0400, lng: 120.3425, intensity: 0.3, type: 'Service' },
+  { lat: 16.0550, lng: 120.3250, intensity: 0.85, type: 'Ambulance' },
+  { lat: 16.0395, lng: 120.3380, intensity: 0.75, type: 'Disaster' },
   { lat: 16.0430, lng: 120.3365, intensity: 0.7, type: 'Fire' },
-  { lat: 16.0440, lng: 120.3390, intensity: 0.65, type: 'Earthquake' },
-  { lat: 16.0470, lng: 120.3310, intensity: 0.4, type: 'Collapse' },
+  { lat: 16.0440, lng: 120.3390, intensity: 0.65, type: 'Disaster' },
+  { lat: 16.0470, lng: 120.3310, intensity: 0.4, type: 'Trauma' },
 ];
 
 // Stats
@@ -542,18 +539,17 @@ export const adminDashboardStats = {
 };
 
 export const reportsByType = [
-  { type: 'Flood', count: 8, color: '#3b82f6' },
   { type: 'Fire', count: 5, color: '#ef4444' },
-  { type: 'Medical', count: 4, color: '#22c55e' },
-  { type: 'Accident', count: 3, color: '#f59e0b' },
-  { type: 'Typhoon', count: 6, color: '#8b5cf6' },
-  { type: 'Landslide', count: 2, color: '#ec4899' },
-  { type: 'Power Outage', count: 1, color: '#6b7280' },
-  { type: 'Other', count: 2, color: '#14b8a6' },
+  { type: 'Medical Emergency', count: 4, color: '#22c55e' },
+  { type: 'Disaster', count: 8, color: '#3b82f6' },
+  { type: 'Vehicular', count: 3, color: '#f59e0b' },
+  { type: 'Trauma', count: 2, color: '#ec4899' },
+  { type: 'Ambulance', count: 1, color: '#06b6d4' },
+  { type: 'Service', count: 2, color: '#6b7280' },
 ];
 
 export const recentActivity = [
-  { id: 1, action: 'New flood report filed', user: 'Pedro Reyes', time: '5 min ago', type: 'report' },
+  { id: 1, action: 'New disaster report filed', user: 'Pedro Reyes', time: '5 min ago', type: 'report' },
   { id: 2, action: 'Team Alpha dispatched', user: 'Maria Santos', time: '12 min ago', type: 'dispatch' },
   { id: 3, action: 'Report RPT004 resolved', user: 'Maria Santos', time: '30 min ago', type: 'resolve' },
   { id: 4, action: 'New user registered', user: 'System', time: '1h ago', type: 'user' },

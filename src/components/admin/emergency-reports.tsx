@@ -39,16 +39,13 @@ import { toast } from 'sonner';
 const ITEMS_PER_PAGE = 8;
 
 const incidentTypes = [
-  'Flood',
   'Fire',
-  'Earthquake',
-  'Typhoon',
-  'Landslide',
-  'Vehicular Accident',
   'Medical Emergency',
-  'Power Outage',
-  'Structural Collapse',
-  'Drowning',
+  'Disaster',
+  'Vehicular',
+  'Trauma',
+  'Ambulance',
+  'Service',
 ];
 
 function getStatusBadge(status: ReportStatus) {

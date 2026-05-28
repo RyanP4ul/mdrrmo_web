@@ -5,16 +5,13 @@ import { mockHeatmapData } from '@/lib/mock-data';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export const INCIDENT_COLORS: Record<string, string> = {
-  Flood: '#3b82f6',
   Fire: '#ef4444',
-  Medical: '#22c55e',
-  Accident: '#f59e0b',
-  Typhoon: '#a855f7',
-  Landslide: '#ec4899',
-  'Power Outage': '#6b7280',
-  Drowning: '#06b6d4',
-  Earthquake: '#f97316',
-  Collapse: '#92400e',
+  'Medical Emergency': '#22c55e',
+  Disaster: '#3b82f6',
+  Vehicular: '#f59e0b',
+  Trauma: '#ec4899',
+  Ambulance: '#06b6d4',
+  Service: '#6b7280',
 };
 
 export const INCIDENT_TYPES = Object.keys(INCIDENT_COLORS);
