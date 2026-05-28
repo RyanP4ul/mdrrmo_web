@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import {
   LayoutDashboard,
+  Radio,
   Users,
   AlertTriangle,
   Shield,
@@ -45,7 +46,7 @@ const adminNavItems: NavItem[] = [
 ];
 
 const dispatcherNavItems: NavItem[] = [
-  { title: 'Dashboard', page: 'dispatcher-dashboard', icon: LayoutDashboard },
+  { title: 'Operations', page: 'dispatcher-dashboard', icon: Radio },
   { title: 'Reports', page: 'dispatcher-reports', icon: AlertTriangle },
   { title: 'Responders', page: 'dispatcher-responders', icon: Shield },
 ];

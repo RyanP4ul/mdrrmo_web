@@ -543,8 +543,8 @@ export function DispatcherDashboard() {
             <Radio className="size-5 text-blue-600 dark:text-blue-400" />
           </div>
           <div>
-            <h2 className="text-xl font-bold">Dispatcher Dashboard</h2>
-            <p className="text-sm text-muted-foreground">Live vehicle tracking & dispatch</p>
+            <h2 className="text-xl font-bold">Dispatch Operations</h2>
+            <p className="text-sm text-muted-foreground">Live incident response & vehicle tracking</p>
           </div>
         </div>
 
