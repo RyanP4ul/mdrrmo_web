@@ -57,21 +57,6 @@ import { toast } from 'sonner';
 
 const ITEMS_PER_PAGE = 5;
 
-const ALL_SPECIALIZATIONS = [
-  'Flood Rescue',
-  'Fire Response',
-  'Fire Suppression',
-  'Medical Emergency',
-  'First Aid',
-  'Structural Assessment',
-  'Utility Repair',
-  'Water Rescue',
-  'Search Operations',
-  'Hazmat Response',
-  'Evacuation',
-  'Communication',
-];
-
 interface MemberForm {
   id: string;
   name: string;
@@ -81,14 +66,12 @@ interface MemberForm {
 
 interface TeamForm {
   teamName: string;
-  specializations: string[];
   members: MemberForm[];
   availability: Availability;
 }
 
 const emptyTeamForm: TeamForm = {
   teamName: '',
-  specializations: [],
   members: [{ id: `M-${Date.now()}`, name: '', role: '', availability: 'available' }],
   availability: 'available',
 };
@@ -97,7 +80,6 @@ export function Responders() {
   const [teams, setTeams] = useState<ResponseTeam[]>([...mockResponseTeams]);
   const [searchQuery, setSearchQuery] = useState('');
   const [availabilityFilter, setAvailabilityFilter] = useState<string>('all');
-  const [specializationFilter, setSpecializationFilter] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
 
   // Dialog states
@@ -107,12 +89,6 @@ export function Responders() {
   const [editingTeamId, setEditingTeamId] = useState<string | null>(null);
   const [deletingTeamId, setDeletingTeamId] = useState<string | null>(null);
   const [teamForm, setTeamForm] = useState<TeamForm>(emptyTeamForm);
-
-  const allSpecializations = useMemo(() => {
-    const specs = new Set<string>();
-    teams.forEach((t) => t.specializations.forEach((s) => specs.add(s)));
-    return [...specs].sort();
-  }, [teams]);
 
   const filteredTeams = useMemo(() => {
     let result = [...teams];
@@ -130,12 +106,8 @@ export function Responders() {
       result = result.filter((t) => t.availability === availabilityFilter);
     }
 
-    if (specializationFilter !== 'all') {
-      result = result.filter((t) => t.specializations.includes(specializationFilter));
-    }
-
     return result;
-  }, [teams, searchQuery, availabilityFilter, specializationFilter]);
+  }, [teams, searchQuery, availabilityFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filteredTeams.length / ITEMS_PER_PAGE));
   const paginatedTeams = filteredTeams.slice(
@@ -167,7 +139,7 @@ export function Responders() {
     const newTeam: ResponseTeam = {
       id: `TM${String(teams.length + 1).padStart(3, '0')}`,
       teamName: teamForm.teamName.trim(),
-      specializations: teamForm.specializations,
+      specializations: [],
       members: teamForm.members.map((m, i) => ({
         ...m,
         id: m.id || `M${Date.now()}-${i}`,
@@ -191,7 +163,6 @@ export function Responders() {
     setEditingTeamId(teamId);
     setTeamForm({
       teamName: team.teamName,
-      specializations: [...team.specializations],
       members: team.members.map((m) => ({ ...m })),
       availability: team.availability,
     });
@@ -215,7 +186,6 @@ export function Responders() {
           ? {
               ...t,
               teamName: teamForm.teamName.trim(),
-              specializations: teamForm.specializations,
               members: teamForm.members.map((m, i) => ({
                 ...m,
                 id: m.id || `M${Date.now()}-${i}`,
@@ -283,15 +253,6 @@ export function Responders() {
     }));
   };
 
-  const toggleSpecialization = (spec: string) => {
-    setTeamForm((prev) => ({
-      ...prev,
-      specializations: prev.specializations.includes(spec)
-        ? prev.specializations.filter((s) => s !== spec)
-        : [...prev.specializations, spec],
-    }));
-  };
-
   // Team form dialog content (shared between add and edit)
   const renderTeamForm = () => (
     <div className="space-y-4 py-2 max-h-[60vh] overflow-y-auto">
@@ -323,27 +284,6 @@ export function Responders() {
             <SelectItem value="unavailable">Unavailable</SelectItem>
           </SelectContent>
         </Select>
-      </div>
-
-      {/* Specializations */}
-      <div className="space-y-2">
-        <Label>Specializations</Label>
-        <div className="flex flex-wrap gap-2">
-          {ALL_SPECIALIZATIONS.map((spec) => (
-            <button
-              key={spec}
-              type="button"
-              onClick={() => toggleSpecialization(spec)}
-              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors border ${
-                teamForm.specializations.includes(spec)
-                  ? 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-700'
-                  : 'bg-muted text-muted-foreground border-border hover:bg-muted/80'
-              }`}
-            >
-              {spec}
-            </button>
-          ))}
-        </div>
       </div>
 
       <Separator />
@@ -461,33 +401,12 @@ export function Responders() {
                 </SelectContent>
               </Select>
 
-              <Select
-                value={specializationFilter}
-                onValueChange={(v) => {
-                  setSpecializationFilter(v);
-                  handleFilterChange();
-                }}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Specialization" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Specializations</SelectItem>
-                  {allSpecializations.map((spec) => (
-                    <SelectItem key={spec} value={spec}>
-                      {spec}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {(availabilityFilter !== 'all' || specializationFilter !== 'all' || searchQuery) && (
+              {(availabilityFilter !== 'all' || searchQuery) && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => {
                     setAvailabilityFilter('all');
-                    setSpecializationFilter('all');
                     setSearchQuery('');
                     handleFilterChange();
                   }}
@@ -564,19 +483,6 @@ export function Responders() {
 
                 {/* Team Content */}
                 <div className="p-4 space-y-3">
-                  {/* Specializations */}
-                  <div className="flex flex-wrap gap-1.5">
-                    {team.specializations.map((spec) => (
-                      <Badge
-                        key={spec}
-                        variant="outline"
-                        className="text-xs border-blue-300 text-blue-700 dark:border-blue-700 dark:text-blue-400"
-                      >
-                        {spec}
-                      </Badge>
-                    ))}
-                  </div>
-
                   {/* Members */}
                   <div className="space-y-1.5">
                     <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
@@ -651,7 +557,7 @@ export function Responders() {
               Add Response Team
             </DialogTitle>
             <DialogDescription>
-              Create a new emergency response team with members and specializations.
+              Create a new emergency response team with members.
             </DialogDescription>
           </DialogHeader>
           {renderTeamForm()}
@@ -675,7 +581,7 @@ export function Responders() {
               Edit Response Team
             </DialogTitle>
             <DialogDescription>
-              Update team details, members, and specializations.
+              Update team details and members.
             </DialogDescription>
           </DialogHeader>
           {renderTeamForm()}
