@@ -569,52 +569,6 @@ export function DispatcherDashboard() {
       {/* Emergency Report Modal */}
       <EmergencyReportModal open={reportModalOpen} onOpenChange={setReportModalOpen} />
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="size-4 text-red-500" />
-              <span className="text-sm text-muted-foreground">Pending</span>
-            </div>
-            <p className="mt-1 text-2xl font-bold">{pendingReports.length}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <Truck className="size-4 text-blue-500" />
-              <span className="text-sm text-muted-foreground">En Route</span>
-            </div>
-            <p className="mt-1 text-2xl font-bold">
-              {mockVehicles.filter((v) => v.status === 'en-route').length}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <Navigation className="size-4 text-green-500" />
-              <span className="text-sm text-muted-foreground">On Scene</span>
-            </div>
-            <p className="mt-1 text-2xl font-bold">
-              {mockVehicles.filter((v) => v.status === 'on-scene').length}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <MapPin className="size-4 text-cyan-500" />
-              <span className="text-sm text-muted-foreground">Available</span>
-            </div>
-            <p className="mt-1 text-2xl font-bold">
-              {mockVehicles.filter((v) => v.status === 'available').length}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Incoming Reports (md-4) + Vehicle Tracker (md-8) */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
         {/* Incoming Pending Reports - Left Side */}
@@ -734,6 +688,52 @@ export function DispatcherDashboard() {
             </CardContent>
           </Card>
         </div>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="size-4 text-red-500" />
+              <span className="text-sm text-muted-foreground">Pending</span>
+            </div>
+            <p className="mt-1 text-2xl font-bold">{pendingReports.length}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Truck className="size-4 text-blue-500" />
+              <span className="text-sm text-muted-foreground">En Route</span>
+            </div>
+            <p className="mt-1 text-2xl font-bold">
+              {mockVehicles.filter((v) => v.status === 'en-route').length}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Navigation className="size-4 text-green-500" />
+              <span className="text-sm text-muted-foreground">On Scene</span>
+            </div>
+            <p className="mt-1 text-2xl font-bold">
+              {mockVehicles.filter((v) => v.status === 'on-scene').length}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <MapPin className="size-4 text-cyan-500" />
+              <span className="text-sm text-muted-foreground">Available</span>
+            </div>
+            <p className="mt-1 text-2xl font-bold">
+              {mockVehicles.filter((v) => v.status === 'available').length}
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Reports Section: Active, Resolved */}
