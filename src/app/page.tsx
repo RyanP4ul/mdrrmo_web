@@ -17,6 +17,7 @@ import { DispatcherDashboard } from '@/components/dispatcher/dashboard';
 import { DispatcherReports } from '@/components/dispatcher/reports';
 import { ReportDetail } from '@/components/dispatcher/report-detail';
 import { Responders } from '@/components/dispatcher/responders';
+import { DispatcherAnnouncements } from '@/components/dispatcher/announcements';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 
 function PageRenderer({ page }: { page: PageKey }) {
@@ -47,6 +48,8 @@ function PageRenderer({ page }: { page: PageKey }) {
       return <ReportDetail />;
     case 'dispatcher-responders':
       return <Responders />;
+    case 'dispatcher-announcements':
+      return <DispatcherAnnouncements />;
     default:
       return <LoginPage />;
   }

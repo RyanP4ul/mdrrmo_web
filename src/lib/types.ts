@@ -1,4 +1,4 @@
-export type Role = 'admin' | 'dispatcher' | 'resident';
+export type Role = 'admin' | 'dispatcher';
 
 export type UserStatus = 'active' | 'inactive' | 'suspended';
 
@@ -96,4 +96,5 @@ export type PageKey =
   | 'dispatcher-dashboard'
   | 'dispatcher-reports'
   | 'dispatcher-report-detail'
-  | 'dispatcher-responders';
+  | 'dispatcher-responders'
+  | 'dispatcher-announcements';

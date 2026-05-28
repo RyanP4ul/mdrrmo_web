@@ -71,8 +71,7 @@ const ITEMS_PER_PAGE = 8;
 function getRoleBadge(role: Role) {
   const styles: Record<Role, string> = {
     admin: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-    dispatcher: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-    resident: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+    dispatcher: 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-400',
   };
   return (
     <Badge className={`${styles[role]} border-0 capitalize`}>{role}</Badge>
@@ -110,7 +109,7 @@ const emptyForm: UserFormData = {
   firstName: '',
   lastName: '',
   email: '',
-  role: 'resident',
+  role: 'dispatcher',
   status: 'active',
 };
 
@@ -168,7 +167,6 @@ function UserForm({
             <SelectContent>
               <SelectItem value="admin">Admin</SelectItem>
               <SelectItem value="dispatcher">Dispatcher</SelectItem>
-              <SelectItem value="resident">Resident</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -367,7 +365,6 @@ export function UserManagement() {
                   <SelectItem value="all">All Roles</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
                   <SelectItem value="dispatcher">Dispatcher</SelectItem>
-                  <SelectItem value="resident">Resident</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={statusFilter} onValueChange={(value) => { setStatusFilter(value); setCurrentPage(1); }}>
