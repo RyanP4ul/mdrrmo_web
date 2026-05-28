@@ -563,21 +563,7 @@ export function DispatcherDashboard() {
             <p className="text-sm text-muted-foreground">Live vehicle tracking & dispatch</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <VehicleStatusFilter
-            hiddenStatuses={hiddenStatuses}
-            onToggleStatus={toggleStatus}
-            onToggleAll={toggleAllStatuses}
-            allStatuses={VEHICLE_STATUSES}
-          />
-          <Button
-            className="bg-red-600 hover:bg-red-700 text-white gap-1.5 h-9"
-            onClick={() => setReportModalOpen(true)}
-          >
-            <Plus className="size-4" />
-            New Report
-          </Button>
-        </div>
+
       </div>
 
       {/* Emergency Report Modal */}
@@ -635,12 +621,22 @@ export function DispatcherDashboard() {
         <div className="md:col-span-4">
           <Card className="h-full flex flex-col">
             <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="size-5 text-red-500" />
-                <CardTitle>Incoming Reports</CardTitle>
-                <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border-0 ml-2">
-                  {pendingReports.length}
-                </Badge>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="size-5 text-red-500" />
+                  <CardTitle>Incoming Reports</CardTitle>
+                  <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border-0 ml-2">
+                    {pendingReports.length}
+                  </Badge>
+                </div>
+                <Button
+                  size="sm"
+                  className="bg-red-600 hover:bg-red-700 text-white gap-1 h-7 text-xs"
+                  onClick={() => setReportModalOpen(true)}
+                >
+                  <Plus className="size-3.5" />
+                  New Report
+                </Button>
               </div>
               <CardDescription>Pending reports awaiting dispatch</CardDescription>
             </CardHeader>
@@ -706,17 +702,25 @@ export function DispatcherDashboard() {
                   <Truck className="size-5 text-blue-500" />
                   <CardTitle>Vehicle Tracker</CardTitle>
                 </div>
-                {selectedVehicle && (
-                  <Badge
-                    className="border-0 text-xs"
-                    style={{
-                      backgroundColor: VEHICLE_STATUS_COLORS[selectedVehicle.status] + '22',
-                      color: VEHICLE_STATUS_COLORS[selectedVehicle.status],
-                    }}
-                  >
-                    {VEHICLE_TYPE_ICONS[selectedVehicle.vehicleType]} {selectedVehicle.id} — {selectedVehicle.teamName}
-                  </Badge>
-                )}
+                <div className="flex items-center gap-2">
+                  {selectedVehicle && (
+                    <Badge
+                      className="border-0 text-xs"
+                      style={{
+                        backgroundColor: VEHICLE_STATUS_COLORS[selectedVehicle.status] + '22',
+                        color: VEHICLE_STATUS_COLORS[selectedVehicle.status],
+                      }}
+                    >
+                      {VEHICLE_TYPE_ICONS[selectedVehicle.vehicleType]} {selectedVehicle.id} — {selectedVehicle.teamName}
+                    </Badge>
+                  )}
+                  <VehicleStatusFilter
+                    hiddenStatuses={hiddenStatuses}
+                    onToggleStatus={toggleStatus}
+                    onToggleAll={toggleAllStatuses}
+                    allStatuses={VEHICLE_STATUSES}
+                  />
+                </div>
               </div>
               <CardDescription>Real-time location and status of response vehicles in Dagupan City</CardDescription>
             </CardHeader>
