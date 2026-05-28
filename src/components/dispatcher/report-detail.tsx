@@ -352,12 +352,7 @@ export function ReportDetail() {
                   ) : (
                     availableTeams.map((team) => (
                       <SelectItem key={team.id} value={team.id}>
-                        <div className="flex items-center gap-2">
-                          <span>{team.teamName}</span>
-                          <span className="text-xs text-muted-foreground">
-                            ({team.specializations.join(', ')})
-                          </span>
-                        </div>
+                        {team.teamName}
                       </SelectItem>
                     ))
                   )}
@@ -375,13 +370,6 @@ export function ReportDetail() {
                     return (
                       <>
                         <p className="text-sm font-medium">{team.teamName}</p>
-                        <div className="flex flex-wrap gap-1">
-                          {team.specializations.map((spec) => (
-                            <Badge key={spec} variant="outline" className="text-xs">
-                              {spec}
-                            </Badge>
-                          ))}
-                        </div>
                         <div className="space-y-1">
                           <p className="text-xs text-muted-foreground">Members ({team.members.length}):</p>
                           {team.members.map((member) => (
