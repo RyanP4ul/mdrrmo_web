@@ -204,11 +204,13 @@ export function ResponseTeams() {
                   >
                     <TableCell className="font-medium">{team.teamName}</TableCell>
                     <TableCell>
-                      <span className="text-sm">
-                        {team.members
-                          .map((m) => m.name)
-                          .join(', ')}
-                      </span>
+                      <div className="flex flex-col gap-0.5">
+                        {team.members.map((m) => (
+                          <span key={m.id} className="text-sm">
+                            {m.name} <span className="text-xs text-muted-foreground">({m.role})</span>
+                          </span>
+                        ))}
+                      </div>
                     </TableCell>
                     <TableCell>{getAvailabilityBadge(team.availability)}</TableCell>
                     <TableCell>
@@ -308,9 +310,12 @@ export function ResponseTeams() {
                   {selectedTeam.members.map((member) => (
                     <div
                       key={member.id}
-                      className="flex items-center justify-between rounded-lg border p-3"
+                      className="flex items-center justify-between gap-2 rounded-lg border p-3"
                     >
-                      <p className="text-sm font-medium">{member.name}</p>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium">{member.name}</p>
+                        <p className="text-xs text-muted-foreground">{member.role}</p>
+                      </div>
                       {getMemberAvailabilityBadge(member.availability)}
                     </div>
                   ))}

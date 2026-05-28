@@ -370,8 +370,11 @@ export function ReportDetail() {
                         <div className="space-y-1">
                           <p className="text-xs text-muted-foreground">Members ({team.members.length}):</p>
                           {team.members.map((member) => (
-                            <div key={member.id} className="flex items-center justify-between text-xs">
-                              <span>{member.name}</span>
+                            <div key={member.id} className="flex items-center justify-between gap-2 text-xs">
+                              <div className="min-w-0">
+                                <span className="font-medium">{member.name}</span>
+                                <span className="text-muted-foreground ml-1">({member.role})</span>
+                              </div>
                               <Badge
                                   className={`border-0 text-[10px] ${
                                     member.availability === 'available'

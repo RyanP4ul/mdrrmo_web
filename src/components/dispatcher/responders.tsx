@@ -60,6 +60,7 @@ const ITEMS_PER_PAGE = 5;
 interface MemberForm {
   id: string;
   name: string;
+  role: string;
   availability: Availability;
 }
 
@@ -71,7 +72,7 @@ interface TeamForm {
 
 const emptyTeamForm: TeamForm = {
   teamName: '',
-  members: [{ id: `M-${Date.now()}`, name: '', availability: 'available' }],
+  members: [{ id: `M-${Date.now()}`, name: '', role: 'Driver/Responder', availability: 'available' }],
   availability: 'available',
 };
 
@@ -120,7 +121,7 @@ export function Responders() {
   const openAddDialog = () => {
     setTeamForm({
       ...emptyTeamForm,
-      members: [{ id: `M-${Date.now()}`, name: '', availability: 'available' }],
+      members: [{ id: `M-${Date.now()}`, name: '', role: 'Driver/Responder', availability: 'available' }],
     });
     setShowAddDialog(true);
   };
@@ -143,7 +144,7 @@ export function Responders() {
         ...m,
         id: m.id || `M${Date.now()}-${i}`,
         name: m.name.trim(),
-        role: 'Member',
+        role: m.role || 'Driver/Responder',
       })),
       availability: teamForm.availability,
     };
@@ -189,7 +190,7 @@ export function Responders() {
                 ...m,
                 id: m.id || `M${Date.now()}-${i}`,
                 name: m.name.trim(),
-                role: 'Member',
+                role: m.role || 'Driver/Responder',
               })),
               availability: teamForm.availability,
             }
@@ -227,7 +228,7 @@ export function Responders() {
       ...prev,
       members: [
         ...prev.members,
-        { id: `M-${Date.now()}`, name: '', availability: 'available' },
+        { id: `M-${Date.now()}`, name: '', role: 'Driver/Responder', availability: 'available' },
       ],
     }));
   };
@@ -312,25 +313,38 @@ export function Responders() {
                       <X className="size-3" />
                     </Button>
                   </div>
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <div className="flex flex-col gap-2">
                     <Input
                       placeholder="Name *"
                       value={member.name}
                       onChange={(e) => updateMember(member.id, 'name', e.target.value)}
-                      className="text-sm flex-1"
+                      className="text-sm"
                     />
-                    <Select
-                      value={member.availability}
-                      onValueChange={(v) => updateMember(member.id, 'availability', v)}
-                    >
-                      <SelectTrigger className="text-sm w-full sm:w-[140px]">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="available">Available</SelectItem>
-                        <SelectItem value="unavailable">Unavailable</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                      <Select
+                        value={member.role}
+                        onValueChange={(v) => updateMember(member.id, 'role', v)}
+                      >
+                        <SelectTrigger className="text-sm w-full sm:flex-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Driver/Responder">Driver/Responder</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Select
+                        value={member.availability}
+                        onValueChange={(v) => updateMember(member.id, 'availability', v)}
+                      >
+                        <SelectTrigger className="text-sm w-full sm:w-[130px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="available">Available</SelectItem>
+                          <SelectItem value="unavailable">Unavailable</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -486,11 +500,14 @@ export function Responders() {
                       {team.members.map((member) => (
                         <div
                           key={member.id}
-                          className="flex items-center justify-between rounded-md bg-muted/50 px-3 py-2"
+                          className="flex items-center justify-between gap-2 rounded-md bg-muted/50 px-3 py-2"
                         >
-                          <p className="text-sm font-medium truncate">{member.name}</p>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium truncate">{member.name}</p>
+                            <p className="text-xs text-muted-foreground">{member.role}</p>
+                          </div>
                           <Badge
-                            className={`border-0 text-[10px] shrink-0 ml-2 ${
+                            className={`border-0 text-[10px] shrink-0 ${
                               member.availability === 'available'
                                 ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
                                 : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
