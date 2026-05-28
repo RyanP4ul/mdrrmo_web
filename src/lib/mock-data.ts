@@ -1,4 +1,4 @@
-import { User, EmergencyReport, ResponseTeam, Announcement, AuditLog, IncidentType } from './types';
+import { User, EmergencyReport, ResponseTeam, AuditLog, IncidentType } from './types';
 
 export const mockUsers: User[] = [
   {
@@ -384,68 +384,13 @@ export const mockResponseTeams: ResponseTeam[] = [
   },
 ];
 
-export const mockAnnouncements: Announcement[] = [
-  {
-    id: 'ANN001',
-    title: 'Typhoon Signal No. 3 Raised',
-    description: 'The Philippine Atmospheric, Geophysical and Astronomical Services Administration (PAGASA) has raised Typhoon Signal No. 3 over Dagupan City. All residents in low-lying and coastal areas are advised to evacuate to designated centers immediately. Please follow instructions from local authorities and stay tuned for further updates.',
-    postedAt: '2026-03-04T06:00:00Z',
-    postedBy: 'Juan Dela Cruz',
-    category: 'Weather Advisory',
-  },
-  {
-    id: 'ANN002',
-    title: 'Evacuation Center Now Open',
-    description: 'The Dagupan City Evacuation Center at the City Astrodome is now open and accepting displaced families. Please bring essential items including valid IDs, medications, and emergency supplies. Food and water will be provided by the city government.',
-    postedAt: '2026-03-04T07:30:00Z',
-    postedBy: 'Maria Santos',
-    category: 'Evacuation',
-  },
-  {
-    id: 'ANN003',
-    title: 'Road Closure: Rizal Street',
-    description: 'Rizal Street from Magsaysay to Burgos intersection is temporarily closed due to flooding. Motorists are advised to take alternate routes via Perez Blvd or Arellano St. Expect heavy traffic in the area.',
-    postedAt: '2026-03-04T08:15:00Z',
-    postedBy: 'Juan Dela Cruz',
-    category: 'Traffic Advisory',
-  },
-  {
-    id: 'ANN004',
-    title: 'Emergency Hotline Numbers',
-    description: 'For emergencies, please contact the following hotlines: MDRRMO: (075) 515-1234, Fire Department: (075) 515-4567, Police: (075) 515-7890, Red Cross: (075) 515-2345. Keep these numbers saved on your phones.',
-    postedAt: '2026-03-03T10:00:00Z',
-    postedBy: 'Elena Cruz',
-    category: 'Information',
-  },
-  {
-    id: 'ANN005',
-    title: 'Water Distribution Schedule',
-    description: 'The City Government will distribute potable water to affected barangays starting tomorrow at 6:00 AM. Distribution points: Barangay Poblacion - Covered Court, Barangay Bonuan - Barangay Hall, Barangay Tapuac - Multi-Purpose Hall. Bring your own containers.',
-    postedAt: '2026-03-03T15:00:00Z',
-    postedBy: 'Maria Santos',
-    category: 'Relief Operations',
-  },
-  {
-    id: 'ANN006',
-    title: 'All Clear: Power Restored',
-    description: 'Power has been fully restored to all barangays in Dagupan City as of 2:00 PM today. If you are still experiencing power issues, please report to the DARELCO office at (075) 515-9999.',
-    postedAt: '2026-03-03T14:00:00Z',
-    postedBy: 'Elena Cruz',
-    category: 'Information',
-  },
-];
-
 export const mockAuditLogs: AuditLog[] = [
   { id: 'AL001', userId: 'USR001', userName: 'Juan Dela Cruz', action: 'LOGIN', details: 'Admin logged in successfully', timestamp: '2026-03-04T08:00:00Z', ipAddress: '192.168.1.100' },
   { id: 'AL002', userId: 'USR002', userName: 'Maria Santos', action: 'UPDATE_REPORT', details: 'Updated report RPT002 status to dispatched', timestamp: '2026-03-04T07:20:00Z', ipAddress: '192.168.1.101' },
-  { id: 'AL003', userId: 'USR001', userName: 'Juan Dela Cruz', action: 'CREATE_ANNOUNCEMENT', details: 'Created announcement: Typhoon Signal No. 3 Raised', timestamp: '2026-03-04T06:05:00Z', ipAddress: '192.168.1.100' },
-  { id: 'AL004', userId: 'USR008', userName: 'Elena Cruz', action: 'CREATE_ANNOUNCEMENT', details: 'Created announcement: Emergency Hotline Numbers', timestamp: '2026-03-03T10:05:00Z', ipAddress: '192.168.1.105' },
   { id: 'AL005', userId: 'USR002', userName: 'Maria Santos', action: 'ASSIGN_TEAM', details: 'Assigned Alpha Rescue Team to report RPT002', timestamp: '2026-03-04T07:25:00Z', ipAddress: '192.168.1.101' },
   { id: 'AL006', userId: 'USR001', userName: 'Juan Dela Cruz', action: 'UPDATE_USER', details: 'Suspended user Rosa Lim (USR006)', timestamp: '2026-03-02T11:00:00Z', ipAddress: '192.168.1.100' },
   { id: 'AL007', userId: 'USR001', userName: 'Juan Dela Cruz', action: 'CREATE_INCIDENT_TYPE', details: 'Created incident type: Drowning', timestamp: '2026-02-28T09:30:00Z', ipAddress: '192.168.1.100' },
   { id: 'AL008', userId: 'USR002', userName: 'Maria Santos', action: 'RESOLVE_REPORT', details: 'Resolved report RPT004', timestamp: '2026-03-04T10:30:00Z', ipAddress: '192.168.1.101' },
-  { id: 'AL009', userId: 'USR008', userName: 'Elena Cruz', action: 'CREATE_ANNOUNCEMENT', details: 'Created announcement: All Clear - Power Restored', timestamp: '2026-03-03T14:10:00Z', ipAddress: '192.168.1.105' },
-  { id: 'AL010', userId: 'USR001', userName: 'Juan Dela Cruz', action: 'DELETE_ANNOUNCEMENT', details: 'Deleted outdated weather advisory', timestamp: '2026-03-03T14:15:00Z', ipAddress: '192.168.1.100' },
   { id: 'AL011', userId: 'USR002', userName: 'Maria Santos', action: 'LOGIN', details: 'Dispatcher logged in successfully', timestamp: '2026-03-04T06:30:00Z', ipAddress: '192.168.1.101' },
   { id: 'AL012', userId: 'USR001', userName: 'Juan Dela Cruz', action: 'CREATE_USER', details: 'Created new user account for Fernando Aquino', timestamp: '2026-06-01T08:00:00Z', ipAddress: '192.168.1.100' },
 ];
@@ -492,6 +437,6 @@ export const recentActivity = [
   { id: 2, action: 'Team Alpha dispatched', user: 'Maria Santos', time: '12 min ago', type: 'dispatch' },
   { id: 3, action: 'Report RPT004 resolved', user: 'Maria Santos', time: '30 min ago', type: 'resolve' },
   { id: 4, action: 'New user registered', user: 'System', time: '1h ago', type: 'user' },
-  { id: 5, action: 'Announcement posted', user: 'Elena Cruz', time: '2h ago', type: 'announcement' },
+  { id: 5, action: 'Incident type updated', user: 'Juan Dela Cruz', time: '2h ago', type: 'resolve' },
   { id: 6, action: 'Report RPT010 marked invalid', user: 'Maria Santos', time: '3h ago', type: 'resolve' },
 ];

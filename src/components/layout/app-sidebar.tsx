@@ -6,7 +6,6 @@ import {
   Users,
   AlertTriangle,
   Shield,
-  Megaphone,
   FileText,
   Siren,
   MapPin,
@@ -41,7 +40,6 @@ const adminNavItems: NavItem[] = [
   { title: 'User Management', page: 'admin-users', icon: Users },
   { title: 'Emergency Reports', page: 'admin-reports', icon: AlertTriangle },
   { title: 'Response Teams', page: 'admin-response-teams', icon: Siren },
-  { title: 'Announcements', page: 'admin-announcements', icon: Megaphone },
   { title: 'Audit Logs', page: 'admin-audit-logs', icon: FileText },
   { title: 'Incident Types', page: 'admin-incident-types', icon: MapPin },
 ];
@@ -50,7 +48,6 @@ const dispatcherNavItems: NavItem[] = [
   { title: 'Dashboard', page: 'dispatcher-dashboard', icon: LayoutDashboard },
   { title: 'Reports', page: 'dispatcher-reports', icon: AlertTriangle },
   { title: 'Responders', page: 'dispatcher-responders', icon: Shield },
-  { title: 'Announcements', page: 'dispatcher-announcements', icon: Megaphone },
 ];
 
 const navMap: Record<Role, NavItem[]> = {

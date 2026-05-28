@@ -10,14 +10,12 @@ import { AdminDashboard } from '@/components/admin/dashboard';
 import { UserManagement } from '@/components/admin/user-management';
 import { EmergencyReports } from '@/components/admin/emergency-reports';
 import { ResponseTeams } from '@/components/admin/response-teams';
-import { Announcements } from '@/components/admin/announcements';
 import { AuditLogs } from '@/components/admin/audit-logs';
 import { IncidentTypes } from '@/components/admin/incident-types';
 import { DispatcherDashboard } from '@/components/dispatcher/dashboard';
 import { DispatcherReports } from '@/components/dispatcher/reports';
 import { ReportDetail } from '@/components/dispatcher/report-detail';
 import { Responders } from '@/components/dispatcher/responders';
-import { DispatcherAnnouncements } from '@/components/dispatcher/announcements';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 
 function PageRenderer({ page }: { page: PageKey }) {
@@ -34,8 +32,6 @@ function PageRenderer({ page }: { page: PageKey }) {
       return <EmergencyReports />;
     case 'admin-response-teams':
       return <ResponseTeams />;
-    case 'admin-announcements':
-      return <Announcements />;
     case 'admin-audit-logs':
       return <AuditLogs />;
     case 'admin-incident-types':
@@ -48,8 +44,6 @@ function PageRenderer({ page }: { page: PageKey }) {
       return <ReportDetail />;
     case 'dispatcher-responders':
       return <Responders />;
-    case 'dispatcher-announcements':
-      return <DispatcherAnnouncements />;
     default:
       return <LoginPage />;
   }

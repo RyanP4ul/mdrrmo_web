@@ -24,7 +24,6 @@ const pageTitles: Record<PageKey, string> = {
   'admin-users': 'User Management',
   'admin-reports': 'Emergency Reports',
   'admin-response-teams': 'Response Teams',
-  'admin-announcements': 'Announcements',
   'admin-audit-logs': 'Audit Logs',
   'admin-incident-types': 'Incident Types',
   'dispatcher-dashboard': 'Dashboard',

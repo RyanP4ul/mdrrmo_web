@@ -30,24 +30,20 @@ const ACTION_TYPES = [
   'All',
   'LOGIN',
   'UPDATE_REPORT',
-  'CREATE_ANNOUNCEMENT',
   'ASSIGN_TEAM',
   'UPDATE_USER',
   'CREATE_INCIDENT_TYPE',
   'RESOLVE_REPORT',
-  'DELETE_ANNOUNCEMENT',
   'CREATE_USER',
 ] as const;
 
 function getActionBadge(action: string) {
   const colorMap: Record<string, string> = {
     LOGIN: 'bg-green-100 text-green-800 border-0 dark:bg-green-900/30 dark:text-green-400',
-    CREATE_ANNOUNCEMENT: 'bg-blue-100 text-blue-800 border-0 dark:bg-blue-900/30 dark:text-blue-400',
     CREATE_INCIDENT_TYPE: 'bg-blue-100 text-blue-800 border-0 dark:bg-blue-900/30 dark:text-blue-400',
     CREATE_USER: 'bg-blue-100 text-blue-800 border-0 dark:bg-blue-900/30 dark:text-blue-400',
     UPDATE_REPORT: 'bg-yellow-100 text-yellow-800 border-0 dark:bg-yellow-900/30 dark:text-yellow-400',
     UPDATE_USER: 'bg-yellow-100 text-yellow-800 border-0 dark:bg-yellow-900/30 dark:text-yellow-400',
-    DELETE_ANNOUNCEMENT: 'bg-red-100 text-red-800 border-0 dark:bg-red-900/30 dark:text-red-400',
     RESOLVE_REPORT: 'bg-purple-100 text-purple-800 border-0 dark:bg-purple-900/30 dark:text-purple-400',
     ASSIGN_TEAM: 'bg-blue-100 text-blue-800 border-0 dark:bg-blue-900/30 dark:text-blue-400',
   };

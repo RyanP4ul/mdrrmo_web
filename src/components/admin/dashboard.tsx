@@ -11,7 +11,6 @@ import {
   Map,
   AlertOctagon,
   FileWarning,
-  Megaphone,
   UserPlus,
   ShieldCheck,
   Filter,
@@ -67,7 +66,6 @@ const activityIcons: Record<string, React.ReactNode> = {
   dispatch: <ShieldCheck className="size-4 text-blue-500" />,
   resolve: <CheckCircle className="size-4 text-green-500" />,
   user: <UserPlus className="size-4 text-blue-500" />,
-  announcement: <Megaphone className="size-4 text-purple-500" />,
 };
 
 function getPriorityBadge(priority: PriorityLevel) {

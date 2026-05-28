@@ -55,16 +55,6 @@ export interface ResponseTeam {
   specializations: string[];
 }
 
-export interface Announcement {
-  id: string;
-  title: string;
-  description: string;
-  image?: string;
-  postedAt: string;
-  postedBy: string;
-  category: string;
-}
-
 export interface AuditLog {
   id: string;
   userId: string;
@@ -90,11 +80,9 @@ export type PageKey =
   | 'admin-users'
   | 'admin-reports'
   | 'admin-response-teams'
-  | 'admin-announcements'
   | 'admin-audit-logs'
   | 'admin-incident-types'
   | 'dispatcher-dashboard'
   | 'dispatcher-reports'
   | 'dispatcher-report-detail'
-  | 'dispatcher-responders'
-  | 'dispatcher-announcements';
+  | 'dispatcher-responders';
