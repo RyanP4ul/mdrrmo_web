@@ -553,10 +553,10 @@ export function DispatcherDashboard() {
       {/* Emergency Report Modal */}
       <EmergencyReportModal open={reportModalOpen} onOpenChange={setReportModalOpen} />
 
-      {/* Incoming Reports (md-4) + Vehicle Tracker (md-8) */}
+      {/* Incoming Reports (md-3) + Vehicle Tracker (md-9) */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
         {/* Incoming Pending Reports - Left Side */}
-        <div className="md:col-span-4">
+        <div className="md:col-span-3">
           <Card className="h-full flex flex-col">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
@@ -632,7 +632,7 @@ export function DispatcherDashboard() {
         </div>
 
         {/* Vehicle Tracker Map - Right Side */}
-        <div className="md:col-span-8">
+        <div className="md:col-span-9">
           <Card className="h-full flex flex-col">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
