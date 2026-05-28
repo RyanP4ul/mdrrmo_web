@@ -324,7 +324,7 @@ export const mockReports: EmergencyReport[] = [
 export const mockResponseTeams: ResponseTeam[] = [
   {
     id: 'TM001',
-    teamName: 'Alpha Rescue Team',
+    teamName: 'Team A',
     members: [
       { id: 'M001', name: 'Roberto Guzman', role: 'Driver/Responder', status: 'active' },
       { id: 'M002', name: 'Santiago Perez', role: 'Driver/Responder', status: 'active' },
@@ -336,7 +336,7 @@ export const mockResponseTeams: ResponseTeam[] = [
   },
   {
     id: 'TM002',
-    teamName: 'Bravo Medical Unit',
+    teamName: 'Team B',
     members: [
       { id: 'M005', name: 'Carmen Rivera', role: 'Driver/Responder', status: 'active' },
       { id: 'M006', name: 'Teresa Flores', role: 'Driver/Responder', status: 'active' },
@@ -347,7 +347,7 @@ export const mockResponseTeams: ResponseTeam[] = [
   },
   {
     id: 'TM003',
-    teamName: 'Charlie Engineering Squad',
+    teamName: 'Team C',
     members: [
       { id: 'M008', name: 'Antonio Reyes', role: 'Driver/Responder', status: 'active' },
       { id: 'M009', name: 'Mariano Lopez', role: 'Driver/Responder', status: 'inactive' },
@@ -358,7 +358,7 @@ export const mockResponseTeams: ResponseTeam[] = [
   },
   {
     id: 'TM004',
-    teamName: 'Delta Search & Rescue',
+    teamName: 'Team D',
     members: [
       { id: 'M011', name: 'Gregorio Magno', role: 'Driver/Responder', status: 'off-duty' },
       { id: 'M012', name: 'Patricia Encarnacion', role: 'Driver/Responder', status: 'inactive' },
@@ -370,7 +370,7 @@ export const mockResponseTeams: ResponseTeam[] = [
   },
   {
     id: 'TM005',
-    teamName: 'Echo Fire Response',
+    teamName: 'Team E',
     members: [
       { id: 'M015', name: 'Ramon Espiritu', role: 'Driver/Responder', status: 'active' },
       { id: 'M016', name: 'Danilo Magbanua', role: 'Driver/Responder', status: 'active' },
@@ -384,7 +384,7 @@ export const mockResponseTeams: ResponseTeam[] = [
 export const mockAuditLogs: AuditLog[] = [
   { id: 'AL001', userId: 'USR001', userName: 'Juan Dela Cruz', action: 'LOGIN', details: 'Admin logged in successfully', timestamp: '2026-03-04T08:00:00Z', ipAddress: '192.168.1.100' },
   { id: 'AL002', userId: 'USR002', userName: 'Maria Santos', action: 'UPDATE_REPORT', details: 'Updated report RPT002 status to dispatched', timestamp: '2026-03-04T07:20:00Z', ipAddress: '192.168.1.101' },
-  { id: 'AL005', userId: 'USR002', userName: 'Maria Santos', action: 'ASSIGN_TEAM', details: 'Assigned Alpha Rescue Team to report RPT002', timestamp: '2026-03-04T07:25:00Z', ipAddress: '192.168.1.101' },
+  { id: 'AL005', userId: 'USR002', userName: 'Maria Santos', action: 'ASSIGN_TEAM', details: 'Assigned Team A to report RPT002', timestamp: '2026-03-04T07:25:00Z', ipAddress: '192.168.1.101' },
   { id: 'AL006', userId: 'USR001', userName: 'Juan Dela Cruz', action: 'UPDATE_USER', details: 'Suspended user Rosa Lim (USR006)', timestamp: '2026-03-02T11:00:00Z', ipAddress: '192.168.1.100' },
   { id: 'AL007', userId: 'USR001', userName: 'Juan Dela Cruz', action: 'CREATE_INCIDENT_TYPE', details: 'Created incident type: Trauma', timestamp: '2026-02-28T09:30:00Z', ipAddress: '192.168.1.100' },
   { id: 'AL008', userId: 'USR002', userName: 'Maria Santos', action: 'RESOLVE_REPORT', details: 'Resolved report RPT004', timestamp: '2026-03-04T10:30:00Z', ipAddress: '192.168.1.101' },
@@ -412,7 +412,7 @@ export const mockVehicles: Vehicle[] = [
   {
     id: 'VH001',
     teamId: 'TM001',
-    teamName: 'Alpha Rescue Team',
+    teamName: 'Team A',
     vehicleType: 'rescue-van',
     lat: 16.0410,
     lng: 120.3390,
@@ -425,7 +425,7 @@ export const mockVehicles: Vehicle[] = [
   {
     id: 'VH002',
     teamId: 'TM002',
-    teamName: 'Bravo Medical Unit',
+    teamName: 'Team B',
     vehicleType: 'ambulance',
     lat: 16.0389,
     lng: 120.3412,
@@ -438,7 +438,7 @@ export const mockVehicles: Vehicle[] = [
   {
     id: 'VH003',
     teamId: 'TM003',
-    teamName: 'Charlie Engineering Squad',
+    teamName: 'Team C',
     vehicleType: 'utility-truck',
     lat: 16.0460,
     lng: 120.3350,
@@ -450,7 +450,7 @@ export const mockVehicles: Vehicle[] = [
   {
     id: 'VH004',
     teamId: 'TM004',
-    teamName: 'Delta Search & Rescue',
+    teamName: 'Team D',
     vehicleType: 'rescue-van',
     lat: 16.0520,
     lng: 120.3270,
@@ -462,7 +462,7 @@ export const mockVehicles: Vehicle[] = [
   {
     id: 'VH005',
     teamId: 'TM005',
-    teamName: 'Echo Fire Response',
+    teamName: 'Team E',
     vehicleType: 'fire-truck',
     lat: 16.0430,
     lng: 120.3365,
@@ -475,7 +475,7 @@ export const mockVehicles: Vehicle[] = [
   {
     id: 'VH006',
     teamId: 'TM001',
-    teamName: 'Alpha Rescue Team',
+    teamName: 'Team A',
     vehicleType: 'ambulance',
     lat: 16.0395,
     lng: 120.3380,
@@ -488,7 +488,7 @@ export const mockVehicles: Vehicle[] = [
   {
     id: 'VH007',
     teamId: 'TM002',
-    teamName: 'Bravo Medical Unit',
+    teamName: 'Team B',
     vehicleType: 'ambulance',
     lat: 16.0445,
     lng: 120.3335,
@@ -500,7 +500,7 @@ export const mockVehicles: Vehicle[] = [
   {
     id: 'VH008',
     teamId: 'TM005',
-    teamName: 'Echo Fire Response',
+    teamName: 'Team E',
     vehicleType: 'fire-truck',
     lat: 16.0427,
     lng: 120.3370,
@@ -550,7 +550,7 @@ export const reportsByType = [
 
 export const recentActivity = [
   { id: 1, action: 'New disaster report filed', user: 'Pedro Reyes', time: '5 min ago', type: 'report' },
-  { id: 2, action: 'Team Alpha dispatched', user: 'Maria Santos', time: '12 min ago', type: 'dispatch' },
+  { id: 2, action: 'Team A dispatched', user: 'Maria Santos', time: '12 min ago', type: 'dispatch' },
   { id: 3, action: 'Report RPT004 resolved', user: 'Maria Santos', time: '30 min ago', type: 'resolve' },
   { id: 4, action: 'New user registered', user: 'System', time: '1h ago', type: 'user' },
   { id: 5, action: 'Incident type updated', user: 'Juan Dela Cruz', time: '2h ago', type: 'resolve' },

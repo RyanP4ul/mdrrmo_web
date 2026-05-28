@@ -103,7 +103,7 @@ export function AppHeader() {
               <DropdownMenuItem className="flex flex-col items-start gap-1 p-3 cursor-pointer">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-blue-500" />
-                  <span className="text-sm font-medium">Team Alpha dispatched</span>
+                  <span className="text-sm font-medium">Team A dispatched</span>
                 </div>
                 <span className="text-xs text-muted-foreground pl-4">12 min ago</span>
               </DropdownMenuItem>
