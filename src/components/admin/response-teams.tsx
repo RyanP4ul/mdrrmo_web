@@ -63,15 +63,6 @@ function getStatusBadge(status: MemberStatus) {
   );
 }
 
-function getMemberStatusBadge(status: MemberStatus) {
-  const opt = MEMBER_STATUS_OPTIONS.find((s) => s.value === status);
-  return (
-    <Badge className={`${opt?.color ?? 'bg-gray-100 text-gray-800'} border-0 text-xs`}>
-      {opt?.label ?? status}
-    </Badge>
-  );
-}
-
 export function ResponseTeams() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -300,15 +291,14 @@ export function ResponseTeams() {
               </div>
               <div className="space-y-2">
                 <h4 className="text-sm font-semibold">Team Members ({selectedTeam.members.length})</h4>
-                <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                <div className="flex flex-wrap gap-1.5 max-h-64 overflow-y-auto pr-1">
                   {selectedTeam.members.map((member) => (
-                    <div
+                    <span
                       key={member.id}
-                      className="flex items-center justify-between gap-2 rounded-lg border p-3"
+                      className="inline-flex items-center rounded-md bg-muted/50 px-3 py-1.5 text-sm font-medium"
                     >
-                      <p className="text-sm font-medium truncate">{member.name}</p>
-                      {getMemberStatusBadge(member.status)}
-                    </div>
+                      {member.name}
+                    </span>
                   ))}
                 </div>
               </div>

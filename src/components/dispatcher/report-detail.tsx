@@ -369,24 +369,16 @@ export function ReportDetail() {
                         <p className="text-sm font-medium">{team.teamName}</p>
                         <div className="space-y-1">
                           <p className="text-xs text-muted-foreground">Members ({team.members.length}):</p>
-                          {team.members.map((member) => (
-                            <div key={member.id} className="flex items-center justify-between gap-2 text-xs">
-                              <span className="font-medium truncate">{member.name}</span>
-                              <Badge
-                                  className={`border-0 text-[10px] shrink-0 ${
-                                    member.status === 'active'
-                                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                                      : member.status === 'inactive'
-                                        ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                                        : member.status === 'on-leave'
-                                          ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
-                                          : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400'
-                                  }`}
-                                >
-                                  {member.status === 'on-leave' ? 'On Leave' : member.status === 'off-duty' ? 'Off Duty' : member.status.charAt(0).toUpperCase() + member.status.slice(1)}
-                                </Badge>
-                            </div>
-                          ))}
+                          <div className="flex flex-wrap gap-1">
+                            {team.members.map((member) => (
+                              <span
+                                key={member.id}
+                                className="inline-flex items-center rounded-md bg-muted/50 px-2 py-1 text-xs font-medium"
+                              >
+                                {member.name}
+                              </span>
+                            ))}
+                          </div>
                         </div>
                       </>
                     );

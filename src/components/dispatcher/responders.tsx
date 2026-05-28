@@ -102,13 +102,6 @@ const DRIVER_RESPONDER_NAMES = [
 ];
 
 // Status config
-const MEMBER_STATUS_OPTIONS: { value: MemberStatus; label: string; color: string }[] = [
-  { value: 'active', label: 'Active', color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' },
-  { value: 'inactive', label: 'Inactive', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
-  { value: 'on-leave', label: 'On Leave', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' },
-  { value: 'off-duty', label: 'Off Duty', color: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400' },
-];
-
 const TEAM_STATUS_OPTIONS: { value: MemberStatus; label: string; color: string }[] = [
   { value: 'active', label: 'Active', color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' },
   { value: 'inactive', label: 'Inactive', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
@@ -117,11 +110,11 @@ const TEAM_STATUS_OPTIONS: { value: MemberStatus; label: string; color: string }
 ];
 
 function getStatusBadgeStyles(status: MemberStatus): string {
-  return MEMBER_STATUS_OPTIONS.find((s) => s.value === status)?.color ?? 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
+  return TEAM_STATUS_OPTIONS.find((s) => s.value === status)?.color ?? 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
 }
 
 function getStatusLabel(status: MemberStatus): string {
-  return MEMBER_STATUS_OPTIONS.find((s) => s.value === status)?.label ?? status;
+  return TEAM_STATUS_OPTIONS.find((s) => s.value === status)?.label ?? status;
 }
 
 interface MemberForm {
@@ -373,78 +366,60 @@ export function Responders() {
               <Card key={member.id} className="bg-muted/30">
                 <CardContent className="p-3 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">Driver/Responder</span>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => removeMember(member.id)}
-                      className="size-6 p-0 text-red-500 hover:text-red-700"
+                      className="size-6 p-0 text-red-500 hover:text-red-700 ml-auto"
                     >
                       <X className="size-3" />
                     </Button>
                   </div>
-                  <div className="flex flex-col gap-2">
-                    {/* Name Combobox */}
-                    <Popover
-                      open={nameComboboxOpen[member.id] ?? false}
-                      onOpenChange={(open) =>
-                        setNameComboboxOpen((prev) => ({ ...prev, [member.id]: open }))
-                      }
-                    >
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          aria-expanded={nameComboboxOpen[member.id] ?? false}
-                          className="w-full justify-between text-sm font-normal h-9"
-                        >
-                          {member.name || 'Select name...'}
-                          <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-                        <Command>
-                          <CommandInput placeholder="Search name..." />
-                          <CommandList>
-                            <CommandEmpty>No name found.</CommandEmpty>
-                            <CommandGroup>
-                              {DRIVER_RESPONDER_NAMES.map((name) => (
-                                <CommandItem
-                                  key={name}
-                                  value={name}
-                                  onSelect={() => {
-                                    updateMemberField(member.id, 'name', name);
-                                    setNameComboboxOpen((prev) => ({ ...prev, [member.id]: false }));
-                                  }}
-                                  className="flex items-center gap-2"
-                                >
-                                  <Check
-                                    className={`size-4 ${member.name === name ? 'opacity-100' : 'opacity-0'}`}
-                                  />
-                                  <span className="text-sm">{name}</span>
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-
-                    {/* Status Select */}
-                    <Select
-                      value={member.status}
-                      onValueChange={(v) => updateMemberField(member.id, 'status', v)}
-                    >
-                      <SelectTrigger className="text-sm">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {MEMBER_STATUS_OPTIONS.map((opt) => (
-                          <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  {/* Name Combobox */}
+                  <Popover
+                    open={nameComboboxOpen[member.id] ?? false}
+                    onOpenChange={(open) =>
+                      setNameComboboxOpen((prev) => ({ ...prev, [member.id]: open }))
+                    }
+                  >
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={nameComboboxOpen[member.id] ?? false}
+                        className="w-full justify-between text-sm font-normal h-9"
+                      >
+                        {member.name || 'Select name...'}
+                        <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Search name..." />
+                        <CommandList>
+                          <CommandEmpty>No name found.</CommandEmpty>
+                          <CommandGroup>
+                            {DRIVER_RESPONDER_NAMES.map((name) => (
+                              <CommandItem
+                                key={name}
+                                value={name}
+                                onSelect={() => {
+                                  updateMemberField(member.id, 'name', name);
+                                  setNameComboboxOpen((prev) => ({ ...prev, [member.id]: false }));
+                                }}
+                                className="flex items-center gap-2"
+                              >
+                                <Check
+                                  className={`size-4 ${member.name === name ? 'opacity-100' : 'opacity-0'}`}
+                                />
+                                <span className="text-sm">{name}</span>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </CardContent>
               </Card>
             ))}
@@ -590,17 +565,14 @@ export function Responders() {
                       <Users className="size-3" />
                       Members ({team.members.length})
                     </p>
-                    <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+                    <div className="flex flex-wrap gap-1.5">
                       {team.members.map((member) => (
-                        <div
+                        <span
                           key={member.id}
-                          className="flex items-center justify-between gap-2 rounded-md bg-muted/50 px-3 py-2"
+                          className="inline-flex items-center rounded-md bg-muted/50 px-3 py-1.5 text-sm font-medium"
                         >
-                          <p className="text-sm font-medium truncate">{member.name}</p>
-                          <Badge className={`border-0 text-[10px] shrink-0 ${getStatusBadgeStyles(member.status)}`}>
-                            {getStatusLabel(member.status)}
-                          </Badge>
-                        </div>
+                          {member.name}
+                        </span>
                       ))}
                     </div>
                   </div>
