@@ -33,20 +33,6 @@ import type { ResponseTeam, MemberStatus } from '@/lib/types';
 
 const ITEMS_PER_PAGE = 5;
 
-const ALL_SPECIALIZATIONS = [
-  'All',
-  'Flood Rescue',
-  'Fire Response',
-  'Medical Emergency',
-  'First Aid',
-  'Search Operations',
-  'Water Rescue',
-  'Structural Assessment',
-  'Utility Repair',
-  'Fire Suppression',
-  'Hazmat Response',
-];
-
 const MEMBER_STATUS_OPTIONS: { value: MemberStatus; label: string; color: string }[] = [
   { value: 'active', label: 'Active', color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' },
   { value: 'inactive', label: 'Inactive', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
@@ -66,7 +52,6 @@ function getStatusBadge(status: MemberStatus) {
 export function ResponseTeams() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [specializationFilter, setSpecializationFilter] = useState<string>('All');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTeam, setSelectedTeam] = useState<ResponseTeam | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -76,12 +61,9 @@ export function ResponseTeams() {
       const matchesSearch = team.teamName.toLowerCase().includes(search.toLowerCase());
       const matchesStatus =
         statusFilter === 'all' || team.status === statusFilter;
-      const matchesSpecialization =
-        specializationFilter === 'All' ||
-        team.specializations.some((s) => s === specializationFilter);
-      return matchesSearch && matchesStatus && matchesSpecialization;
+      return matchesSearch && matchesStatus;
     });
-  }, [search, statusFilter, specializationFilter]);
+  }, [search, statusFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filteredTeams.length / ITEMS_PER_PAGE));
   const paginatedTeams = filteredTeams.slice(
@@ -140,24 +122,6 @@ export function ResponseTeams() {
                 ))}
               </SelectContent>
             </Select>
-            <Select
-              value={specializationFilter}
-              onValueChange={(val) => {
-                setSpecializationFilter(val);
-                setCurrentPage(1);
-              }}
-            >
-              <SelectTrigger className="w-full sm:w-[200px]">
-                <SelectValue placeholder="Specialization" />
-              </SelectTrigger>
-              <SelectContent>
-                {ALL_SPECIALIZATIONS.map((spec) => (
-                  <SelectItem key={spec} value={spec}>
-                    {spec === 'All' ? 'All Specializations' : spec}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
         </CardContent>
       </Card>
@@ -171,14 +135,13 @@ export function ResponseTeams() {
                 <TableHead className="w-[200px]">Team Name</TableHead>
                 <TableHead className="min-w-[250px]">Members</TableHead>
                 <TableHead className="w-[130px]">Status</TableHead>
-                <TableHead>Specializations</TableHead>
                 <TableHead className="w-[80px] text-center">Details</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {paginatedTeams.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                  <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
                     No teams found matching your filters.
                   </TableCell>
                 </TableRow>
@@ -198,19 +161,6 @@ export function ResponseTeams() {
                       </div>
                     </TableCell>
                     <TableCell>{getStatusBadge(team.status)}</TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {team.specializations.map((spec) => (
-                          <Badge
-                            key={spec}
-                            variant="outline"
-                            className="text-xs border-blue-300 text-blue-700 dark:border-blue-700 dark:text-blue-400"
-                          >
-                            {spec}
-                          </Badge>
-                        ))}
-                      </div>
-                    </TableCell>
                     <TableCell className="text-center">
                       <Button
                         variant="ghost"
@@ -276,18 +226,6 @@ export function ResponseTeams() {
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium">Status:</span>
                 {getStatusBadge(selectedTeam.status)}
-              </div>
-              <div className="flex flex-wrap gap-1">
-                <span className="text-sm font-medium mr-1">Specializations:</span>
-                {selectedTeam.specializations.map((spec) => (
-                  <Badge
-                    key={spec}
-                    variant="outline"
-                    className="text-xs border-blue-300 text-blue-700 dark:border-blue-700 dark:text-blue-400"
-                  >
-                    {spec}
-                  </Badge>
-                ))}
               </div>
               <div className="space-y-2">
                 <h4 className="text-sm font-semibold">Team Members ({selectedTeam.members.length})</h4>
