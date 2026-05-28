@@ -13,14 +13,13 @@ import {
   Navigation,
   ChevronRight,
   Siren,
-  Flame,
-  Heart,
-  Car,
   Phone,
   User,
   MapPinned,
   Send,
   Plus,
+  Check,
+  ChevronsUpDown,
 } from 'lucide-react';
 import {
   Card,
@@ -48,12 +47,11 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
-import { mockReports, mockResponseTeams, mockVehicles } from '@/lib/mock-data';
+import { mockReports, mockResponseTeams, mockVehicles, mockIncidentTypes } from '@/lib/mock-data';
 import type { VehicleStatus } from '@/lib/mock-data';
 import { useAppStore } from '@/lib/store';
-import type { PriorityLevel, ReportStatus } from '@/lib/types';
+import type { IncidentType, PriorityLevel, ReportStatus } from '@/lib/types';
 import {
   VehicleTracker,
   VEHICLE_STATUS_COLORS,
@@ -61,38 +59,23 @@ import {
   VEHICLE_TYPE_ICONS,
   VEHICLE_STATUSES,
 } from '@/components/maps/vehicle-tracker';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 import { toast } from 'sonner';
 
-// ─── Accident Types ──────────────────────────────────────────────
-const ACCIDENT_TYPES = [
-  { id: 'medical', label: 'Medical', icon: Heart, color: '#22c55e', bgColor: 'bg-green-100 dark:bg-green-900/30', textColor: 'text-green-700 dark:text-green-400', borderColor: 'border-green-300 dark:border-green-700', activeBg: 'bg-green-500' },
-  { id: 'fire', label: 'Fire', icon: Flame, color: '#ef4444', bgColor: 'bg-red-100 dark:bg-red-900/30', textColor: 'text-red-700 dark:text-red-400', borderColor: 'border-red-300 dark:border-red-700', activeBg: 'bg-red-500' },
-  { id: 'vehicular', label: 'Vehicular', icon: Car, color: '#f59e0b', bgColor: 'bg-amber-100 dark:bg-amber-900/30', textColor: 'text-amber-700 dark:text-amber-400', borderColor: 'border-amber-300 dark:border-amber-700', activeBg: 'bg-amber-500' },
-] as const;
-
-// ─── Urgency Levels ──────────────────────────────────────────────
-const URGENCY_LEVELS = [
-  {
-    id: 'urgent',
-    label: 'Urgent',
-    sublabel: 'Immediate response needed',
-    color: '#ef4444',
-    bgClass: 'bg-red-500',
-    borderActive: 'border-red-400 dark:border-red-600',
-    bgActive: 'bg-red-50 dark:bg-red-950/40',
-    textClass: 'text-red-700 dark:text-red-400',
-  },
-  {
-    id: 'less-urgent',
-    label: 'Less Urgent',
-    sublabel: 'Important but not critical',
-    color: '#eab308',
-    bgClass: 'bg-yellow-500',
-    borderActive: 'border-yellow-400 dark:border-yellow-600',
-    bgActive: 'bg-yellow-50 dark:bg-yellow-950/40',
-    textClass: 'text-yellow-700 dark:text-yellow-400',
-  },
-] as const;
+// ─── Priority Badge Styles ──────────────────────────────────────────
+const PRIORITY_BADGE_STYLES: Record<PriorityLevel, { bg: string; text: string; dot: string }> = {
+  low: { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-700 dark:text-green-400', dot: 'bg-green-500' },
+  medium: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-700 dark:text-yellow-400', dot: 'bg-yellow-500' },
+  high: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-700 dark:text-blue-400', dot: 'bg-blue-500' },
+  critical: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-400', dot: 'bg-red-500' },
+};
 
 const priorityStyles: Record<PriorityLevel, string> = {
   low: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
@@ -238,30 +221,29 @@ function EmergencyReportModal({ open, onOpenChange }: { open: boolean; onOpenCha
   const [reporterName, setReporterName] = useState('');
   const [location, setLocation] = useState('');
   const [contactNumber, setContactNumber] = useState('');
-  const [accidentType, setAccidentType] = useState<string>('');
-  const [urgency, setUrgency] = useState<string>('');
+  const [selectedIncident, setSelectedIncident] = useState<IncidentType | null>(null);
+  const [comboboxOpen, setComboboxOpen] = useState(false);
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const isFormValid = reporterName.trim() && location.trim() && contactNumber.trim() && accidentType && urgency;
+  const isFormValid = reporterName.trim() && location.trim() && contactNumber.trim() && selectedIncident;
+
+  // Auto-determined priority from incident type
+  const autoPriority = selectedIncident?.priority ?? null;
 
   const handleSubmit = () => {
     if (!isFormValid) return;
     setIsSubmitting(true);
 
     setTimeout(() => {
-      const typeLabel = ACCIDENT_TYPES.find((t) => t.id === accidentType)?.label || accidentType;
-      const urgencyLabel = URGENCY_LEVELS.find((u) => u.id === urgency)?.label || urgency;
-
       toast.success('Emergency Report Submitted', {
-        description: `${typeLabel} incident at ${location} — ${urgencyLabel} priority`,
+        description: `${selectedIncident!.name} incident at ${location} — ${selectedIncident!.priority} priority`,
       });
 
       setReporterName('');
       setLocation('');
       setContactNumber('');
-      setAccidentType('');
-      setUrgency('');
+      setSelectedIncident(null);
       setDescription('');
       setIsSubmitting(false);
       onOpenChange(false);
@@ -272,9 +254,26 @@ function EmergencyReportModal({ open, onOpenChange }: { open: boolean; onOpenCha
     setReporterName('');
     setLocation('');
     setContactNumber('');
-    setAccidentType('');
-    setUrgency('');
+    setSelectedIncident(null);
     setDescription('');
+  };
+
+  // Group incident types by priority for the combobox
+  const groupedIncidents = useMemo(() => {
+    const groups: Record<string, IncidentType[]> = { critical: [], high: [], medium: [], low: [] };
+    mockIncidentTypes.forEach((it) => {
+      if (groups[it.priority]) {
+        groups[it.priority].push(it);
+      }
+    });
+    return groups;
+  }, []);
+
+  const priorityGroupLabels: Record<string, string> = {
+    critical: '🔴 Critical Priority',
+    high: '🔵 High Priority',
+    medium: '🟡 Medium Priority',
+    low: '🟢 Low Priority',
   };
 
   return (
@@ -340,101 +339,86 @@ function EmergencyReportModal({ open, onOpenChange }: { open: boolean; onOpenCha
 
           <Separator />
 
-          {/* Accident Type Selection */}
+          {/* Incident Type Combobox */}
           <div className="space-y-2">
             <Label className="text-xs font-medium">
-              Type of Accident <span className="text-red-500">*</span>
+              Incident Type <span className="text-red-500">*</span>
             </Label>
-            <div className="grid grid-cols-3 gap-2">
-              {ACCIDENT_TYPES.map((type) => {
-                const Icon = type.icon;
-                const isSelected = accidentType === type.id;
-                return (
-                  <button
-                    key={type.id}
-                    type="button"
-                    onClick={() => setAccidentType(type.id)}
-                    className={`relative flex flex-col items-center gap-1.5 rounded-lg border-2 p-3 transition-all duration-200 hover:shadow-sm ${
-                      isSelected
-                        ? `${type.borderColor} ${type.bgColor} shadow-sm`
-                        : 'border-border/60 bg-card hover:border-border'
-                    }`}
-                  >
-                    {isSelected && (
-                      <div className={`absolute -top-1 -right-1 size-3 rounded-full ${type.activeBg} flex items-center justify-center`}>
-                        <svg className="size-2 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                    )}
-                    <div className={`flex size-10 items-center justify-center rounded-lg ${
-                      isSelected ? type.bgColor : 'bg-muted/50'
-                    }`}>
-                      <Icon className={`size-5 ${isSelected ? type.textColor : 'text-muted-foreground'}`} />
-                    </div>
-                    <span className={`text-xs font-semibold ${isSelected ? type.textColor : 'text-muted-foreground'}`}>
-                      {type.label}
+            <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={comboboxOpen}
+                  className="w-full justify-between h-9 text-sm font-normal"
+                >
+                  {selectedIncident ? (
+                    <span className="flex items-center gap-2 truncate">
+                      <span
+                        className={`inline-block size-2 rounded-full shrink-0 ${PRIORITY_BADGE_STYLES[selectedIncident.priority].dot}`}
+                      />
+                      {selectedIncident.name}
                     </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Urgency Level */}
-          <div className="space-y-2">
-            <Label className="text-xs font-medium">
-              Urgency Level <span className="text-red-500">*</span>
-            </Label>
-            <div className="space-y-2">
-              {URGENCY_LEVELS.map((level) => {
-                const isSelected = urgency === level.id;
-                return (
-                  <button
-                    key={level.id}
-                    type="button"
-                    onClick={() => setUrgency(level.id)}
-                    className={`w-full flex items-center gap-3 rounded-lg border-2 p-3 transition-all duration-200 hover:shadow-sm ${
-                      isSelected
-                        ? `${level.borderActive} ${level.bgActive} shadow-sm`
-                        : 'border-border/60 bg-card hover:border-border'
-                    }`}
-                  >
-                    {/* Radio indicator */}
-                    <div className={`flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
-                      isSelected
-                        ? `${level.bgClass} border-transparent`
-                        : 'border-muted-foreground/30 bg-transparent'
-                    }`}>
-                      {isSelected && (
-                        <div className="size-2 rounded-full bg-white" />
-                      )}
-                    </div>
-                    {/* Color indicator dot */}
-                    <div className={`size-3 rounded-full shrink-0 ${level.bgClass}`} />
-                    {/* Text */}
-                    <div className="flex-1 text-left">
-                      <div className="flex items-center gap-2">
-                        <span className={`text-sm font-semibold ${isSelected ? level.textClass : ''}`}>
-                          {level.label}
-                        </span>
-                        {level.id === 'urgent' && (
-                          <Badge className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-0 text-[10px] px-1.5 py-0">
-                            RED
-                          </Badge>
-                        )}
-                        {level.id === 'less-urgent' && (
-                          <Badge className="bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 border-0 text-[10px] px-1.5 py-0">
-                            YELLOW
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">{level.sublabel}</p>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+                  ) : (
+                    <span className="text-muted-foreground">Select incident type...</span>
+                  )}
+                  <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                <Command>
+                  <CommandInput placeholder="Search incident type..." />
+                  <CommandList>
+                    <CommandEmpty>No incident type found.</CommandEmpty>
+                    {(['critical', 'high', 'medium', 'low'] as const).map((priority) => {
+                      const items = groupedIncidents[priority];
+                      if (items.length === 0) return null;
+                      return (
+                        <CommandGroup key={priority} heading={priorityGroupLabels[priority]}>
+                          {items.map((incident) => (
+                            <CommandItem
+                              key={incident.id}
+                              value={incident.name}
+                              onSelect={() => {
+                                setSelectedIncident(
+                                  selectedIncident?.id === incident.id ? null : incident
+                                );
+                                setComboboxOpen(false);
+                              }}
+                              className="flex items-center gap-2"
+                            >
+                              <Check
+                                className={`size-4 ${
+                                  selectedIncident?.id === incident.id
+                                    ? 'opacity-100'
+                                    : 'opacity-0'
+                                }`}
+                              />
+                              <span
+                                className={`inline-block size-2 rounded-full shrink-0 ${PRIORITY_BADGE_STYLES[incident.priority].dot}`}
+                              />
+                              <div className="flex-1 min-w-0">
+                                <span className="text-sm">{incident.name}</span>
+                                <span className="text-xs text-muted-foreground ml-2">{incident.description}</span>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      );
+                    })}
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            {/* Show auto-determined priority when incident type is selected */}
+            {autoPriority && (
+              <div className="flex items-center gap-2 mt-1.5">
+                <span className="text-xs text-muted-foreground">Auto-assigned priority:</span>
+                <Badge className={`${PRIORITY_BADGE_STYLES[autoPriority].bg} ${PRIORITY_BADGE_STYLES[autoPriority].text} border-0 text-xs capitalize`}>
+                  {autoPriority}
+                </Badge>
+              </div>
+            )}
           </div>
 
           {/* Additional Details */}
