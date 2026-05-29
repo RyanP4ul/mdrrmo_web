@@ -127,6 +127,23 @@
   z-index: 0;
 }
 
+.leaflet-pane {
+  z-index: 0 !important;
+}
+
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 10 !important;
+}
+
+.leaflet-popup {
+  z-index: 10 !important;
+}
+
+.leaflet-tooltip {
+  z-index: 10 !important;
+}
+
 .leaflet-control-attribution {
   display: none !important;
 }

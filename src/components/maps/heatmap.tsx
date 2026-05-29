@@ -71,7 +71,7 @@ function HeatmapInner({ height, hiddenTypes }: { height: string; hiddenTypes?: S
       </MapContainer>
 
       {/* Legend overlay */}
-      <div className="absolute bottom-3 left-3 z-[1000] rounded-lg bg-white/95 dark:bg-gray-900/95 p-3 shadow-lg backdrop-blur-sm">
+      <div className="absolute bottom-3 left-3 z-10 rounded-lg bg-white/95 dark:bg-gray-900/95 p-3 shadow-lg backdrop-blur-sm">
         <p className="text-xs font-semibold mb-2 text-gray-700 dark:text-gray-300">Incident Types</p>
         <div className="grid grid-cols-2 gap-x-4 gap-y-1">
           {Object.entries(INCIDENT_COLORS)
