@@ -72,9 +72,15 @@ function getRoleBadge(role: Role) {
   const styles: Record<Role, string> = {
     admin: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
     dispatcher: 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-400',
+    'driver/responder': 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
+  };
+  const labels: Record<Role, string> = {
+    admin: 'Admin',
+    dispatcher: 'Dispatcher',
+    'driver/responder': 'Driver / Responder',
   };
   return (
-    <Badge className={`${styles[role]} border-0 capitalize`}>{role}</Badge>
+    <Badge className={`${styles[role]} border-0`}>{labels[role]}</Badge>
   );
 }
 
@@ -167,6 +173,7 @@ function UserForm({
             <SelectContent>
               <SelectItem value="admin">Admin</SelectItem>
               <SelectItem value="dispatcher">Dispatcher</SelectItem>
+              <SelectItem value="driver/responder">Driver / Responder</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -365,6 +372,7 @@ export function UserManagement() {
                   <SelectItem value="all">All Roles</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
                   <SelectItem value="dispatcher">Dispatcher</SelectItem>
+                  <SelectItem value="driver/responder">Driver / Responder</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={statusFilter} onValueChange={(value) => { setStatusFilter(value); setCurrentPage(1); }}>

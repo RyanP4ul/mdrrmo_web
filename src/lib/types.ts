@@ -1,4 +1,4 @@
-export type Role = 'admin' | 'dispatcher';
+export type Role = 'admin' | 'dispatcher' | 'driver/responder';
 
 export type UserStatus = 'active' | 'inactive' | 'suspended';
 

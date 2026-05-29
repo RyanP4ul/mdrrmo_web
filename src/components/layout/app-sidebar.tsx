@@ -51,9 +51,16 @@ const dispatcherNavItems: NavItem[] = [
   { title: 'Responders', page: 'dispatcher-responders', icon: Shield },
 ];
 
+const driverResponderNavItems: NavItem[] = [
+  { title: 'Operations', page: 'dispatcher-dashboard', icon: Radio },
+  { title: 'Reports', page: 'dispatcher-reports', icon: AlertTriangle },
+  { title: 'Responders', page: 'dispatcher-responders', icon: Shield },
+];
+
 const navMap: Record<Role, NavItem[]> = {
   admin: adminNavItems,
   dispatcher: dispatcherNavItems,
+  'driver/responder': driverResponderNavItems,
 };
 
 export function AppSidebar() {
@@ -66,7 +73,7 @@ export function AppSidebar() {
     ? `${currentUser.firstName.charAt(0)}${currentUser.lastName.charAt(0)}`
     : 'U';
 
-  const roleLabel = role.charAt(0).toUpperCase() + role.slice(1);
+  const roleLabel = role === 'driver/responder' ? 'Driver / Responder' : role.charAt(0).toUpperCase() + role.slice(1);
 
   return (
     <Sidebar className="border-r border-blue-100 dark:border-gray-800">
