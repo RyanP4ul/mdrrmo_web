@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate MMODRM Monthly Report PDF using ReportLab."""
+"""Generate MDRRMO Monthly Report PDF using ReportLab."""
 
 import json
 import sys
@@ -127,7 +127,7 @@ def header_footer(canvas, doc):
     # Header text
     canvas.setFont('DejaVuSerif', 8)
     canvas.setFillColor(TEXT_MUTED)
-    canvas.drawString(left_margin, page_h - 0.38 * inch, 'MMODRM Monthly Report')
+    canvas.drawString(left_margin, page_h - 0.38 * inch, 'MDRRMO Monthly Report')
     canvas.drawRightString(page_w - right_margin, page_h - 0.38 * inch, 'Confidential')
     # Footer
     canvas.setStrokeColor(ACCENT)
@@ -190,8 +190,8 @@ def generate_report(data_json_path, output_pdf_path):
 
     # ─── Title Section ────────────────────────────────────────
     story.append(Spacer(1, 20))
-    story.append(Paragraph('<b>MMODRM</b>', title_style))
-    story.append(Paragraph('Municipal Disaster Risk Reduction Management Office', ParagraphStyle(
+    story.append(Paragraph('<b>MDRRMO</b>', title_style))
+    story.append(Paragraph('Municipal Disaster Risk Reduction and Management Office', ParagraphStyle(
         'OrgName', fontName='DejaVuSerif', fontSize=11,
         leading=14, alignment=TA_CENTER, textColor=TEXT_MUTED, spaceAfter=4
     )))

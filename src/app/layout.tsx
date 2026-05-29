@@ -16,12 +16,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MMODRM - Municipal Disaster Risk Reduction Management",
-  description: "Municipal Disaster Risk Reduction Management Office - Emergency response and disaster management system.",
-  keywords: ["MMODRM", "Disaster Management", "Emergency Response", "MDRRMO"],
-  authors: [{ name: "MMODRM" }],
+  title: "MDRRMO - Municipal Disaster Risk Reduction and Management",
+  description: "Municipal Disaster Risk Reduction and Management Office - Emergency response and disaster management system.",
+  keywords: ["MDRRMO", "Disaster Management", "Emergency Response"],
+  authors: [{ name: "MDRRMO" }],
   icons: {
-    icon: "/mmodrm-logo.png",
+    icon: "/mdrrmo-logo.png",
   },
 };
 

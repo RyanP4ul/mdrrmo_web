@@ -39,7 +39,7 @@ export const useAppStore = create<AppState>((set) => ({
       return true;
     }
     // Allow demo login with role-based emails
-    if (email === 'admin@mmodrm.gov') {
+    if (email === 'admin@mdrrmo.gov') {
       set({
         currentUser: mockUsers[0],
         isAuthenticated: true,
@@ -47,7 +47,7 @@ export const useAppStore = create<AppState>((set) => ({
       });
       return true;
     }
-    if (email === 'dispatcher@mmodrm.gov') {
+    if (email === 'dispatcher@mdrrmo.gov') {
       set({
         currentUser: mockUsers[1],
         isAuthenticated: true,

@@ -173,8 +173,8 @@ export function RegisterPage() {
               className="flex justify-center"
             >
               <Image
-                src="/mmodrm-logo.png"
-                alt="MMODRM Logo"
+                src="/mdrrmo-logo.png"
+                alt="MDRRMO Logo"
                 width={56}
                 height={56}
                 className="shrink-0"
@@ -191,7 +191,7 @@ export function RegisterPage() {
                 Create Account
               </CardTitle>
               <CardDescription className="text-sm text-muted-foreground mt-1">
-                Register to MMODRM
+                Register to MDRRMO
               </CardDescription>
             </motion.div>
 

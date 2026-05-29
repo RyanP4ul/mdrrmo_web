@@ -74,8 +74,8 @@ export function LoginPage() {
               className="flex justify-center"
             >
               <Image
-                src="/mmodrm-logo.png"
-                alt="MMODRM Logo"
+                src="/mdrrmo-logo.png"
+                alt="MDRRMO Logo"
                 width={64}
                 height={64}
                 className="shrink-0"
@@ -89,10 +89,10 @@ export function LoginPage() {
               transition={{ delay: 0.3, duration: 0.4 }}
             >
               <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                MMODRM
+                MDRRMO
               </CardTitle>
               <CardDescription className="text-sm text-muted-foreground mt-1">
-                Municipal Disaster Risk Reduction Management Office
+                Municipal Disaster Risk Reduction and Management Office
               </CardDescription>
             </motion.div>
           </CardHeader>
@@ -187,7 +187,7 @@ export function LoginPage() {
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
-                  onClick={() => handleDemoLogin('admin@mmodrm.gov')}
+                  onClick={() => handleDemoLogin('admin@mdrrmo.gov')}
                   className="flex items-center gap-2 p-2.5 rounded-lg border border-blue-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors text-left group"
                 >
                   <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
@@ -195,13 +195,13 @@ export function LoginPage() {
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs font-semibold text-blue-700 dark:text-blue-400">Admin</p>
-                    <p className="text-[10px] text-muted-foreground truncate">admin@mmodrm.gov</p>
+                    <p className="text-[10px] text-muted-foreground truncate">admin@mdrrmo.gov</p>
                   </div>
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => handleDemoLogin('dispatcher@mmodrm.gov')}
+                  onClick={() => handleDemoLogin('dispatcher@mdrrmo.gov')}
                   className="flex items-center gap-2 p-2.5 rounded-lg border border-sky-200 dark:border-gray-700 hover:bg-sky-50 dark:hover:bg-gray-800 transition-colors text-left group"
                 >
                   <div className="w-8 h-8 rounded-lg bg-sky-100 dark:bg-sky-900/30 flex items-center justify-center">
@@ -209,7 +209,7 @@ export function LoginPage() {
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs font-semibold text-sky-700 dark:text-sky-400">Dispatcher</p>
-                    <p className="text-[10px] text-muted-foreground truncate">dispatcher@mmodrm.gov</p>
+                    <p className="text-[10px] text-muted-foreground truncate">dispatcher@mdrrmo.gov</p>
                   </div>
                 </button>
               </div>

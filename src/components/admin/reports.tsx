@@ -597,7 +597,7 @@ export function AdminReports() {
               const url = window.URL.createObjectURL(blob);
               const a = document.createElement('a');
               a.href = url;
-              a.download = `MMODRM_Monthly_Report_${monthLabel.replace(/\s+/g, '_')}.pdf`;
+              a.download = `MDRRMO_Monthly_Report_${monthLabel.replace(/\s+/g, '_')}.pdf`;
               document.body.appendChild(a);
               a.click();
               a.remove();

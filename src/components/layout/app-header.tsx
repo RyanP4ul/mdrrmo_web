@@ -35,7 +35,7 @@ const pageTitles: Record<PageKey, string> = {
 export function AppHeader() {
   const { currentUser, currentPage, logout, sidebarOpen, setSidebarOpen } = useAppStore();
 
-  const title = pageTitles[currentPage] || 'MMODRM';
+  const title = pageTitles[currentPage] || 'MDRRMO';
   const initials = currentUser
     ? `${currentUser.firstName.charAt(0)}${currentUser.lastName.charAt(0)}`
     : 'U';

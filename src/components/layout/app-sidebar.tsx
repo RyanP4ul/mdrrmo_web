@@ -82,8 +82,8 @@ export function AppSidebar() {
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-3">
           <Image
-            src="/mmodrm-logo.png"
-            alt="MMODRM Logo"
+            src="/mdrrmo-logo.png"
+            alt="MDRRMO Logo"
             width={40}
             height={40}
             className="shrink-0"
@@ -91,7 +91,7 @@ export function AppSidebar() {
           />
           <div className="min-w-0">
             <h2 className="text-base font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              MMODRM
+              MDRRMO
             </h2>
             <p className="text-[10px] text-muted-foreground leading-tight truncate">
               Disaster Risk Reduction

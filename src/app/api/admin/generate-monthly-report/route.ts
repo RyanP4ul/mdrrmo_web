@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
 
     // Write temp JSON
     const uid = randomUUID();
-    const tmpDir = join(tmpdir(), 'mmodrm-reports');
+    const tmpDir = join(tmpdir(), 'mdrrmo-reports');
     await mkdir(tmpDir, { recursive: true });
     jsonPath = join(tmpDir, `report-${uid}.json`);
     pdfPath = join(tmpDir, `report-${uid}.pdf`);
@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
     await unlink(pdfPath).catch(() => {});
 
     // Return PDF
-    const filename = `MMODRM_Monthly_Report_${month.replace(/\s+/g, '_')}.pdf`;
+    const filename = `MDRRMO_Monthly_Report_${month.replace(/\s+/g, '_')}.pdf`;
     return new NextResponse(pdfBuffer, {
       status: 200,
       headers: {
