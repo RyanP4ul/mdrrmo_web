@@ -734,7 +734,7 @@ export function AdminReports() {
                     return (
                       <div
                         key={item.id}
-                        className="rounded-lg border border-red-200/60 dark:border-red-900/30 border-l-4 border-l-red-500 bg-red-50/40 dark:bg-red-950/10 p-3 transition-all hover:bg-red-50/70 dark:hover:bg-red-950/20"
+                        className="rounded-lg border border-red-200/60 dark:border-red-900/30 bg-red-50/40 dark:bg-red-950/10 p-3 transition-all hover:bg-red-50/70 dark:hover:bg-red-950/20"
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex items-start gap-3 flex-1 min-w-0">
@@ -803,7 +803,7 @@ export function AdminReports() {
                     return (
                       <div
                         key={item.id}
-                        className="rounded-lg border border-amber-200/60 dark:border-amber-900/30 border-l-4 border-l-amber-500 bg-amber-50/40 dark:bg-amber-950/10 p-3 transition-all hover:bg-amber-50/70 dark:hover:bg-amber-950/20"
+                        className="rounded-lg border border-amber-200/60 dark:border-amber-900/30 bg-amber-50/40 dark:bg-amber-950/10 p-3 transition-all hover:bg-amber-50/70 dark:hover:bg-amber-950/20"
                       >
                         <div className="flex items-center gap-3">
                           <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-amber-200 dark:bg-amber-900/40 ring-2 ring-amber-300/50 dark:ring-amber-700/30">
