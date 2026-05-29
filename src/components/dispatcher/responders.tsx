@@ -363,65 +363,61 @@ export function Responders() {
         <ScrollArea className="max-h-[250px]">
           <div className="space-y-3 pr-2">
             {teamForm.members.map((member) => (
-              <Card key={member.id} className="bg-muted/30">
-                <CardContent className="p-3 space-y-2">
-                  <div className="flex items-center justify-between">
+              <div key={member.id} className="flex items-center gap-2">
+                {/* Name Combobox */}
+                <Popover
+                  open={nameComboboxOpen[member.id] ?? false}
+                  onOpenChange={(open) =>
+                    setNameComboboxOpen((prev) => ({ ...prev, [member.id]: open }))
+                  }
+                >
+                  <PopoverTrigger asChild>
                     <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeMember(member.id)}
-                      className="size-6 p-0 text-red-500 hover:text-red-700 ml-auto"
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={nameComboboxOpen[member.id] ?? false}
+                      className="flex-1 justify-between text-sm font-normal h-9"
                     >
-                      <X className="size-3" />
+                      {member.name || 'Select name...'}
+                      <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
                     </Button>
-                  </div>
-                  {/* Name Combobox */}
-                  <Popover
-                    open={nameComboboxOpen[member.id] ?? false}
-                    onOpenChange={(open) =>
-                      setNameComboboxOpen((prev) => ({ ...prev, [member.id]: open }))
-                    }
-                  >
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        aria-expanded={nameComboboxOpen[member.id] ?? false}
-                        className="w-full justify-between text-sm font-normal h-9"
-                      >
-                        {member.name || 'Select name...'}
-                        <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-                      <Command>
-                        <CommandInput placeholder="Search name..." />
-                        <CommandList>
-                          <CommandEmpty>No name found.</CommandEmpty>
-                          <CommandGroup>
-                            {DRIVER_RESPONDER_NAMES.map((name) => (
-                              <CommandItem
-                                key={name}
-                                value={name}
-                                onSelect={() => {
-                                  updateMemberField(member.id, 'name', name);
-                                  setNameComboboxOpen((prev) => ({ ...prev, [member.id]: false }));
-                                }}
-                                className="flex items-center gap-2"
-                              >
-                                <Check
-                                  className={`size-4 ${member.name === name ? 'opacity-100' : 'opacity-0'}`}
-                                />
-                                <span className="text-sm">{name}</span>
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                </CardContent>
-              </Card>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search name..." />
+                      <CommandList>
+                        <CommandEmpty>No name found.</CommandEmpty>
+                        <CommandGroup>
+                          {DRIVER_RESPONDER_NAMES.map((name) => (
+                            <CommandItem
+                              key={name}
+                              value={name}
+                              onSelect={() => {
+                                updateMemberField(member.id, 'name', name);
+                                setNameComboboxOpen((prev) => ({ ...prev, [member.id]: false }));
+                              }}
+                              className="flex items-center gap-2"
+                            >
+                              <Check
+                                className={`size-4 ${member.name === name ? 'opacity-100' : 'opacity-0'}`}
+                              />
+                              <span className="text-sm">{name}</span>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeMember(member.id)}
+                  className="size-8 shrink-0 p-0 text-red-500 hover:text-red-700"
+                >
+                  <X className="size-4" />
+                </Button>
+              </div>
             ))}
           </div>
         </ScrollArea>
