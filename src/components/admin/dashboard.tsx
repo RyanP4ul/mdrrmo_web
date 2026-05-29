@@ -205,34 +205,12 @@ export function AdminDashboard() {
     const critical = mockReports.filter((r) => r.priority === 'critical').length;
     const high = mockReports.filter((r) => r.priority === 'high').length;
     const activeReports = pending + acknowledged + dispatched;
-    const reportsToday = mockReports.filter((r) => {
-      const today = new Date();
-      const reportDate = new Date(r.timestamp);
-      return reportDate.toDateString() === today.toDateString();
-    }).length;
-    return { pending, acknowledged, dispatched, resolved, invalid, critical, high, activeReports, reportsToday, total: mockReports.length };
+    return { pending, acknowledged, dispatched, resolved, invalid, critical, high, activeReports, total: mockReports.length };
   }, []);
 
   const latestCriticalReport = mockReports
     .filter((r) => r.status === 'pending' || r.priority === 'critical')
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
-
-  // Status distribution for mini chart
-  const statusData = useMemo(() => [
-    { status: 'Pending', count: reportStats.pending, color: '#f59e0b' },
-    { status: 'Acknowledged', count: reportStats.acknowledged, color: '#3b82f6' },
-    { status: 'Dispatched', count: reportStats.dispatched, color: '#8b5cf6' },
-    { status: 'Resolved', count: reportStats.resolved, color: '#22c55e' },
-    { status: 'Invalid', count: reportStats.invalid, color: '#6b7280' },
-  ], [reportStats]);
-
-  const statusChartConfig = {
-    Pending: { label: 'Pending', color: '#f59e0b' },
-    Acknowledged: { label: 'Acknowledged', color: '#3b82f6' },
-    Dispatched: { label: 'Dispatched', color: '#8b5cf6' },
-    Resolved: { label: 'Resolved', color: '#22c55e' },
-    Invalid: { label: 'Invalid', color: '#6b7280' },
-  } satisfies ChartConfig;
 
   return (
     <div className="space-y-6">
@@ -329,8 +307,8 @@ export function AdminDashboard() {
         </CardContent>
       </Card>
 
-      {/* Bottom Row: Incident Types Chart, Report Status Chart, Latest Report & Recent Activity */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      {/* Bottom Row: Incident Types Chart, Latest Report & Recent Activity */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Reports Type Chart */}
         <Card>
           <CardHeader>
@@ -393,49 +371,6 @@ export function AdminDashboard() {
                 </BarChart>
               </ChartContainer>
             )}
-          </CardContent>
-        </Card>
-
-        {/* Report Status Distribution */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Report Status Distribution</CardTitle>
-            <CardDescription>Current breakdown by status</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer config={statusChartConfig} className="min-h-[300px] w-full">
-              <BarChart data={statusData} layout="vertical" margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                <XAxis
-                  type="number"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  fontSize={12}
-                  allowDecimals={false}
-                />
-                <YAxis
-                  type="category"
-                  dataKey="status"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  fontSize={12}
-                  width={90}
-                />
-                <ChartTooltip
-                  content={<ChartTooltipContent />}
-                />
-                <Bar
-                  dataKey="count"
-                  radius={[0, 4, 4, 0]}
-                >
-                  {statusData.map((entry, index) => (
-                    <rect key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ChartContainer>
           </CardContent>
         </Card>
 
