@@ -8,9 +8,7 @@ import {
   User,
   Phone,
   AlertTriangle,
-  ShieldCheck,
   XCircle,
-  Send,
   FileText,
 } from 'lucide-react';
 import {
@@ -22,16 +20,8 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,16 +32,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
+
 import { useAppStore } from '@/lib/store';
-import { mockReports, mockResponseTeams } from '@/lib/mock-data';
+import { mockReports } from '@/lib/mock-data';
 import type { PriorityLevel, ReportStatus } from '@/lib/types';
 import { LocationMap } from '@/components/maps/location-map';
 import { toast } from 'sonner';
@@ -84,23 +67,11 @@ const INCIDENT_COLORS: Record<string, string> = {
 export function ReportDetail() {
   const { selectedReportId, navigateTo, setSelectedReportId } = useAppStore();
   const [showInvalidDialog, setShowInvalidDialog] = useState(false);
-  const [showDispatchDialog, setShowDispatchDialog] = useState(false);
-  const [selectedTeamId, setSelectedTeamId] = useState<string>('');
 
   const report = useMemo(
     () => mockReports.find((r) => r.id === selectedReportId) || null,
     [selectedReportId]
   );
-
-  const availableTeams = useMemo(
-    () => mockResponseTeams.filter((t) => t.status === 'active'),
-    []
-  );
-
-  const getTeamName = (teamId: string) => {
-    const team = mockResponseTeams.find((t) => t.id === teamId);
-    return team ? team.teamName : 'Unknown Team';
-  };
 
   const handleBack = () => {
     navigateTo('dispatcher-reports');
@@ -111,19 +82,6 @@ export function ReportDetail() {
     toast.error(`Report ${report?.id} marked as invalid`, {
       description: 'The report has been flagged as invalid and removed from active monitoring.',
     });
-    navigateTo('dispatcher-reports');
-  };
-
-  const handleDispatch = () => {
-    if (!selectedTeamId) {
-      toast.error('Please select a response team');
-      return;
-    }
-    setShowDispatchDialog(false);
-    toast.success(`${getTeamName(selectedTeamId)} dispatched!`, {
-      description: `Team has been assigned to report ${report?.id}.`,
-    });
-    setSelectedTeamId('');
     navigateTo('dispatcher-reports');
   };
 
@@ -216,20 +174,6 @@ export function ReportDetail() {
               </div>
             </div>
           </div>
-
-          {/* Assigned Team (if any) */}
-          {report.assignedTeam && (
-            <>
-              <Separator />
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="size-4 text-blue-500" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Assigned Team</p>
-                  <p className="text-sm font-medium">{getTeamName(report.assignedTeam)}</p>
-                </div>
-              </div>
-            </>
-          )}
         </CardContent>
       </Card>
 
@@ -278,25 +222,15 @@ export function ReportDetail() {
           <CardDescription>Take action on this emergency report</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Button
-              variant="destructive"
-              className="gap-2 flex-1"
-              onClick={() => setShowInvalidDialog(true)}
-              disabled={report.status === 'resolved' || report.status === 'invalid'}
-            >
-              <XCircle className="size-4" />
-              Mark as Invalid
-            </Button>
-            <Button
-              className="gap-2 flex-1 bg-green-600 hover:bg-green-700 text-white"
-              onClick={() => setShowDispatchDialog(true)}
-              disabled={report.status === 'resolved' || report.status === 'invalid' || report.status === 'dispatched'}
-            >
-              <Send className="size-4" />
-              Send to Response Team
-            </Button>
-          </div>
+          <Button
+            variant="destructive"
+            className="gap-2 w-full sm:w-auto"
+            onClick={() => setShowInvalidDialog(true)}
+            disabled={report.status === 'resolved' || report.status === 'invalid'}
+          >
+            <XCircle className="size-4" />
+            Mark as Invalid
+          </Button>
         </CardContent>
       </Card>
 
@@ -320,89 +254,6 @@ export function ReportDetail() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* Send to Response Team Dialog */}
-      <Dialog open={showDispatchDialog} onOpenChange={setShowDispatchDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <ShieldCheck className="size-5 text-green-600" />
-              Dispatch Response Team
-            </DialogTitle>
-            <DialogDescription>
-              Select an available response team to dispatch for report <strong>{report.id}</strong> ({report.type} - {report.location}).
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 py-2">
-            <div className="space-y-2">
-              <Label htmlFor="team-select">Response Team</Label>
-              <Select value={selectedTeamId} onValueChange={setSelectedTeamId}>
-                <SelectTrigger id="team-select">
-                  <SelectValue placeholder="Select a response team..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableTeams.length === 0 ? (
-                    <SelectItem value="none" disabled>
-                      No teams available
-                    </SelectItem>
-                  ) : (
-                    availableTeams.map((team) => (
-                      <SelectItem key={team.id} value={team.id}>
-                        {team.teamName}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Team Details Preview */}
-            {selectedTeamId && (
-              <Card className="bg-muted/50">
-                <CardContent className="p-3 space-y-2">
-                  {(() => {
-                    const team = mockResponseTeams.find((t) => t.id === selectedTeamId);
-                    if (!team) return null;
-                    return (
-                      <>
-                        <p className="text-sm font-medium">{team.teamName}</p>
-                        <div className="space-y-1">
-                          <p className="text-xs text-muted-foreground">Members ({team.members.length}):</p>
-                          <div className="flex flex-wrap gap-1">
-                            {team.members.map((member) => (
-                              <span
-                                key={member.id}
-                                className="inline-flex items-center rounded-md bg-muted/50 px-2 py-1 text-xs font-medium"
-                              >
-                                {member.name}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      </>
-                    );
-                  })()}
-                </CardContent>
-              </Card>
-            )}
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDispatchDialog(false)}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleDispatch}
-              disabled={!selectedTeamId}
-              className="bg-green-600 hover:bg-green-700 text-white"
-            >
-              <Send className="size-4 mr-2" />
-              Dispatch Team
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
