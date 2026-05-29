@@ -19,6 +19,8 @@ import {
   Heart,
   Activity,
   ClipboardList,
+  Download,
+  Loader2,
 } from 'lucide-react';
 import {
   Card,
@@ -429,6 +431,7 @@ export function AdminReports() {
   const [emergencyDetailOpen, setEmergencyDetailOpen] = useState(false);
   const [selectedDriver, setSelectedDriver] = useState<AdminReport | null>(null);
   const [driverDetailOpen, setDriverDetailOpen] = useState(false);
+  const [generating, setGenerating] = useState(false);
 
   const incidentTypes = useMemo(() => {
     const types = [...new Set(mockAdminReports.map((r) => r.incidentType))];
@@ -577,6 +580,48 @@ export function AdminReports() {
             <p className="text-sm text-muted-foreground">Monitor emergency reports and driver/responder status</p>
           </div>
         </div>
+        <Button
+          className="gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+          disabled={generating}
+          onClick={async () => {
+            setGenerating(true);
+            try {
+              const now = new Date();
+              const monthLabel = now.toLocaleString('default', { month: 'long', year: 'numeric' });
+              const res = await fetch('/api/admin/generate-monthly-report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ month: monthLabel }),
+              });
+              if (!res.ok) throw new Error('Failed to generate report');
+              const blob = await res.blob();
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `MMODRM_Monthly_Report_${monthLabel.replace(/\s+/g, '_')}.pdf`;
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+              window.URL.revokeObjectURL(url);
+            } catch (err) {
+              console.error('Report generation failed:', err);
+            } finally {
+              setGenerating(false);
+            }
+          }}
+        >
+          {generating ? (
+            <>
+              <Loader2 className="size-4 animate-spin" />
+              Generating...
+            </>
+          ) : (
+            <>
+              <Download className="size-4" />
+              Generate Monthly Report
+            </>
+          )}
+        </Button>
       </div>
 
       {/* Quick Stats */}
