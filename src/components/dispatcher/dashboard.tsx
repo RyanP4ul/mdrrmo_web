@@ -272,9 +272,9 @@ function EmergencyReportModal({ open, onOpenChange }: { open: boolean; onOpenCha
 
   const priorityGroupLabels: Record<string, string> = {
     critical: '🔴 Critical Priority',
-    high: '🔵 High Priority',
+    high: '🔴 High Priority',
     medium: '🟡 Medium Priority',
-    low: '🟢 Low Priority',
+    low: '🟡 Low Priority',
   };
 
   return (
