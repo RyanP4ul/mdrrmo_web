@@ -11,6 +11,7 @@ import {
   Siren,
   MapPin,
   LogOut,
+  ClipboardList,
 } from 'lucide-react';
 import { useAppStore } from '@/lib/store';
 import { PageKey, Role } from '@/lib/types';
@@ -40,6 +41,7 @@ const adminNavItems: NavItem[] = [
   { title: 'Dashboard', page: 'admin-dashboard', icon: LayoutDashboard },
   { title: 'User Management', page: 'admin-users', icon: Users },
   { title: 'Emergency Reports', page: 'admin-reports', icon: AlertTriangle },
+  { title: 'Reports & Drivers', page: 'admin-reports-page', icon: ClipboardList },
   { title: 'Response Teams', page: 'admin-response-teams', icon: Siren },
   { title: 'Audit Logs', page: 'admin-audit-logs', icon: FileText },
   { title: 'Incident Types', page: 'admin-incident-types', icon: MapPin },

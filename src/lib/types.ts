@@ -81,6 +81,7 @@ export type PageKey =
   | 'admin-dashboard'
   | 'admin-users'
   | 'admin-reports'
+  | 'admin-reports-page'
   | 'admin-response-teams'
   | 'admin-audit-logs'
   | 'admin-incident-types'

@@ -12,6 +12,7 @@ import { EmergencyReports } from '@/components/admin/emergency-reports';
 import { ResponseTeams } from '@/components/admin/response-teams';
 import { AuditLogs } from '@/components/admin/audit-logs';
 import { IncidentTypes } from '@/components/admin/incident-types';
+import { AdminReports } from '@/components/admin/reports';
 import { DispatcherDashboard } from '@/components/dispatcher/dashboard';
 import { DispatcherReports } from '@/components/dispatcher/reports';
 import { ReportDetail } from '@/components/dispatcher/report-detail';
@@ -36,6 +37,8 @@ function PageRenderer({ page }: { page: PageKey }) {
       return <AuditLogs />;
     case 'admin-incident-types':
       return <IncidentTypes />;
+    case 'admin-reports-page':
+      return <AdminReports />;
     case 'dispatcher-dashboard':
       return <DispatcherDashboard />;
     case 'dispatcher-reports':
