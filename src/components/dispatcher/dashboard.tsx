@@ -278,7 +278,7 @@ function EmergencyReportModal({ open, onOpenChange }: { open: boolean; onOpenCha
   };
 
   return (
-    <Dialog modal={false} open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[520px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-3">
