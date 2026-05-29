@@ -28,7 +28,6 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { mockReports } from '@/lib/mock-data';
-import { useAppStore } from '@/lib/store';
 import type { PriorityLevel, ReportStatus } from '@/lib/types';
 
 const ITEMS_PER_PAGE = 6;
@@ -68,10 +67,7 @@ function getTypeBadge(type: string) {
 }
 
 export function DispatcherReports() {
-  const { setSelectedReportId, navigateTo } = useAppStore();
-
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
@@ -82,7 +78,8 @@ export function DispatcherReports() {
   }, []);
 
   const filteredReports = useMemo(() => {
-    let reports = [...mockReports];
+    // Only show resolved/completed reports
+    let reports = [...mockReports].filter((r) => r.status === 'resolved' || r.status === 'invalid');
 
     // Search filter
     if (searchQuery.trim()) {
@@ -95,11 +92,6 @@ export function DispatcherReports() {
           r.reportedBy.name.toLowerCase().includes(q) ||
           r.description.toLowerCase().includes(q)
       );
-    }
-
-    // Status filter
-    if (statusFilter !== 'all') {
-      reports = reports.filter((r) => r.status === statusFilter);
     }
 
     // Type filter
@@ -116,18 +108,13 @@ export function DispatcherReports() {
     reports.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
     return reports;
-  }, [searchQuery, statusFilter, typeFilter, priorityFilter]);
+  }, [searchQuery, typeFilter, priorityFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filteredReports.length / ITEMS_PER_PAGE));
   const paginatedReports = filteredReports.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
-
-  const handleReportClick = (reportId: string) => {
-    setSelectedReportId(reportId);
-    navigateTo('dispatcher-report-detail');
-  };
 
   const handleFilterChange = () => {
     setCurrentPage(1);
@@ -141,8 +128,8 @@ export function DispatcherReports() {
           <FileText className="size-5 text-blue-600 dark:text-blue-400" />
         </div>
         <div>
-          <h2 className="text-xl font-bold">Emergency Reports</h2>
-          <p className="text-sm text-muted-foreground">Complete overview of all incident reports</p>
+          <h2 className="text-xl font-bold">Reports</h2>
+          <p className="text-sm text-muted-foreground">Resolved and completed incident reports</p>
         </div>
       </div>
 
@@ -167,26 +154,6 @@ export function DispatcherReports() {
             {/* Filters Row */}
             <div className="flex flex-wrap items-center gap-2">
               <SlidersHorizontal className="size-4 text-muted-foreground" />
-              <Select
-                value={statusFilter}
-                onValueChange={(v) => {
-                  setStatusFilter(v);
-                  handleFilterChange();
-                }}
-              >
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="acknowledged">Acknowledged</SelectItem>
-                  <SelectItem value="dispatched">Dispatched</SelectItem>
-                  <SelectItem value="resolved">Resolved</SelectItem>
-                  <SelectItem value="invalid">Invalid</SelectItem>
-                </SelectContent>
-              </Select>
-
               <Select
                 value={typeFilter}
                 onValueChange={(v) => {
@@ -226,12 +193,11 @@ export function DispatcherReports() {
                 </SelectContent>
               </Select>
 
-              {(statusFilter !== 'all' || typeFilter !== 'all' || priorityFilter !== 'all' || searchQuery) && (
+              {(typeFilter !== 'all' || priorityFilter !== 'all' || searchQuery) && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => {
-                    setStatusFilter('all');
                     setTypeFilter('all');
                     setPriorityFilter('all');
                     setSearchQuery('');
@@ -266,11 +232,7 @@ export function DispatcherReports() {
           </Card>
         ) : (
           paginatedReports.map((report) => (
-            <Card
-              key={report.id}
-              className="cursor-pointer transition-all hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700"
-              onClick={() => handleReportClick(report.id)}
-            >
+            <Card key={report.id}>
               <CardContent className="p-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   {/* Left side */}

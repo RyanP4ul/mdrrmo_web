@@ -104,9 +104,7 @@ const DRIVER_RESPONDER_NAMES = [
 // Status config
 const TEAM_STATUS_OPTIONS: { value: MemberStatus; label: string; color: string }[] = [
   { value: 'active', label: 'Active', color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' },
-  { value: 'inactive', label: 'Inactive', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
   { value: 'on-leave', label: 'On Leave', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' },
-  { value: 'off-duty', label: 'Off Duty', color: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400' },
 ];
 
 function getStatusBadgeStyles(status: MemberStatus): string {
@@ -153,7 +151,8 @@ export function Responders() {
   const [nameComboboxOpen, setNameComboboxOpen] = useState<Record<string, boolean>>({});
 
   const filteredTeams = useMemo(() => {
-    let result = [...teams];
+    // Only show active and on-leave teams (exclude inactive and off-duty)
+    let result = [...teams].filter((t) => t.status === 'active' || t.status === 'on-leave');
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();

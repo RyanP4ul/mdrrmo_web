@@ -8,7 +8,6 @@ import {
   User,
   Phone,
   AlertTriangle,
-  XCircle,
   FileText,
 } from 'lucide-react';
 import {
@@ -22,22 +21,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-
 import { useAppStore } from '@/lib/store';
 import { mockReports } from '@/lib/mock-data';
 import type { PriorityLevel, ReportStatus } from '@/lib/types';
 import { LocationMap } from '@/components/maps/location-map';
-import { toast } from 'sonner';
 
 const priorityStyles: Record<PriorityLevel, string> = {
   low: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
@@ -65,8 +52,7 @@ const INCIDENT_COLORS: Record<string, string> = {
 };
 
 export function ReportDetail() {
-  const { selectedReportId, navigateTo, setSelectedReportId } = useAppStore();
-  const [showInvalidDialog, setShowInvalidDialog] = useState(false);
+  const { selectedReportId, navigateTo } = useAppStore();
 
   const report = useMemo(
     () => mockReports.find((r) => r.id === selectedReportId) || null,
@@ -74,15 +60,7 @@ export function ReportDetail() {
   );
 
   const handleBack = () => {
-    navigateTo('dispatcher-reports');
-  };
-
-  const handleMarkInvalid = () => {
-    setShowInvalidDialog(false);
-    toast.error(`Report ${report?.id} marked as invalid`, {
-      description: 'The report has been flagged as invalid and removed from active monitoring.',
-    });
-    navigateTo('dispatcher-reports');
+    navigateTo('dispatcher-dashboard');
   };
 
   if (!report) {
@@ -90,16 +68,16 @@ export function ReportDetail() {
       <div className="space-y-6">
         <Button variant="ghost" onClick={handleBack} className="gap-2">
           <ArrowLeft className="size-4" />
-          Back to Reports
+          Back to Operations
         </Button>
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16">
             <FileText className="size-12 text-muted-foreground/40" />
             <p className="mt-3 text-lg font-medium text-muted-foreground">No report selected</p>
-            <p className="text-sm text-muted-foreground">Please select a report from the reports list</p>
+            <p className="text-sm text-muted-foreground">Please select a report from the operations page</p>
             <Button variant="outline" onClick={handleBack} className="mt-4 gap-2">
               <ArrowLeft className="size-4" />
-              Go to Reports
+              Go to Operations
             </Button>
           </CardContent>
         </Card>
@@ -114,7 +92,7 @@ export function ReportDetail() {
       {/* Back Button */}
       <Button variant="ghost" onClick={handleBack} className="gap-2">
         <ArrowLeft className="size-4" />
-        Back to Reports
+        Back to Operations
       </Button>
 
       {/* Report Header */}
@@ -215,45 +193,7 @@ export function ReportDetail() {
         </CardContent>
       </Card>
 
-      {/* Action Buttons */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle>Actions</CardTitle>
-          <CardDescription>Take action on this emergency report</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button
-            variant="destructive"
-            className="gap-2 w-full sm:w-auto"
-            onClick={() => setShowInvalidDialog(true)}
-            disabled={report.status === 'resolved' || report.status === 'invalid'}
-          >
-            <XCircle className="size-4" />
-            Mark as Invalid
-          </Button>
-        </CardContent>
-      </Card>
 
-      {/* Mark as Invalid Confirmation Dialog */}
-      <AlertDialog open={showInvalidDialog} onOpenChange={setShowInvalidDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <XCircle className="size-5 text-red-500" />
-              Mark Report as Invalid
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to mark report <strong>{report.id}</strong> as invalid? This will remove it from active monitoring. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleMarkInvalid} className="bg-red-600 hover:bg-red-700">
-              Mark as Invalid
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
