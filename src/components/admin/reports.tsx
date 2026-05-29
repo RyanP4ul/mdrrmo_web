@@ -160,7 +160,6 @@ function EmergencyDetailDialog({
 }) {
   if (!report) return null;
 
-  const d = report.driver;
   const e = report.emergency;
 
   return (
@@ -176,7 +175,7 @@ function EmergencyDetailDialog({
                 Emergency Report {report.reportId}
               </DialogTitle>
               <DialogDescription>
-                Full report details — Driver & Emergency information
+                Emergency incident details
               </DialogDescription>
             </div>
           </div>
@@ -197,65 +196,7 @@ function EmergencyDetailDialog({
           </div>
         </DialogHeader>
 
-        <div className="space-y-5 mt-2">
-          {/* ─── DRIVER SECTION ───────────────────────────── */}
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="flex size-7 items-center justify-center rounded-md bg-amber-100 dark:bg-amber-900/30">
-                <Truck className="size-4 text-amber-600 dark:text-amber-400" />
-              </div>
-              <h3 className="text-sm font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
-                Driver
-              </h3>
-            </div>
-
-            {/* A. To be filled by the administrative official authorizing */}
-            <div className="rounded-lg border border-border/50 bg-muted/20 p-4 space-y-3">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                A. To be filled by the administrative official authorizing:
-              </p>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <DetailField label="1. Name of Driver" value={d.driverName} icon={<User className="size-3" />} />
-                <DetailField label="2. Government Card Used / Plate No." value={d.governmentCardPlateNo} icon={<FileText className="size-3" />} />
-                <DetailField label="3. Name of Authorized Passenger" value={d.authorizedPassenger} icon={<User className="size-3" />} />
-                <DetailField label="4. Name of Place to be Visited / Inspected" value={d.placeVisitedInspected} icon={<MapPin className="size-3" />} />
-              </div>
-              <DetailField label="5. Purpose" value={d.purpose} icon={<ClipboardList className="size-3" />} />
-            </div>
-
-            {/* B. To be filled by the driver */}
-            <div className="rounded-lg border border-border/50 bg-muted/20 p-4 space-y-3 mt-3">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                B. To be filled by the driver:
-              </p>
-              <div className="flex items-center gap-2 mb-1">
-                <Fuel className="size-4 text-amber-500" />
-                <p className="text-xs font-semibold text-muted-foreground">
-                  1. Gasoline Issued / Purchased (Liters)
-                </p>
-              </div>
-
-              <Table>
-                <TableBody>
-                  <GasRow label="a. Balance in tank" value={d.gasoline.balanceInTank} />
-                  <GasRow label="b. Issued by office from stock" value={d.gasoline.issuedByOffice} />
-                  <GasRow label="c. As purchased during the trip" value={d.gasoline.asPurchased} />
-                  <GasRow label="d. Deduct used during the trip" value={d.gasoline.deductUsed} />
-                  <GasRow label="e. Balance in tank at the end of the trip" value={d.gasoline.balanceEndTrip} />
-                </TableBody>
-              </Table>
-
-              <Separator className="my-2" />
-
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <DetailField label="Name of Passenger" value={d.passengerName} icon={<User className="size-3" />} />
-                <DetailField label="Driver" value={d.driverFilledName} icon={<Truck className="size-3" />} />
-              </div>
-            </div>
-          </div>
-
-          <Separator />
-
+        <div className="mt-2">
           {/* ─── EMERGENCY SECTION ───────────────────────── */}
           <div>
             <div className="flex items-center gap-2 mb-3">
