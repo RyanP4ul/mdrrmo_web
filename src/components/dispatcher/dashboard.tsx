@@ -48,6 +48,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { mockReports, mockResponseTeams, mockVehicles, mockIncidentTypes } from '@/lib/mock-data';
 import type { VehicleStatus } from '@/lib/mock-data';
 import { useAppStore } from '@/lib/store';
@@ -225,9 +232,15 @@ function EmergencyReportModal({ open, onOpenChange }: { open: boolean; onOpenCha
   const [selectedIncident, setSelectedIncident] = useState<IncidentType | null>(null);
   const [comboboxOpen, setComboboxOpen] = useState(false);
   const [description, setDescription] = useState('');
+  const [selectedTeamId, setSelectedTeamId] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const isFormValid = reporterName.trim() && location.trim() && contactNumber.trim() && selectedIncident;
+  const isFormValid = reporterName.trim() && location.trim() && contactNumber.trim() && selectedIncident && selectedTeamId;
+
+  const availableTeams = useMemo(
+    () => mockResponseTeams.filter((t) => t.status === 'active'),
+    []
+  );
 
   // Auto-determined priority from incident type
   const autoPriority = selectedIncident?.priority ?? null;
@@ -236,8 +249,10 @@ function EmergencyReportModal({ open, onOpenChange }: { open: boolean; onOpenCha
     if (!isFormValid) return;
     setIsSubmitting(true);
 
+    const team = mockResponseTeams.find((t) => t.id === selectedTeamId);
+
     setTimeout(() => {
-      toast.success('Emergency Report Submitted', {
+      toast.success(`${team?.teamName || 'Team'} Dispatched!`, {
         description: `${selectedIncident!.name} incident at ${location} — ${selectedIncident!.priority} priority`,
       });
 
@@ -246,6 +261,7 @@ function EmergencyReportModal({ open, onOpenChange }: { open: boolean; onOpenCha
       setContactNumber('');
       setSelectedIncident(null);
       setDescription('');
+      setSelectedTeamId('');
       setIsSubmitting(false);
       onOpenChange(false);
     }, 800);
@@ -257,6 +273,7 @@ function EmergencyReportModal({ open, onOpenChange }: { open: boolean; onOpenCha
     setContactNumber('');
     setSelectedIncident(null);
     setDescription('');
+    setSelectedTeamId('');
   };
 
   // Group incident types by priority for the combobox
@@ -419,6 +436,48 @@ function EmergencyReportModal({ open, onOpenChange }: { open: boolean; onOpenCha
             )}
           </div>
 
+          {/* Response Team */}
+          <div className="space-y-1.5">
+            <Label className="text-xs font-medium flex items-center gap-1.5">
+              <ShieldCheck className="size-3 text-muted-foreground" />
+              Response Team <span className="text-red-500">*</span>
+            </Label>
+            <Select value={selectedTeamId} onValueChange={setSelectedTeamId}>
+              <SelectTrigger className="h-9 text-sm">
+                <SelectValue placeholder="Select a response team..." />
+              </SelectTrigger>
+              <SelectContent>
+                {availableTeams.length === 0 ? (
+                  <SelectItem value="none" disabled>No teams available</SelectItem>
+                ) : (
+                  availableTeams.map((team) => (
+                    <SelectItem key={team.id} value={team.id}>{team.teamName}</SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+            {/* Team Members Preview */}
+            {selectedTeamId && (() => {
+              const team = mockResponseTeams.find((t) => t.id === selectedTeamId);
+              if (!team) return null;
+              return (
+                <div className="rounded-md border bg-muted/30 p-2 space-y-1.5">
+                  <p className="text-xs text-muted-foreground">Members ({team.members.length}):</p>
+                  <div className="flex flex-wrap gap-1">
+                    {team.members.map((member) => (
+                      <span
+                        key={member.id}
+                        className="inline-flex items-center rounded-md bg-background px-2 py-0.5 text-xs font-medium"
+                      >
+                        {member.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+
           {/* Additional Details */}
           <div className="space-y-1.5">
             <Label htmlFor="modal-details" className="text-xs font-medium">
@@ -444,7 +503,7 @@ function EmergencyReportModal({ open, onOpenChange }: { open: boolean; onOpenCha
               Clear
             </Button>
             <Button
-              className="flex-1 h-10 bg-blue-600 hover:bg-blue-700 text-white gap-1.5"
+              className="flex-1 h-10 bg-green-600 hover:bg-green-700 text-white gap-1.5"
               disabled={!isFormValid || isSubmitting}
               onClick={handleSubmit}
             >
@@ -453,7 +512,7 @@ function EmergencyReportModal({ open, onOpenChange }: { open: boolean; onOpenCha
               ) : (
                 <Send className="size-3.5" />
               )}
-              {isSubmitting ? 'Submitting...' : 'Submit Report'}
+              {isSubmitting ? 'Dispatching...' : 'Send to Response Team'}
             </Button>
           </div>
         </div>
