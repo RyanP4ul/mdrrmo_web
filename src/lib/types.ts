@@ -75,6 +75,66 @@ export interface IncidentType {
   createdAt: string;
 }
 
+export type IncidentCategory = 'Vehicular Accident' | 'Medical' | 'Pedia' | 'Ob/Gyne' | 'Others';
+
+export interface AdminReportDriverSection {
+  /** A. To be filled by the administrative official authorizing */
+  driverName: string;
+  governmentCardPlateNo: string;
+  authorizedPassenger: string;
+  placeVisitedInspected: string;
+  purpose: string;
+  /** B. To be filled by the driver - Gasoline */
+  gasoline: {
+    balanceInTank: string;
+    issuedByOffice: string;
+    asPurchased: string;
+    deductUsed: string;
+    balanceEndTrip: string;
+  };
+  passengerName: string;
+  driverFilledName: string;
+}
+
+export interface AdminReportEmergencySection {
+  timeReported: string;
+  timeOfArrival: string;
+  date: string;
+  location: string;
+  patientName: string;
+  age: string;
+  sex: 'Male' | 'Female';
+  address: string;
+  typeOfIncident: IncidentCategory;
+  allergies: string;
+  medications: string;
+  assessmentComment: string;
+  treatmentManagement: string;
+  vitalSigns: {
+    bloodPressure: string;
+    pulseRate: string;
+    respiration: string;
+  };
+  endorsedBy: string;
+  endorsedByTime: string;
+  endorsedByDate: string;
+  endorsedTo: string;
+  endorsedToTime: string;
+  endorsedToDate: string;
+}
+
+export interface AdminReport {
+  id: string;
+  reportId: string;
+  timestamp: string;
+  status: ReportStatus;
+  priority: PriorityLevel;
+  incidentType: string;
+  assignedTeam?: string;
+  driver: AdminReportDriverSection;
+  emergency: AdminReportEmergencySection;
+}
+
 export type PageKey =
   | 'login'
   | 'register'

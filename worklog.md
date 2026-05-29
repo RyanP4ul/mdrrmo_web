@@ -51,3 +51,27 @@ Stage Summary:
 - Combobox in modal now works (modal={false} prevents pointer-events:none on body)
 - Priority colors unified: Critical/High=Red, Medium/Low=Yellow across all views
 - Dispatcher pages properly responsive on mobile screens
+
+---
+Task ID: 3
+Agent: Main Orchestrator
+Task: Merge Emergency and Driver lists in Admin Reports page, add detailed view with Driver and Emergency sections
+
+Work Log:
+- Added new TypeScript types in types.ts: IncidentCategory, AdminReportDriverSection, AdminReportEmergencySection, AdminReport
+- Added mockAdminReports (12 entries) to mock-data.ts with full driver and emergency detail data
+- Completely rewrote admin/reports.tsx with:
+  - Single merged list showing both emergency report info and driver info per item
+  - Search by report ID, location, driver name, patient name
+  - Filters: status, incident type, priority
+  - "View" button on each list item opens a detail dialog
+  - Detail dialog shows two main sections:
+    - DRIVER: Section A (admin fields: driver name, gov card/plate, passenger, place, purpose) and Section B (driver fields: gasoline table with balance/issued/purchased/used/end-balance, passenger name, driver name)
+    - EMERGENCY: Time reported, arrival, date, location, patient info (name, age, sex, address), incident type/allergies/medications table, assessment/comment, treatment/management, vital signs table (BP, pulse, respiration), endorsement by/to with time and date
+- All lint checks pass, dev server compiles successfully
+
+Stage Summary:
+- Admin Reports page now shows merged list of emergency reports with driver info
+- Each item shows: report ID, incident type badge, priority, status, location, patient name, driver name, assigned team
+- View button opens comprehensive detail dialog with Driver and Emergency sections matching the user's exact specification
+- 12 mock admin reports with realistic data covering all incident types
