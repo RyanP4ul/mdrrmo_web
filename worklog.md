@@ -31,3 +31,23 @@ Stage Summary:
 - Dispatcher responders page with team CRUD
 - Leaflet/OpenStreetMap integration with SSR handling
 - All pages use orange/amber disaster management theme
+
+---
+Task ID: 2
+Agent: Main Orchestrator
+Task: Fix combobox click, change priority colors, make dispatcher responsive
+
+Work Log:
+- Fixed Incident Type combobox not clickable in New Emergency Report modal by setting `modal={false}` on the Dialog component (Radix modal was blocking pointer events on Portaled PopoverContent)
+- Changed priority color scheme across all files: Critical=Red, High=Red (was blue), Medium=Yellow, Low=Yellow (was green)
+  - Updated: incident-types.tsx (getPriorityBadge), dashboard.tsx (PRIORITY_BADGE_STYLES + priorityStyles), reports.tsx (priorityStyles), report-detail.tsx (priorityStyles)
+- Made Dispatcher pages responsive:
+  - dashboard.tsx: Header, Incoming Reports header, Vehicle Tracker header now stack on mobile
+  - reports.tsx: Pagination wraps responsively
+  - announcements.tsx: Pagination wraps responsively
+- All lint checks pass
+
+Stage Summary:
+- Combobox in modal now works (modal={false} prevents pointer-events:none on body)
+- Priority colors unified: Critical/High=Red, Medium/Low=Yellow across all views
+- Dispatcher pages properly responsive on mobile screens

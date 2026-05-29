@@ -71,16 +71,16 @@ import { toast } from 'sonner';
 
 // ─── Priority Badge Styles ──────────────────────────────────────────
 const PRIORITY_BADGE_STYLES: Record<PriorityLevel, { bg: string; text: string; dot: string }> = {
-  low: { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-700 dark:text-green-400', dot: 'bg-green-500' },
+  low: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-700 dark:text-yellow-400', dot: 'bg-yellow-500' },
   medium: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-700 dark:text-yellow-400', dot: 'bg-yellow-500' },
-  high: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-700 dark:text-blue-400', dot: 'bg-blue-500' },
+  high: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-400', dot: 'bg-red-500' },
   critical: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-400', dot: 'bg-red-500' },
 };
 
 const priorityStyles: Record<PriorityLevel, string> = {
-  low: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+  low: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
   medium: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-  high: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+  high: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
   critical: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
 };
 
@@ -278,7 +278,7 @@ function EmergencyReportModal({ open, onOpenChange }: { open: boolean; onOpenCha
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog modal={false} open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[520px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-3">
@@ -539,7 +539,7 @@ export function DispatcherDashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <div className="flex size-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
             <Radio className="size-5 text-blue-600 dark:text-blue-400" />
@@ -561,7 +561,7 @@ export function DispatcherDashboard() {
         <div className="md:col-span-3">
           <Card className="h-full flex flex-col">
             <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-2">
                   <AlertTriangle className="size-5 text-red-500" />
                   <CardTitle>Incoming Reports</CardTitle>
@@ -637,7 +637,7 @@ export function DispatcherDashboard() {
         <div className="md:col-span-9">
           <Card className="h-full flex flex-col">
             <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-2">
                   <Truck className="size-5 text-blue-500" />
                   <CardTitle>Vehicle Tracker</CardTitle>

@@ -57,9 +57,9 @@ import { LocationMap } from '@/components/maps/location-map';
 import { toast } from 'sonner';
 
 const priorityStyles: Record<PriorityLevel, string> = {
-  low: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+  low: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
   medium: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-  high: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+  high: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
   critical: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
 };
 
