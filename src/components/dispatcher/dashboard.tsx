@@ -355,10 +355,10 @@ function EmergencyReportModal({ open, onOpenChange }: { open: boolean; onOpenCha
                 >
                   {selectedIncident ? (
                     <span className="flex items-center gap-2 truncate">
-                      <span
-                        className={`inline-block size-2 rounded-full shrink-0 ${PRIORITY_BADGE_STYLES[selectedIncident.priority].dot}`}
-                      />
                       {selectedIncident.name}
+                      <Badge className={`${PRIORITY_BADGE_STYLES[selectedIncident.priority].bg} ${PRIORITY_BADGE_STYLES[selectedIncident.priority].text} border-0 text-[10px] px-1.5 py-0 capitalize shrink-0`}>
+                        {selectedIncident.priority}
+                      </Badge>
                     </span>
                   ) : (
                     <span className="text-muted-foreground">Select incident type...</span>
@@ -389,19 +389,16 @@ function EmergencyReportModal({ open, onOpenChange }: { open: boolean; onOpenCha
                               className="flex items-center gap-2"
                             >
                               <Check
-                                className={`size-4 ${
+                                className={`size-4 shrink-0 ${
                                   selectedIncident?.id === incident.id
                                     ? 'opacity-100'
                                     : 'opacity-0'
                                 }`}
                               />
-                              <span
-                                className={`inline-block size-2 rounded-full shrink-0 ${PRIORITY_BADGE_STYLES[incident.priority].dot}`}
-                              />
-                              <div className="flex-1 min-w-0">
-                                <span className="text-sm">{incident.name}</span>
-                                <span className="text-xs text-muted-foreground ml-2">{incident.description}</span>
-                              </div>
+                              <span className="text-sm truncate">{incident.name}</span>
+                              <Badge className={`${PRIORITY_BADGE_STYLES[incident.priority].bg} ${PRIORITY_BADGE_STYLES[incident.priority].text} border-0 text-[10px] px-1.5 py-0 capitalize shrink-0`}>
+                                {incident.priority}
+                              </Badge>
                             </CommandItem>
                           ))}
                         </CommandGroup>
