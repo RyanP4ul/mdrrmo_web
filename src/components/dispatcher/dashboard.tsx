@@ -130,16 +130,20 @@ function VehicleStatusFilter({
   onToggleStatus,
   onToggleAll,
   allStatuses,
+  open,
+  onOpenChange,
 }: {
   hiddenStatuses: Set<VehicleStatus>;
   onToggleStatus: (status: VehicleStatus) => void;
   onToggleAll: () => void;
   allStatuses: VehicleStatus[];
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }) {
   const allHidden = hiddenStatuses.size === allStatuses.length;
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
           <Filter className="size-3.5" />
@@ -467,6 +471,7 @@ export function DispatcherDashboard() {
   const [hiddenStatuses, setHiddenStatuses] = useState<Set<VehicleStatus>>(new Set());
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [filterPopoverOpen, setFilterPopoverOpen] = useState(false);
 
   const toggleStatus = (status: VehicleStatus) => {
     setHiddenStatuses((prev) => {
@@ -567,7 +572,7 @@ export function DispatcherDashboard() {
                 <Button
                   size="sm"
                   className="bg-red-600 hover:bg-red-700 text-white gap-1 h-7 text-xs"
-                  onClick={() => setReportModalOpen(true)}
+                  onClick={() => { setFilterPopoverOpen(false); setReportModalOpen(true); }}
                 >
                   <Plus className="size-3.5" />
                   New Report
@@ -654,6 +659,8 @@ export function DispatcherDashboard() {
                     onToggleStatus={toggleStatus}
                     onToggleAll={toggleAllStatuses}
                     allStatuses={VEHICLE_STATUSES}
+                    open={filterPopoverOpen}
+                    onOpenChange={setFilterPopoverOpen}
                   />
                 </div>
               </div>
