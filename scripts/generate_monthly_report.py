@@ -292,6 +292,14 @@ def generate_report(data_json_path, output_pdf_path):
     gas_header = [ph('Driver'), ph('Balance<br/>In Tank'), ph('Issued<br/>By Office'), ph('Purchased'), ph('Deduct<br/>Used'), ph('Balance<br/>End Trip'), ph('Total<br/>Liters')]
     gas_data = [gas_header]
 
+    # Track totals for fuel summary
+    total_bal_in = 0.0
+    total_issued = 0.0
+    total_purchased = 0.0
+    total_deduct = 0.0
+    total_bal_end = 0.0
+    total_total_l = 0.0
+
     for d in drivers_data:
         gas = d.get('gasoline', {})
         bal_in = float(gas.get('balanceInTank', 0))
@@ -309,11 +317,54 @@ def generate_report(data_json_path, output_pdf_path):
             p(f'{bal_end:.0f} L'),
             p(f'{total_l:.0f} L'),
         ])
+        total_bal_in += bal_in
+        total_issued += issued
+        total_purchased += purchased
+        total_deduct += deduct
+        total_bal_end += bal_end
+        total_total_l += total_l
+
+    # Total row
+    gas_data.append([
+        pl('<b>TOTAL</b>'),
+        p(f'<b>{total_bal_in:.0f} L</b>'),
+        p(f'<b>{total_issued:.0f} L</b>'),
+        p(f'<b>{total_purchased:.0f} L</b>'),
+        p(f'<b>{total_deduct:.0f} L</b>'),
+        p(f'<b>{total_bal_end:.0f} L</b>'),
+        p(f'<b>{total_total_l:.0f} L</b>'),
+    ])
 
     gas_table = Table(gas_data, colWidths=gas_col_widths, hAlign='CENTER')
-    gas_table.setStyle(make_table_style(len(gas_data)))
+    gas_style_cmds = make_table_style(len(gas_data))
+    # Highlight the total row
+    gas_style_cmds.add('BACKGROUND', (0, len(gas_data) - 1), (-1, len(gas_data) - 1), ACCENT)
+    gas_style_cmds.add('TEXTCOLOR', (0, len(gas_data) - 1), (-1, len(gas_data) - 1), colors.white)
+    gas_table.setStyle(gas_style_cmds)
     story.append(gas_table)
     story.append(Paragraph('Table 3: Gasoline Usage by Driver (Liters)', caption_style))
+
+    # Total Consumed Fuel in Ambulances
+    story.append(Paragraph('<b>2.3 Total Consumed Fuel in Ambulances</b>', h2_style))
+    fuel_summary_cols = [0.40, 0.30, 0.30]
+    fuel_summary_widths = [available_width * r for r in fuel_summary_cols]
+    fuel_summary_data = [
+        [ph('Description'), ph('Amount (Liters)'), ph('Remarks')],
+        [pl('Total Fuel Issued by Office'), p(f'{total_issued:.0f} L'), pl('From office stock')],
+        [pl('Total Fuel Purchased'), p(f'{total_purchased:.0f} L'), pl('Purchased during trips')],
+        [pl('<b>Total Fuel Supplied</b>'), p(f'<b>{total_total_l:.0f} L</b>'), pl('<b>Issued + Purchased</b>')],
+        [pl('<b>Total Fuel Consumed</b>'), p(f'<b>{total_deduct:.0f} L</b>'), pl('<b>Used during all trips</b>')],
+        [pl('Remaining Balance (End of Trips)'), p(f'{total_bal_end:.0f} L'), pl('Balance in tanks at end')],
+    ]
+
+    fuel_table = Table(fuel_summary_data, colWidths=fuel_summary_widths, hAlign='CENTER')
+    fuel_style_cmds = make_table_style(len(fuel_summary_data))
+    # Highlight the "Total Fuel Consumed" row
+    fuel_style_cmds.add('BACKGROUND', (0, 4), (-1, 4), colors.HexColor('#dc2626'))
+    fuel_style_cmds.add('TEXTCOLOR', (0, 4), (-1, 4), colors.white)
+    fuel_table.setStyle(fuel_style_cmds)
+    story.append(fuel_table)
+    story.append(Paragraph('Table 4: Total Consumed Fuel in Ambulances (Liters)', caption_style))
 
     # ─── Build PDF ─────────────────────────────────────────────
     doc.build(story, onFirstPage=header_footer, onLaterPages=header_footer)
