@@ -344,8 +344,8 @@ def generate_report(data_json_path, output_pdf_path):
     story.append(gas_table)
     story.append(Paragraph('Table 3: Gasoline Usage by Driver (Liters)', caption_style))
 
-    # Total Consumed Fuel in Ambulances
-    story.append(Paragraph('<b>2.3 Total Consumed Fuel in Ambulances</b>', h2_style))
+    # Total Consumed Fuel per Ambulances
+    story.append(Paragraph('<b>2.3 Total Consumed Fuel per Ambulances</b>', h2_style))
     fuel_summary_cols = [0.40, 0.30, 0.30]
     fuel_summary_widths = [available_width * r for r in fuel_summary_cols]
     fuel_summary_data = [
@@ -364,7 +364,7 @@ def generate_report(data_json_path, output_pdf_path):
     fuel_style_cmds.add('TEXTCOLOR', (0, 4), (-1, 4), colors.white)
     fuel_table.setStyle(fuel_style_cmds)
     story.append(fuel_table)
-    story.append(Paragraph('Table 4: Total Consumed Fuel in Ambulances (Liters)', caption_style))
+    story.append(Paragraph('Table 4: Total Consumed Fuel per Ambulances (Liters)', caption_style))
 
     # ─── Build PDF ─────────────────────────────────────────────
     doc.build(story, onFirstPage=header_footer, onLaterPages=header_footer)
