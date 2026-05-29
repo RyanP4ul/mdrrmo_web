@@ -22,7 +22,7 @@ const pageTitles: Record<PageKey, string> = {
   register: 'Create Account',
   'admin-dashboard': 'Dashboard',
   'admin-users': 'User Management',
-  'admin-reports': 'Emergency Reports',
+  'admin-reports-page': 'Reports & Drivers',
   'admin-response-teams': 'Response Teams',
   'admin-audit-logs': 'Audit Logs',
   'admin-incident-types': 'Incident Types',

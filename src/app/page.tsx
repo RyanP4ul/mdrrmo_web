@@ -8,7 +8,6 @@ import { AppSidebar } from '@/components/layout/app-sidebar';
 import { AppHeader } from '@/components/layout/app-header';
 import { AdminDashboard } from '@/components/admin/dashboard';
 import { UserManagement } from '@/components/admin/user-management';
-import { EmergencyReports } from '@/components/admin/emergency-reports';
 import { ResponseTeams } from '@/components/admin/response-teams';
 import { AuditLogs } from '@/components/admin/audit-logs';
 import { IncidentTypes } from '@/components/admin/incident-types';
@@ -29,8 +28,6 @@ function PageRenderer({ page }: { page: PageKey }) {
       return <AdminDashboard />;
     case 'admin-users':
       return <UserManagement />;
-    case 'admin-reports':
-      return <EmergencyReports />;
     case 'admin-response-teams':
       return <ResponseTeams />;
     case 'admin-audit-logs':
