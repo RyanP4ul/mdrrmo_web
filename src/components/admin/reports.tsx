@@ -52,11 +52,29 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { mockAdminReports, mockUsers, mockResponseTeams } from '@/lib/mock-data';
-import type { AdminReport, PriorityLevel, ReportStatus, UserStatus } from '@/lib/types';
+import { mockAdminReports, mockResponseTeams } from '@/lib/mock-data';
+import type { AdminReport, PriorityLevel, ReportStatus } from '@/lib/types';
 
-const REPORTS_PER_PAGE = 6;
-const DRIVERS_PER_PAGE = 8;
+const ITEMS_PER_PAGE = 8;
+
+// ─── Unified list item type ─────────────────────────────────────
+type ListItemType = 'emergency' | 'driver';
+
+interface EmergencyListItem {
+  _type: 'emergency';
+  id: string;
+  report: AdminReport;
+}
+
+interface DriverListItem {
+  _type: 'driver';
+  id: string;
+  report: AdminReport; // the first report associated with this driver
+  driverName: string;
+  reportCount: number;
+}
+
+type ListItem = EmergencyListItem | DriverListItem;
 
 // Priority styles (Critical/High=Red, Medium/Low=Yellow)
 const priorityStyles: Record<PriorityLevel, string> = {
@@ -72,12 +90,6 @@ const statusStyles: Record<ReportStatus, string> = {
   dispatched: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
   resolved: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
   invalid: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
-};
-
-const userStatusStyles: Record<UserStatus, string> = {
-  active: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-  inactive: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-  suspended: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
 };
 
 const INCIDENT_COLORS: Record<string, string> = {
@@ -405,19 +417,14 @@ function DriverDetailDialog({
 
 // ─── Main Admin Reports Component ──────────────────────────────
 export function AdminReports() {
-  // Emergency Reports state
   const [search, setSearch] = useState('');
+  const [typeFilter, setTypeFilter] = useState<string>('all'); // 'all' | 'emergency' | 'driver'
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [incidentTypeFilter, setIncidentTypeFilter] = useState<string>('all');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Drivers state
-  const [driverSearch, setDriverSearch] = useState('');
-  const [driverStatusFilter, setDriverStatusFilter] = useState<string>('all');
-  const [driverPage, setDriverPage] = useState(1);
-
-  // Detail dialogs
+  // Detail dialogs (separate)
   const [selectedEmergency, setSelectedEmergency] = useState<AdminReport | null>(null);
   const [emergencyDetailOpen, setEmergencyDetailOpen] = useState(false);
   const [selectedDriver, setSelectedDriver] = useState<AdminReport | null>(null);
@@ -428,76 +435,134 @@ export function AdminReports() {
     return types.sort();
   }, []);
 
-  // Filter emergency reports
-  const filteredReports = useMemo(() => {
-    let reports = [...mockAdminReports];
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      reports = reports.filter(
-        (r) =>
-          r.reportId.toLowerCase().includes(q) ||
-          r.incidentType.toLowerCase().includes(q) ||
-          r.emergency.location.toLowerCase().includes(q) ||
-          r.emergency.patientName.toLowerCase().includes(q)
-      );
-    }
-    if (statusFilter !== 'all') reports = reports.filter((r) => r.status === statusFilter);
-    if (typeFilter !== 'all') reports = reports.filter((r) => r.incidentType === typeFilter);
-    if (priorityFilter !== 'all') reports = reports.filter((r) => r.priority === priorityFilter);
-    reports.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-    return reports;
-  }, [search, statusFilter, typeFilter, priorityFilter]);
+  // Build unified list: emergency reports + unique drivers
+  const allItems = useMemo(() => {
+    const items: ListItem[] = [];
 
-  const totalReportPages = Math.max(1, Math.ceil(filteredReports.length / REPORTS_PER_PAGE));
-  const paginatedReports = filteredReports.slice(
-    (currentPage - 1) * REPORTS_PER_PAGE,
-    currentPage * REPORTS_PER_PAGE
-  );
+    // Add emergency report items
+    mockAdminReports.forEach((r) => {
+      items.push({
+        _type: 'emergency',
+        id: `em-${r.id}`,
+        report: r,
+      });
+    });
 
-  // Get unique drivers from admin reports
-  const uniqueDrivers = useMemo(() => {
-    const driverMap = new Map<string, AdminReport>();
+    // Add unique driver items
+    const driverMap = new Map<string, { report: AdminReport; count: number }>();
     mockAdminReports.forEach((r) => {
       if (!driverMap.has(r.driver.driverName)) {
-        driverMap.set(r.driver.driverName, r);
+        driverMap.set(r.driver.driverName, { report: r, count: 1 });
+      } else {
+        driverMap.get(r.driver.driverName)!.count += 1;
       }
     });
-    return Array.from(driverMap.values());
+    driverMap.forEach(({ report, count }, name) => {
+      items.push({
+        _type: 'driver',
+        id: `dr-${name.replace(/\s+/g, '-')}`,
+        report,
+        driverName: name,
+        reportCount: count,
+      });
+    });
+
+    // Sort: emergency first by timestamp descending, then drivers
+    items.sort((a, b) => {
+      // Emergency items first
+      if (a._type === 'emergency' && b._type === 'driver') return -1;
+      if (a._type === 'driver' && b._type === 'emergency') return 1;
+      if (a._type === 'emergency' && b._type === 'emergency') {
+        return new Date(b.report.timestamp).getTime() - new Date(a.report.timestamp).getTime();
+      }
+      // Drivers sorted by name
+      return a.driverName.localeCompare(b.driverName);
+    });
+
+    return items;
   }, []);
 
-  // Filter drivers
-  const filteredDrivers = useMemo(() => {
-    let drivers = [...uniqueDrivers];
-    if (driverSearch.trim()) {
-      const q = driverSearch.toLowerCase();
-      drivers = drivers.filter(
-        (d) =>
-          d.driver.driverName.toLowerCase().includes(q) ||
-          d.driver.governmentCardPlateNo.toLowerCase().includes(q)
-      );
-    }
-    if (driverStatusFilter !== 'all') {
-      // Map report status to filter — show drivers that have at least one report with this status
-      drivers = drivers.filter((d) =>
-        mockAdminReports.some(
-          (r) => r.driver.driverName === d.driver.driverName && r.status === driverStatusFilter
-        )
-      );
-    }
-    return drivers;
-  }, [driverSearch, driverStatusFilter, uniqueDrivers]);
+  // Filter items
+  const filteredItems = useMemo(() => {
+    let items = [...allItems];
 
-  const totalDriverPages = Math.max(1, Math.ceil(filteredDrivers.length / DRIVERS_PER_PAGE));
-  const paginatedDrivers = filteredDrivers.slice(
-    (driverPage - 1) * DRIVERS_PER_PAGE,
-    driverPage * DRIVERS_PER_PAGE
+    // Type filter
+    if (typeFilter === 'emergency') items = items.filter((i) => i._type === 'emergency');
+    if (typeFilter === 'driver') items = items.filter((i) => i._type === 'driver');
+
+    // Search
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      items = items.filter((item) => {
+        if (item._type === 'emergency') {
+          const r = item.report;
+          return (
+            r.reportId.toLowerCase().includes(q) ||
+            r.incidentType.toLowerCase().includes(q) ||
+            r.emergency.location.toLowerCase().includes(q) ||
+            r.emergency.patientName.toLowerCase().includes(q) ||
+            r.driver.driverName.toLowerCase().includes(q)
+          );
+        } else {
+          const d = item.report.driver;
+          return (
+            d.driverName.toLowerCase().includes(q) ||
+            d.governmentCardPlateNo.toLowerCase().includes(q)
+          );
+        }
+      });
+    }
+
+    // Status filter
+    if (statusFilter !== 'all') {
+      items = items.filter((item) => {
+        if (item._type === 'emergency') {
+          return item.report.status === statusFilter;
+        } else {
+          // Driver: show if any of their reports has this status
+          return mockAdminReports.some(
+            (r) => r.driver.driverName === item.driverName && r.status === statusFilter
+          );
+        }
+      });
+    }
+
+    // Incident type filter (only applies to emergency items)
+    if (incidentTypeFilter !== 'all') {
+      items = items.filter((item) => {
+        if (item._type === 'emergency') return item.report.incidentType === incidentTypeFilter;
+        return true; // keep all drivers when filtering by incident type
+      });
+    }
+
+    // Priority filter (only applies to emergency items)
+    if (priorityFilter !== 'all') {
+      items = items.filter((item) => {
+        if (item._type === 'emergency') return item.report.priority === priorityFilter;
+        return true; // keep all drivers when filtering by priority
+      });
+    }
+
+    return items;
+  }, [allItems, search, typeFilter, statusFilter, incidentTypeFilter, priorityFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredItems.length / ITEMS_PER_PAGE));
+  const paginatedItems = filteredItems.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
   );
 
   // Stats
   const pendingCount = mockAdminReports.filter((r) => r.status === 'pending').length;
   const activeCount = mockAdminReports.filter((r) => r.status === 'dispatched' || r.status === 'acknowledged').length;
   const resolvedCount = mockAdminReports.filter((r) => r.status === 'resolved').length;
-  const driverCount = uniqueDrivers.length;
+  const driverCount = useMemo(() => {
+    const names = new Set(mockAdminReports.map((r) => r.driver.driverName));
+    return names.size;
+  }, []);
+
+  const emergencyCount = filteredItems.filter((i) => i._type === 'emergency').length;
+  const driverItemCount = filteredItems.filter((i) => i._type === 'driver').length;
 
   return (
     <div className="space-y-6">
@@ -554,134 +619,158 @@ export function AdminReports() {
         </Card>
       </div>
 
-      {/* Two Panels: Emergency Reports + Drivers */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        {/* ─── Emergency Reports Panel ──────────────────── */}
-        <div className="lg:col-span-7">
-          <Card className="h-full flex flex-col">
-            <CardHeader className="pb-3">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="size-5 text-red-500" />
-                  <CardTitle>Emergency Reports</CardTitle>
-                  <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border-0">
-                    {filteredReports.length}
-                  </Badge>
-                </div>
+      {/* Unified List */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2">
+              <ClipboardList className="size-5 text-blue-500" />
+              <CardTitle>All Reports & Drivers</CardTitle>
+              <div className="flex items-center gap-1.5">
+                <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border-0 text-[10px]">
+                  {emergencyCount} Emergency
+                </Badge>
+                <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border-0 text-[10px]">
+                  {driverItemCount} Drivers
+                </Badge>
               </div>
-              <CardDescription>All incident reports across the system</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3 flex-1 min-h-0">
-              {/* Search & Filters */}
-              <div className="space-y-2">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    placeholder="Search reports..."
-                    value={search}
-                    onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
-                    className="pl-9 h-8 text-sm"
-                  />
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <SlidersHorizontal className="size-3.5 text-muted-foreground" />
-                  <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setCurrentPage(1); }}>
-                    <SelectTrigger className="h-8 w-[120px] text-xs">
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="acknowledged">Acknowledged</SelectItem>
-                      <SelectItem value="dispatched">Dispatched</SelectItem>
-                      <SelectItem value="resolved">Resolved</SelectItem>
-                      <SelectItem value="invalid">Invalid</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select value={typeFilter} onValueChange={(v) => { setTypeFilter(v); setCurrentPage(1); }}>
-                    <SelectTrigger className="h-8 w-[130px] text-xs">
-                      <SelectValue placeholder="Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Types</SelectItem>
-                      {incidentTypes.map((type) => (
-                        <SelectItem key={type} value={type}>{type}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select value={priorityFilter} onValueChange={(v) => { setPriorityFilter(v); setCurrentPage(1); }}>
-                    <SelectTrigger className="h-8 w-[110px] text-xs">
-                      <SelectValue placeholder="Priority" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Priority</SelectItem>
-                      <SelectItem value="critical">Critical</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="low">Low</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {(statusFilter !== 'all' || typeFilter !== 'all' || priorityFilter !== 'all' || search) && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 text-xs text-blue-600 hover:text-blue-700"
-                      onClick={() => {
-                        setStatusFilter('all');
-                        setTypeFilter('all');
-                        setPriorityFilter('all');
-                        setSearch('');
-                        setCurrentPage(1);
-                      }}
-                    >
-                      Clear
-                    </Button>
-                  )}
-                </div>
-              </div>
+            </div>
+          </div>
+          <CardDescription>Emergency reports and driver/responder records in one view</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {/* Search & Filters */}
+          <div className="space-y-2">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search reports or drivers..."
+                value={search}
+                onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
+                className="pl-9 h-8 text-sm"
+              />
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <SlidersHorizontal className="size-3.5 text-muted-foreground" />
+              <Select value={typeFilter} onValueChange={(v) => { setTypeFilter(v); setCurrentPage(1); }}>
+                <SelectTrigger className="h-8 w-[130px] text-xs">
+                  <SelectValue placeholder="Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="emergency">Emergency</SelectItem>
+                  <SelectItem value="driver">Driver / Responder</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setCurrentPage(1); }}>
+                <SelectTrigger className="h-8 w-[120px] text-xs">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="acknowledged">Acknowledged</SelectItem>
+                  <SelectItem value="dispatched">Dispatched</SelectItem>
+                  <SelectItem value="resolved">Resolved</SelectItem>
+                  <SelectItem value="invalid">Invalid</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={incidentTypeFilter} onValueChange={(v) => { setIncidentTypeFilter(v); setCurrentPage(1); }}>
+                <SelectTrigger className="h-8 w-[130px] text-xs">
+                  <SelectValue placeholder="Incident" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Incidents</SelectItem>
+                  {incidentTypes.map((type) => (
+                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={priorityFilter} onValueChange={(v) => { setPriorityFilter(v); setCurrentPage(1); }}>
+                <SelectTrigger className="h-8 w-[110px] text-xs">
+                  <SelectValue placeholder="Priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Priority</SelectItem>
+                  <SelectItem value="critical">Critical</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="low">Low</SelectItem>
+                </SelectContent>
+              </Select>
+              {(typeFilter !== 'all' || statusFilter !== 'all' || incidentTypeFilter !== 'all' || priorityFilter !== 'all' || search) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 text-xs text-blue-600 hover:text-blue-700"
+                  onClick={() => {
+                    setTypeFilter('all');
+                    setStatusFilter('all');
+                    setIncidentTypeFilter('all');
+                    setPriorityFilter('all');
+                    setSearch('');
+                    setCurrentPage(1);
+                  }}
+                >
+                  Clear
+                </Button>
+              )}
+            </div>
+          </div>
 
-              {/* Reports List */}
-              <ScrollArea className="h-[450px]">
-                {paginatedReports.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-12 text-center">
-                    <FileText className="size-10 text-muted-foreground/40" />
-                    <p className="mt-2 text-sm text-muted-foreground">No reports found</p>
-                  </div>
-                ) : (
-                  <div className="space-y-2 pr-1">
-                    {paginatedReports.map((report) => (
+          {/* Merged List */}
+          <ScrollArea className="h-[500px]">
+            {paginatedItems.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <FileText className="size-10 text-muted-foreground/40" />
+                <p className="mt-2 text-sm text-muted-foreground">No items found</p>
+              </div>
+            ) : (
+              <div className="space-y-2 pr-1">
+                {paginatedItems.map((item) => {
+                  if (item._type === 'emergency') {
+                    const report = item.report;
+                    return (
                       <div
-                        key={report.id}
+                        key={item.id}
                         className="rounded-lg border border-border/50 bg-card p-3 transition-all hover:bg-muted/30"
                       >
                         <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex flex-wrap items-center gap-1.5 mb-1">
-                              <span className="text-xs font-mono text-muted-foreground">{report.reportId}</span>
-                              {getTypeBadge(report.incidentType)}
-                              <Badge className={`${priorityStyles[report.priority]} border-0 text-[10px] capitalize`}>
-                                {report.priority}
-                              </Badge>
-                              <Badge className={`${statusStyles[report.status]} border-0 text-[10px] capitalize`}>
-                                {report.status}
-                              </Badge>
+                          <div className="flex items-start gap-3 flex-1 min-w-0">
+                            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-red-100 dark:bg-red-900/30 mt-0.5">
+                              <AlertTriangle className="size-4 text-red-600 dark:text-red-400" />
                             </div>
-                            <p className="text-sm font-medium truncate">{report.emergency.location}</p>
-                            <div className="flex items-center gap-1.5 mt-1">
-                              <User className="size-2.5 text-muted-foreground" />
-                              <span className="text-[10px] text-muted-foreground">{report.emergency.patientName}</span>
-                              <span className="text-[10px] text-muted-foreground">•</span>
-                              <Phone className="size-2.5 text-muted-foreground" />
-                              <span className="text-[10px] text-muted-foreground">{report.emergency.timeReported}</span>
-                            </div>
-                            {report.assignedTeam && (
-                              <div className="flex items-center gap-1.5 mt-1">
-                                <Truck className="size-2.5 text-blue-500" />
-                                <span className="text-[10px] text-muted-foreground">
-                                  Team: <span className="font-medium text-foreground">{getTeamName(report.assignedTeam)}</span>
-                                </span>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex flex-wrap items-center gap-1.5 mb-1">
+                                <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border-0 text-[10px]">
+                                  Emergency
+                                </Badge>
+                                <span className="text-xs font-mono text-muted-foreground">{report.reportId}</span>
+                                {getTypeBadge(report.incidentType)}
+                                <Badge className={`${priorityStyles[report.priority]} border-0 text-[10px] capitalize`}>
+                                  {report.priority}
+                                </Badge>
+                                <Badge className={`${statusStyles[report.status]} border-0 text-[10px] capitalize`}>
+                                  {report.status}
+                                </Badge>
                               </div>
-                            )}
+                              <p className="text-sm font-medium truncate">{report.emergency.location}</p>
+                              <div className="flex items-center gap-1.5 mt-1">
+                                <User className="size-2.5 text-muted-foreground" />
+                                <span className="text-[10px] text-muted-foreground">{report.emergency.patientName}</span>
+                                <span className="text-[10px] text-muted-foreground">•</span>
+                                <Phone className="size-2.5 text-muted-foreground" />
+                                <span className="text-[10px] text-muted-foreground">{report.emergency.timeReported}</span>
+                              </div>
+                              {report.assignedTeam && (
+                                <div className="flex items-center gap-1.5 mt-1">
+                                  <Truck className="size-2.5 text-blue-500" />
+                                  <span className="text-[10px] text-muted-foreground">
+                                    Team: <span className="font-medium text-foreground">{getTeamName(report.assignedTeam)}</span>
+                                  </span>
+                                </div>
+                              )}
+                            </div>
                           </div>
                           <div className="flex flex-col items-end gap-2 shrink-0">
                             <span className="text-[10px] text-muted-foreground">
@@ -702,206 +791,104 @@ export function AdminReports() {
                           </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </ScrollArea>
-
-              {/* Reports Pagination */}
-              {totalReportPages > 1 && (
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between pt-2">
-                  <p className="text-xs text-muted-foreground">
-                    Page {currentPage} of {totalReportPages}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-7 text-xs"
-                      disabled={currentPage <= 1}
-                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    >
-                      <ChevronLeft className="size-3 mr-0.5" />
-                      Prev
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-7 text-xs"
-                      disabled={currentPage >= totalReportPages}
-                      onClick={() => setCurrentPage((p) => Math.min(totalReportPages, p + 1))}
-                    >
-                      Next
-                      <ChevronRight className="size-3 ml-0.5" />
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* ─── Drivers / Responders Panel ───────────────── */}
-        <div className="lg:col-span-5">
-          <Card className="h-full flex flex-col">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="size-5 text-amber-500" />
-                <CardTitle>Drivers / Responders</CardTitle>
-                <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border-0">
-                  {filteredDrivers.length}
-                </Badge>
-              </div>
-              <CardDescription>Registered drivers and responders</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3 flex-1 min-h-0">
-              {/* Search & Filter */}
-              <div className="space-y-2">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    placeholder="Search drivers..."
-                    value={driverSearch}
-                    onChange={(e) => { setDriverSearch(e.target.value); setDriverPage(1); }}
-                    className="pl-9 h-8 text-sm"
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <Select value={driverStatusFilter} onValueChange={(v) => { setDriverStatusFilter(v); setDriverPage(1); }}>
-                    <SelectTrigger className="h-8 w-[120px] text-xs">
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="dispatched">Dispatched</SelectItem>
-                      <SelectItem value="resolved">Resolved</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {(driverStatusFilter !== 'all' || driverSearch) && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 text-xs text-blue-600 hover:text-blue-700"
-                      onClick={() => {
-                        setDriverStatusFilter('all');
-                        setDriverSearch('');
-                        setDriverPage(1);
-                      }}
-                    >
-                      Clear
-                    </Button>
-                  )}
-                </div>
-              </div>
-
-              {/* Drivers List */}
-              <ScrollArea className="h-[450px]">
-                {paginatedDrivers.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-12 text-center">
-                    <ShieldCheck className="size-10 text-muted-foreground/40" />
-                    <p className="mt-2 text-sm text-muted-foreground">No drivers found</p>
-                  </div>
-                ) : (
-                  <div className="space-y-2 pr-1">
-                    {paginatedDrivers.map((report) => {
-                      const d = report.driver;
-                      const initials = d.driverName.split(' ').map((n) => n.charAt(0)).join('');
-                      const team = report.assignedTeam
-                        ? mockResponseTeams.find((t) => t.id === report.assignedTeam)
-                        : null;
-                      // Count how many reports this driver has
-                      const reportCount = mockAdminReports.filter(
-                        (r) => r.driver.driverName === d.driverName
-                      ).length;
-                      return (
-                        <div
-                          key={report.id}
-                          className="rounded-lg border border-border/50 bg-card p-3 transition-all hover:bg-muted/30"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
-                              <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
-                                {initials}
-                              </span>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium truncate">{d.driverName}</span>
-                              </div>
-                              <p className="text-[10px] text-muted-foreground truncate">
-                                {d.governmentCardPlateNo}
-                              </p>
-                              <div className="flex items-center gap-1.5 mt-0.5">
-                                <FileText className="size-2.5 text-muted-foreground" />
-                                <span className="text-[10px] text-muted-foreground">
-                                  {reportCount} report{reportCount !== 1 ? 's' : ''}
-                                </span>
-                                {team && (
-                                  <>
-                                    <span className="text-[10px] text-muted-foreground">•</span>
-                                    <Truck className="size-2.5 text-blue-500" />
-                                    <span className="text-[10px] font-medium text-blue-600 dark:text-blue-400">{team.teamName}</span>
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="shrink-0 h-7 gap-1 text-xs"
-                              onClick={() => {
-                                setSelectedDriver(report);
-                                setDriverDetailOpen(true);
-                              }}
-                            >
-                              <Eye className="size-3" />
-                              View
-                            </Button>
+                    );
+                  } else {
+                    // Driver item
+                    const d = item.report.driver;
+                    const initials = d.driverName.split(' ').map((n) => n.charAt(0)).join('');
+                    const team = item.report.assignedTeam
+                      ? mockResponseTeams.find((t) => t.id === item.report.assignedTeam)
+                      : null;
+                    return (
+                      <div
+                        key={item.id}
+                        className="rounded-lg border border-border/50 bg-card p-3 transition-all hover:bg-muted/30"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
+                            <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
+                              {initials}
+                            </span>
                           </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-1.5 mb-0.5">
+                              <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border-0 text-[10px]">
+                                Driver
+                              </Badge>
+                              <span className="text-sm font-medium truncate">{d.driverName}</span>
+                            </div>
+                            <p className="text-[10px] text-muted-foreground truncate">
+                              {d.governmentCardPlateNo}
+                            </p>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <FileText className="size-2.5 text-muted-foreground" />
+                              <span className="text-[10px] text-muted-foreground">
+                                {item.reportCount} report{item.reportCount !== 1 ? 's' : ''}
+                              </span>
+                              {team && (
+                                <>
+                                  <span className="text-[10px] text-muted-foreground">•</span>
+                                  <Truck className="size-2.5 text-blue-500" />
+                                  <span className="text-[10px] font-medium text-blue-600 dark:text-blue-400">{team.teamName}</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="shrink-0 h-7 gap-1 text-xs"
+                            onClick={() => {
+                              setSelectedDriver(item.report);
+                              setDriverDetailOpen(true);
+                            }}
+                          >
+                            <Eye className="size-3" />
+                            View
+                          </Button>
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </ScrollArea>
+                      </div>
+                    );
+                  }
+                })}
+              </div>
+            )}
+          </ScrollArea>
 
-              {/* Drivers Pagination */}
-              {totalDriverPages > 1 && (
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between pt-2">
-                  <p className="text-xs text-muted-foreground">
-                    Page {driverPage} of {totalDriverPages}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-7 text-xs"
-                      disabled={driverPage <= 1}
-                      onClick={() => setDriverPage((p) => Math.max(1, p - 1))}
-                    >
-                      <ChevronLeft className="size-3 mr-0.5" />
-                      Prev
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-7 text-xs"
-                      disabled={driverPage >= totalDriverPages}
-                      onClick={() => setDriverPage((p) => Math.min(totalDriverPages, p + 1))}
-                    >
-                      Next
-                      <ChevronRight className="size-3 ml-0.5" />
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between pt-2">
+              <p className="text-xs text-muted-foreground">
+                Page {currentPage} of {totalPages} ({filteredItems.length} items)
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 text-xs"
+                  disabled={currentPage <= 1}
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                >
+                  <ChevronLeft className="size-3 mr-0.5" />
+                  Prev
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 text-xs"
+                  disabled={currentPage >= totalPages}
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                >
+                  Next
+                  <ChevronRight className="size-3 ml-0.5" />
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-      {/* Detail Dialogs */}
+      {/* Separate Dialogs */}
       <EmergencyDetailDialog
         report={selectedEmergency}
         open={emergencyDetailOpen}
