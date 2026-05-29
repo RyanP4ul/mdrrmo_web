@@ -75,3 +75,40 @@ Stage Summary:
 - Each item shows: report ID, incident type badge, priority, status, location, patient name, driver name, assigned team
 - View button opens comprehensive detail dialog with Driver and Emergency sections matching the user's exact specification
 - 12 mock admin reports with realistic data covering all incident types
+
+---
+Task ID: 4
+Agent: Main Orchestrator
+Task: Admin dashboard card removal, User Management changes (Email→Phone, remove Status edit), Dispatcher changes verification
+
+Work Log:
+- Removed from Admin Dashboard: Total Users, Active Reports, Pending Approvals, Avg Resolution Time, Resolution Rate (7d) cards
+- Replaced with report-focused statistics: Active Reports (pending+dispatched), Resolved, Critical/High Priority, Acknowledged
+- Added computed report statistics from mockReports data (pending, acknowledged, dispatched, resolved, invalid, critical, high counts)
+- Added new "Report Status Distribution" horizontal bar chart showing breakdown by status
+- Removed TrendingUp, Users, FileWarning imports (no longer used), added Flame, Siren imports
+- Kept: Resolved (24h) concept merged into new Resolved card, Reports Today removed in favor of active report count
+- Restructured bottom row to: Incident Types chart | Report Status chart | Latest Report + Recent Activity (stacked)
+- Removed Email field from User Management Add/Edit forms, replaced with Phone Number (contactNumber)
+- Updated UserFormData interface: removed email and status fields, added contactNumber
+- Updated emptyForm defaults: contactNumber='', role='dispatcher', status removed from form
+- Removed Status select from both Add User and Edit User dialogs
+- New users default to 'inactive' status (status becomes Active when they log into mobile app)
+- Updated Add User dialog description to explain status behavior
+- Updated Edit User dialog description to note status is managed automatically
+- Updated table column: Email → Phone Number with Phone icon
+- Updated search placeholder and logic: now searches by name or phone number instead of email
+- Verified Dispatcher changes from previous session are already implemented in current codebase:
+  - Reports page already shows only resolved/completed reports
+  - Active Reports already shows only dispatched/acknowledged reports
+  - Report Detail back button already goes to Operations page
+  - Responders already filters out Inactive and Off Duty teams/members
+- All lint checks pass, dev server compiles successfully
+
+Stage Summary:
+- Admin Dashboard now focused on report statistics instead of user/general metrics
+- 4 stat cards: Active Reports, Resolved, Critical/High Priority, Acknowledged
+- New Report Status Distribution chart added
+- User Management uses Phone Number instead of Email
+- Status editing removed (auto-managed: inactive by default, Active on mobile app login)
+- Dispatcher changes verified as already implemented

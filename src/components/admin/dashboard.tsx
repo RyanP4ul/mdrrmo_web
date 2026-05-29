@@ -2,20 +2,19 @@
 
 import { useState, useMemo } from 'react';
 import {
-  Users,
   AlertTriangle,
   Clock,
   CheckCircle,
-  TrendingUp,
   Activity,
   Map,
   AlertOctagon,
-  FileWarning,
-  UserPlus,
   ShieldCheck,
   Filter,
   Eye,
   EyeOff,
+  Flame,
+  Siren,
+  FileWarning,
 } from 'lucide-react';
 import {
   Card,
@@ -42,7 +41,6 @@ import {
 } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import {
-  adminDashboardStats,
   reportsByType,
   recentActivity,
   mockReports,
@@ -64,7 +62,7 @@ const activityIcons: Record<string, React.ReactNode> = {
   report: <AlertTriangle className="size-4 text-sky-500" />,
   dispatch: <ShieldCheck className="size-4 text-blue-500" />,
   resolve: <CheckCircle className="size-4 text-green-500" />,
-  user: <UserPlus className="size-4 text-blue-500" />,
+  user: <Activity className="size-4 text-blue-500" />,
 };
 
 function getPriorityBadge(priority: PriorityLevel) {
@@ -197,52 +195,62 @@ export function AdminDashboard() {
     [hiddenTypes]
   );
 
+  // Compute report statistics from mock data
+  const reportStats = useMemo(() => {
+    const pending = mockReports.filter((r) => r.status === 'pending').length;
+    const acknowledged = mockReports.filter((r) => r.status === 'acknowledged').length;
+    const dispatched = mockReports.filter((r) => r.status === 'dispatched').length;
+    const resolved = mockReports.filter((r) => r.status === 'resolved').length;
+    const invalid = mockReports.filter((r) => r.status === 'invalid').length;
+    const critical = mockReports.filter((r) => r.priority === 'critical').length;
+    const high = mockReports.filter((r) => r.priority === 'high').length;
+    const activeReports = pending + acknowledged + dispatched;
+    const reportsToday = mockReports.filter((r) => {
+      const today = new Date();
+      const reportDate = new Date(r.timestamp);
+      return reportDate.toDateString() === today.toDateString();
+    }).length;
+    return { pending, acknowledged, dispatched, resolved, invalid, critical, high, activeReports, reportsToday, total: mockReports.length };
+  }, []);
+
   const latestCriticalReport = mockReports
     .filter((r) => r.status === 'pending' || r.priority === 'critical')
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
 
+  // Status distribution for mini chart
+  const statusData = useMemo(() => [
+    { status: 'Pending', count: reportStats.pending, color: '#f59e0b' },
+    { status: 'Acknowledged', count: reportStats.acknowledged, color: '#3b82f6' },
+    { status: 'Dispatched', count: reportStats.dispatched, color: '#8b5cf6' },
+    { status: 'Resolved', count: reportStats.resolved, color: '#22c55e' },
+    { status: 'Invalid', count: reportStats.invalid, color: '#6b7280' },
+  ], [reportStats]);
+
+  const statusChartConfig = {
+    Pending: { label: 'Pending', color: '#f59e0b' },
+    Acknowledged: { label: 'Acknowledged', color: '#3b82f6' },
+    Dispatched: { label: 'Dispatched', color: '#8b5cf6' },
+    Resolved: { label: 'Resolved', color: '#22c55e' },
+    Invalid: { label: 'Invalid', color: '#6b7280' },
+  } satisfies ChartConfig;
+
   return (
     <div className="space-y-6">
-      {/* Top Stat Cards */}
+      {/* Report-Focused Stat Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Total Users</p>
-                <p className="text-3xl font-bold">
-                  {adminDashboardStats.totalUsers.toLocaleString()}
-                </p>
-              </div>
-              <div className="flex size-12 items-center justify-center rounded-full bg-sky-100 dark:bg-sky-900/30">
-                <Users className="size-6 text-sky-600 dark:text-sky-400" />
-              </div>
-            </div>
-            <div className="mt-3 flex items-center gap-1 text-xs">
-              <TrendingUp className="size-3 text-green-500" />
-              <span className="text-green-600 dark:text-green-400">+12%</span>
-              <span className="text-muted-foreground">from last month</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Active Reports</p>
-                <p className="text-3xl font-bold">
-                  {adminDashboardStats.activeReports}
+                <p className="text-3xl font-bold">{reportStats.activeReports}</p>
+                <p className="text-xs text-muted-foreground">
+                  {reportStats.pending} pending · {reportStats.dispatched} dispatched
                 </p>
               </div>
               <div className="flex size-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
-                <AlertTriangle className="size-6 text-red-600 dark:text-red-400" />
+                <Siren className="size-6 text-red-600 dark:text-red-400" />
               </div>
-            </div>
-            <div className="mt-3 flex items-center gap-1 text-xs">
-              <TrendingUp className="size-3 text-red-500" />
-              <span className="text-red-600 dark:text-red-400">+5</span>
-              <span className="text-muted-foreground">since yesterday</span>
             </div>
           </CardContent>
         </Card>
@@ -251,56 +259,31 @@ export function AdminDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Pending Approvals</p>
-                <p className="text-3xl font-bold">
-                  {adminDashboardStats.pendingApprovals}
-                </p>
-              </div>
-              <div className="flex size-12 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/30">
-                <Clock className="size-6 text-yellow-600 dark:text-yellow-400" />
-              </div>
-            </div>
-            <div className="mt-3 flex items-center gap-1 text-xs">
-              <TrendingUp className="size-3 text-yellow-500" />
-              <span className="text-yellow-600 dark:text-yellow-400">3 urgent</span>
-              <span className="text-muted-foreground">need attention</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Resolved (24h)</p>
-                <p className="text-3xl font-bold">
-                  {adminDashboardStats.reportsResolved24h}
+                <p className="text-sm text-muted-foreground">Resolved</p>
+                <p className="text-3xl font-bold">{reportStats.resolved}</p>
+                <p className="text-xs text-muted-foreground">
+                  {reportStats.invalid} invalid · {reportStats.total} total
                 </p>
               </div>
               <div className="flex size-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
                 <CheckCircle className="size-6 text-green-600 dark:text-green-400" />
               </div>
             </div>
-            <div className="mt-3 flex items-center gap-1 text-xs">
-              <TrendingUp className="size-3 text-green-500" />
-              <span className="text-green-600 dark:text-green-400">+8%</span>
-              <span className="text-muted-foreground">from yesterday</span>
-            </div>
           </CardContent>
         </Card>
-      </div>
 
-      {/* Reports Overview Row */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Card>
           <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                <FileWarning className="size-5 text-blue-600 dark:text-blue-400" />
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">Critical / High Priority</p>
+                <p className="text-3xl font-bold">{reportStats.critical + reportStats.high}</p>
+                <p className="text-xs text-muted-foreground">
+                  {reportStats.critical} critical · {reportStats.high} high
+                </p>
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Reports Today</p>
-                <p className="text-2xl font-bold">{adminDashboardStats.reportsToday}</p>
+              <div className="flex size-12 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/30">
+                <Flame className="size-6 text-orange-600 dark:text-orange-400" />
               </div>
             </div>
           </CardContent>
@@ -308,27 +291,16 @@ export function AdminDashboard() {
 
         <Card>
           <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-lg bg-sky-100 dark:bg-sky-900/30">
-                <Activity className="size-5 text-sky-600 dark:text-sky-400" />
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">Acknowledged</p>
+                <p className="text-3xl font-bold">{reportStats.acknowledged}</p>
+                <p className="text-xs text-muted-foreground">
+                  Awaiting dispatch
+                </p>
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Avg Resolution Time</p>
-                <p className="text-2xl font-bold">{adminDashboardStats.avgResolutionTime}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30">
-                <TrendingUp className="size-5 text-green-600 dark:text-green-400" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Resolution Rate (7d)</p>
-                <p className="text-2xl font-bold">{adminDashboardStats.resolutionRate7d}%</p>
+              <div className="flex size-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+                <Clock className="size-6 text-blue-600 dark:text-blue-400" />
               </div>
             </div>
           </CardContent>
@@ -357,7 +329,7 @@ export function AdminDashboard() {
         </CardContent>
       </Card>
 
-      {/* Bottom Row: Incident Types Chart, Latest Report & Recent Activity */}
+      {/* Bottom Row: Incident Types Chart, Report Status Chart, Latest Report & Recent Activity */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Reports Type Chart */}
         <Card>
@@ -424,81 +396,126 @@ export function AdminDashboard() {
           </CardContent>
         </Card>
 
-        {/* Latest Emergency Report */}
-        {latestCriticalReport && (
-          <Card className="border-blue-200 dark:border-blue-900/50">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <AlertOctagon className="size-5 text-red-500" />
-                <CardTitle>Latest Emergency Report</CardTitle>
-              </div>
-              <CardDescription>Most recent pending or critical report</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <h4 className="text-lg font-semibold">{latestCriticalReport.type}</h4>
-                  <p className="text-sm text-muted-foreground">
-                    {latestCriticalReport.location}
-                  </p>
-                </div>
-                {getPriorityBadge(latestCriticalReport.priority)}
-              </div>
-
-              <div className="rounded-lg bg-muted/50 p-3">
-                <p className="text-sm leading-relaxed">
-                  {latestCriticalReport.description}
-                </p>
-              </div>
-
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>ID: {latestCriticalReport.id}</span>
-                <span>
-                  {new Date(latestCriticalReport.timestamp).toLocaleString('en-PH', {
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span>Reported by: {latestCriticalReport.reportedBy.name}</span>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Recent Activity */}
+        {/* Report Status Distribution */}
         <Card>
           <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Latest system events</CardDescription>
+            <CardTitle>Report Status Distribution</CardTitle>
+            <CardDescription>Current breakdown by status</CardDescription>
           </CardHeader>
-          <CardContent className="p-0">
-            <ScrollArea className="h-[400px]">
-              <div className="space-y-1 px-6">
-                {recentActivity.map((activity) => (
-                  <div
-                    key={activity.id}
-                    className="flex items-start gap-3 rounded-lg p-3 transition-colors hover:bg-muted/50"
-                  >
-                    <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-muted">
-                      {activityIcons[activity.type] || <Activity className="size-4 text-muted-foreground" />}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium leading-tight">{activity.action}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {activity.user} &middot; {activity.time}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
+          <CardContent>
+            <ChartContainer config={statusChartConfig} className="min-h-[300px] w-full">
+              <BarChart data={statusData} layout="vertical" margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                <XAxis
+                  type="number"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  fontSize={12}
+                  allowDecimals={false}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="status"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  fontSize={12}
+                  width={90}
+                />
+                <ChartTooltip
+                  content={<ChartTooltipContent />}
+                />
+                <Bar
+                  dataKey="count"
+                  radius={[0, 4, 4, 0]}
+                >
+                  {statusData.map((entry, index) => (
+                    <rect key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ChartContainer>
           </CardContent>
         </Card>
+
+        {/* Latest Emergency Report + Recent Activity stacked */}
+        <div className="space-y-6">
+          {latestCriticalReport && (
+            <Card className="border-blue-200 dark:border-blue-900/50">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <AlertOctagon className="size-5 text-red-500" />
+                  <CardTitle className="text-base">Latest Emergency Report</CardTitle>
+                </div>
+                <CardDescription>Most recent pending or critical report</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h4 className="text-lg font-semibold">{latestCriticalReport.type}</h4>
+                    <p className="text-sm text-muted-foreground">
+                      {latestCriticalReport.location}
+                    </p>
+                  </div>
+                  {getPriorityBadge(latestCriticalReport.priority)}
+                </div>
+
+                <div className="rounded-lg bg-muted/50 p-3">
+                  <p className="text-sm leading-relaxed">
+                    {latestCriticalReport.description}
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>ID: {latestCriticalReport.id}</span>
+                  <span>
+                    {new Date(latestCriticalReport.timestamp).toLocaleString('en-PH', {
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <span>Reported by: {latestCriticalReport.reportedBy.name}</span>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Recent Activity */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Recent Activity</CardTitle>
+              <CardDescription>Latest system events</CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+              <ScrollArea className="h-[300px]">
+                <div className="space-y-1 px-6">
+                  {recentActivity.map((activity) => (
+                    <div
+                      key={activity.id}
+                      className="flex items-start gap-3 rounded-lg p-3 transition-colors hover:bg-muted/50"
+                    >
+                      <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-muted">
+                        {activityIcons[activity.type] || <Activity className="size-4 text-muted-foreground" />}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium leading-tight">{activity.action}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {activity.user} &middot; {activity.time}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

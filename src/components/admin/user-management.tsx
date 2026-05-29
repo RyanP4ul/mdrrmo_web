@@ -3,16 +3,14 @@
 import { useState, useMemo } from 'react';
 import {
   Search,
-  Plus,
   Pencil,
   Trash2,
   UserPlus,
+  Phone,
 } from 'lucide-react';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -106,17 +104,15 @@ function formatDate(dateStr: string) {
 interface UserFormData {
   firstName: string;
   lastName: string;
-  email: string;
+  contactNumber: string;
   role: Role;
-  status: UserStatus;
 }
 
 const emptyForm: UserFormData = {
   firstName: '',
   lastName: '',
-  email: '',
+  contactNumber: '',
   role: 'dispatcher',
-  status: 'active',
 };
 
 function UserForm({
@@ -151,48 +147,30 @@ function UserForm({
         </div>
       </div>
       <div className="space-y-2">
-        <Label htmlFor={`${mode}-email`}>Email</Label>
+        <Label htmlFor={`${mode}-contactNumber`}>Phone Number</Label>
         <Input
-          id={`${mode}-email`}
-          type="email"
-          value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          placeholder="Enter email address"
+          id={`${mode}-contactNumber`}
+          type="tel"
+          value={formData.contactNumber}
+          onChange={(e) => setFormData({ ...formData, contactNumber: e.target.value })}
+          placeholder="+63 9XX XXX XXXX"
         />
       </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>Role</Label>
-          <Select
-            value={formData.role}
-            onValueChange={(value) => setFormData({ ...formData, role: value as Role })}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select role" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="admin">Admin</SelectItem>
-              <SelectItem value="dispatcher">Dispatcher</SelectItem>
-              <SelectItem value="driver/responder">Driver / Responder</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label>Status</Label>
-          <Select
-            value={formData.status}
-            onValueChange={(value) => setFormData({ ...formData, status: value as UserStatus })}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="inactive">Inactive</SelectItem>
-              <SelectItem value="suspended">Suspended</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+      <div className="space-y-2">
+        <Label>Role</Label>
+        <Select
+          value={formData.role}
+          onValueChange={(value) => setFormData({ ...formData, role: value as Role })}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select role" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="admin">Admin</SelectItem>
+            <SelectItem value="dispatcher">Dispatcher</SelectItem>
+            <SelectItem value="driver/responder">Driver / Responder</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );
@@ -215,7 +193,7 @@ export function UserManagement() {
       const matchesSearch =
         search === '' ||
         `${user.firstName} ${user.lastName}`.toLowerCase().includes(search.toLowerCase()) ||
-        user.email.toLowerCase().includes(search.toLowerCase());
+        user.contactNumber.toLowerCase().includes(search.toLowerCase());
 
       const matchesRole = roleFilter === 'all' || user.role === roleFilter;
       const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
@@ -235,21 +213,22 @@ export function UserManagement() {
   };
 
   const handleAddUser = () => {
-    if (!formData.firstName || !formData.lastName || !formData.email) {
+    if (!formData.firstName || !formData.lastName || !formData.contactNumber) {
       toast.error('Please fill in all required fields');
       return;
     }
+    // New users start as inactive; status becomes Active when they log into the mobile app
     const newUser: User = {
       id: `USR${String(users.length + 1).padStart(3, '0')}`,
       firstName: formData.firstName,
       lastName: formData.lastName,
-      email: formData.email,
-      contactNumber: '',
+      email: '',
+      contactNumber: formData.contactNumber,
       dateOfBirth: '',
       address: { houseNo: '', street: '', barangay: '', city: '', province: '' },
       idType: 'National ID',
       role: formData.role,
-      status: formData.status,
+      status: 'inactive',
       registeredAt: new Date().toISOString(),
     };
     setUsers((prev) => [newUser, ...prev]);
@@ -260,14 +239,14 @@ export function UserManagement() {
   };
 
   const handleEditUser = () => {
-    if (!selectedUser || !formData.firstName || !formData.lastName || !formData.email) {
+    if (!selectedUser || !formData.firstName || !formData.lastName || !formData.contactNumber) {
       toast.error('Please fill in all required fields');
       return;
     }
     setUsers((prev) =>
       prev.map((u) =>
         u.id === selectedUser.id
-          ? { ...u, firstName: formData.firstName, lastName: formData.lastName, email: formData.email, role: formData.role, status: formData.status }
+          ? { ...u, firstName: formData.firstName, lastName: formData.lastName, contactNumber: formData.contactNumber, role: formData.role }
           : u,
       ),
     );
@@ -292,9 +271,8 @@ export function UserManagement() {
     setFormData({
       firstName: user.firstName,
       lastName: user.lastName,
-      email: user.email,
+      contactNumber: user.contactNumber,
       role: user.role,
-      status: user.status,
     });
     setEditDialogOpen(true);
   };
@@ -334,7 +312,7 @@ export function UserManagement() {
             <DialogHeader>
               <DialogTitle>Add New User</DialogTitle>
               <DialogDescription>
-                Create a new user account in the system.
+                Create a new user account in the system. Status will be set to &quot;Inactive&quot; until the user logs into the mobile app.
               </DialogDescription>
             </DialogHeader>
             <UserForm mode="add" formData={formData} setFormData={setFormData} />
@@ -357,7 +335,7 @@ export function UserManagement() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Search by name or email..."
+                placeholder="Search by name or phone number..."
                 value={search}
                 onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
                 className="pl-9"
@@ -398,7 +376,7 @@ export function UserManagement() {
             <TableHeader>
               <TableRow>
                 <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
+                <TableHead>Phone Number</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Registered</TableHead>
                 <TableHead>Status</TableHead>
@@ -427,7 +405,12 @@ export function UserManagement() {
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">{user.email}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Phone className="size-3.5 text-muted-foreground" />
+                        <span className="text-muted-foreground">{user.contactNumber}</span>
+                      </div>
+                    </TableCell>
                     <TableCell>{getRoleBadge(user.role)}</TableCell>
                     <TableCell className="text-muted-foreground">
                       {formatDate(user.registeredAt)}
@@ -532,7 +515,7 @@ export function UserManagement() {
           <DialogHeader>
             <DialogTitle>Edit User</DialogTitle>
             <DialogDescription>
-              Update user information and permissions.
+              Update user information. Status is managed automatically and cannot be changed manually.
             </DialogDescription>
           </DialogHeader>
           <UserForm mode="edit" formData={formData} setFormData={setFormData} />
