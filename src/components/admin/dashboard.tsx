@@ -54,7 +54,6 @@ const chartConfig = {
   Disaster: { label: 'Disaster', color: '#3b82f6' },
   Vehicular: { label: 'Vehicular', color: '#f59e0b' },
   Trauma: { label: 'Trauma', color: '#ec4899' },
-  Ambulance: { label: 'Ambulance', color: '#06b6d4' },
   Service: { label: 'Service', color: '#6b7280' },
 } satisfies ChartConfig;
 

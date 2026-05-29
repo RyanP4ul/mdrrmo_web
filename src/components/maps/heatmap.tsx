@@ -10,7 +10,6 @@ export const INCIDENT_COLORS: Record<string, string> = {
   Disaster: '#3b82f6',
   Vehicular: '#f59e0b',
   Trauma: '#ec4899',
-  Ambulance: '#06b6d4',
   Service: '#6b7280',
 };
 

@@ -44,7 +44,6 @@ const incidentTypes = [
   'Disaster',
   'Vehicular',
   'Trauma',
-  'Ambulance',
   'Service',
 ];
 

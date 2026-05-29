@@ -217,8 +217,7 @@ export const mockIncidentTypes: IncidentType[] = [
   { id: 'IT003', name: 'Disaster', description: 'Natural disaster and calamity events', priority: 'high', createdAt: '2024-01-01T00:00:00Z' },
   { id: 'IT004', name: 'Vehicular', description: 'Road traffic accidents', priority: 'medium', createdAt: '2024-01-01T00:00:00Z' },
   { id: 'IT005', name: 'Trauma', description: 'Physical injury and trauma cases', priority: 'medium', createdAt: '2024-01-01T00:00:00Z' },
-  { id: 'IT006', name: 'Ambulance', description: 'Ambulance and medical transport requests', priority: 'low', createdAt: '2024-01-01T00:00:00Z' },
-  { id: 'IT007', name: 'Service', description: 'General service and assistance requests', priority: 'low', createdAt: '2024-01-01T00:00:00Z' },
+  { id: 'IT006', name: 'Service', description: 'General service and assistance requests', priority: 'low', createdAt: '2024-01-01T00:00:00Z' },
 ];
 
 export const mockReports: EmergencyReport[] = [
@@ -312,7 +311,7 @@ export const mockReports: EmergencyReport[] = [
   },
   {
     id: 'RPT008',
-    type: 'Ambulance',
+    type: 'Service',
     location: 'Bonuan Beach, Dagupan',
     lat: 16.0550,
     lng: 120.3250,
@@ -572,7 +571,7 @@ export const mockHeatmapData = [
   { lat: 16.0427, lng: 120.3370, intensity: 0.95, type: 'Disaster' },
   { lat: 16.0375, lng: 120.3455, intensity: 0.7, type: 'Trauma' },
   { lat: 16.0400, lng: 120.3425, intensity: 0.3, type: 'Service' },
-  { lat: 16.0550, lng: 120.3250, intensity: 0.85, type: 'Ambulance' },
+  { lat: 16.0550, lng: 120.3250, intensity: 0.85, type: 'Service' },
   { lat: 16.0395, lng: 120.3380, intensity: 0.75, type: 'Disaster' },
   { lat: 16.0430, lng: 120.3365, intensity: 0.7, type: 'Fire' },
   { lat: 16.0440, lng: 120.3390, intensity: 0.65, type: 'Disaster' },
@@ -596,7 +595,6 @@ export const reportsByType = [
   { type: 'Disaster', count: 8, color: '#3b82f6' },
   { type: 'Vehicular', count: 3, color: '#f59e0b' },
   { type: 'Trauma', count: 2, color: '#ec4899' },
-  { type: 'Ambulance', count: 1, color: '#06b6d4' },
   { type: 'Service', count: 2, color: '#6b7280' },
 ];
 
@@ -902,7 +900,7 @@ export const mockAdminReports: AdminReport[] = [
     timestamp: '2026-03-04T11:00:00Z',
     status: 'pending',
     priority: 'low',
-    incidentType: 'Ambulance',
+    incidentType: 'Service',
     driver: {
       driverName: 'Roberto Guzman',
       governmentCardPlateNo: 'DL-2024-0089 / ABX 1234',
