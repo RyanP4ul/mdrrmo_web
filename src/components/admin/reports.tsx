@@ -718,7 +718,7 @@ export function AdminReports() {
             </div>
           </div>
 
-          {/* Merged List */}
+          {/* Merged List — Emergency & Driver items look visually different */}
           <ScrollArea className="h-[500px]">
             {paginatedItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -729,23 +729,24 @@ export function AdminReports() {
               <div className="space-y-2 pr-1">
                 {paginatedItems.map((item) => {
                   if (item._type === 'emergency') {
+                    // ─── EMERGENCY ITEM: Red left accent, multi-line detail layout ───
                     const report = item.report;
                     return (
                       <div
                         key={item.id}
-                        className="rounded-lg border border-border/50 bg-card p-3 transition-all hover:bg-muted/30"
+                        className="rounded-lg border border-red-200/60 dark:border-red-900/30 border-l-4 border-l-red-500 bg-red-50/40 dark:bg-red-950/10 p-3 transition-all hover:bg-red-50/70 dark:hover:bg-red-950/20"
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex items-start gap-3 flex-1 min-w-0">
-                            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-red-100 dark:bg-red-900/30 mt-0.5">
+                            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-red-100 dark:bg-red-900/40 mt-0.5">
                               <AlertTriangle className="size-4 text-red-600 dark:text-red-400" />
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex flex-wrap items-center gap-1.5 mb-1">
-                                <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border-0 text-[10px]">
-                                  Emergency
+                                <Badge className="bg-red-500 text-white border-0 text-[10px] font-bold px-1.5">
+                                  EMERGENCY
                                 </Badge>
-                                <span className="text-xs font-mono text-muted-foreground">{report.reportId}</span>
+                                <span className="text-xs font-mono font-semibold text-red-700 dark:text-red-400">{report.reportId}</span>
                                 {getTypeBadge(report.incidentType)}
                                 <Badge className={`${priorityStyles[report.priority]} border-0 text-[10px] capitalize`}>
                                   {report.priority}
@@ -754,32 +755,32 @@ export function AdminReports() {
                                   {report.status}
                                 </Badge>
                               </div>
-                              <p className="text-sm font-medium truncate">{report.emergency.location}</p>
+                              <p className="text-sm font-semibold text-red-900 dark:text-red-100 truncate">{report.emergency.location}</p>
                               <div className="flex items-center gap-1.5 mt-1">
-                                <User className="size-2.5 text-muted-foreground" />
-                                <span className="text-[10px] text-muted-foreground">{report.emergency.patientName}</span>
-                                <span className="text-[10px] text-muted-foreground">•</span>
-                                <Phone className="size-2.5 text-muted-foreground" />
-                                <span className="text-[10px] text-muted-foreground">{report.emergency.timeReported}</span>
+                                <User className="size-2.5 text-red-400" />
+                                <span className="text-[10px] text-red-700/70 dark:text-red-300/70">{report.emergency.patientName}</span>
+                                <span className="text-[10px] text-red-400/50">•</span>
+                                <Phone className="size-2.5 text-red-400" />
+                                <span className="text-[10px] text-red-700/70 dark:text-red-300/70">{report.emergency.timeReported}</span>
                               </div>
                               {report.assignedTeam && (
                                 <div className="flex items-center gap-1.5 mt-1">
                                   <Truck className="size-2.5 text-blue-500" />
-                                  <span className="text-[10px] text-muted-foreground">
-                                    Team: <span className="font-medium text-foreground">{getTeamName(report.assignedTeam)}</span>
+                                  <span className="text-[10px] text-red-700/70 dark:text-red-300/70">
+                                    Team: <span className="font-semibold text-red-800 dark:text-red-200">{getTeamName(report.assignedTeam)}</span>
                                   </span>
                                 </div>
                               )}
                             </div>
                           </div>
                           <div className="flex flex-col items-end gap-2 shrink-0">
-                            <span className="text-[10px] text-muted-foreground">
+                            <span className="text-[10px] text-red-500/70 dark:text-red-400/60">
                               {getTimeAgo(report.timestamp)}
                             </span>
                             <Button
                               variant="outline"
                               size="sm"
-                              className="h-7 gap-1 text-xs"
+                              className="h-7 gap-1 text-xs border-red-200 text-red-700 hover:bg-red-100 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/40"
                               onClick={() => {
                                 setSelectedEmergency(report);
                                 setEmergencyDetailOpen(true);
@@ -793,7 +794,7 @@ export function AdminReports() {
                       </div>
                     );
                   } else {
-                    // Driver item
+                    // ─── DRIVER ITEM: Amber left accent, compact horizontal layout ───
                     const d = item.report.driver;
                     const initials = d.driverName.split(' ').map((n) => n.charAt(0)).join('');
                     const team = item.report.assignedTeam
@@ -802,34 +803,34 @@ export function AdminReports() {
                     return (
                       <div
                         key={item.id}
-                        className="rounded-lg border border-border/50 bg-card p-3 transition-all hover:bg-muted/30"
+                        className="rounded-lg border border-amber-200/60 dark:border-amber-900/30 border-l-4 border-l-amber-500 bg-amber-50/40 dark:bg-amber-950/10 p-3 transition-all hover:bg-amber-50/70 dark:hover:bg-amber-950/20"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
-                            <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
+                          <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-amber-200 dark:bg-amber-900/40 ring-2 ring-amber-300/50 dark:ring-amber-700/30">
+                            <span className="text-xs font-bold text-amber-700 dark:text-amber-300">
                               {initials}
                             </span>
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex flex-wrap items-center gap-1.5 mb-0.5">
-                              <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border-0 text-[10px]">
-                                Driver
+                              <Badge className="bg-amber-500 text-white border-0 text-[10px] font-bold px-1.5">
+                                DRIVER
                               </Badge>
-                              <span className="text-sm font-medium truncate">{d.driverName}</span>
+                              <span className="text-sm font-semibold text-amber-900 dark:text-amber-100 truncate">{d.driverName}</span>
                             </div>
-                            <p className="text-[10px] text-muted-foreground truncate">
-                              {d.governmentCardPlateNo}
+                            <p className="text-[10px] text-amber-700/70 dark:text-amber-300/70 truncate">
+                              Plate: <span className="font-semibold text-amber-800 dark:text-amber-200">{d.governmentCardPlateNo}</span>
                             </p>
                             <div className="flex items-center gap-1.5 mt-0.5">
-                              <FileText className="size-2.5 text-muted-foreground" />
-                              <span className="text-[10px] text-muted-foreground">
+                              <FileText className="size-2.5 text-amber-500" />
+                              <span className="text-[10px] text-amber-700/70 dark:text-amber-300/70">
                                 {item.reportCount} report{item.reportCount !== 1 ? 's' : ''}
                               </span>
                               {team && (
                                 <>
-                                  <span className="text-[10px] text-muted-foreground">•</span>
+                                  <span className="text-[10px] text-amber-400/50">•</span>
                                   <Truck className="size-2.5 text-blue-500" />
-                                  <span className="text-[10px] font-medium text-blue-600 dark:text-blue-400">{team.teamName}</span>
+                                  <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400">{team.teamName}</span>
                                 </>
                               )}
                             </div>
@@ -837,7 +838,7 @@ export function AdminReports() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="shrink-0 h-7 gap-1 text-xs"
+                            className="shrink-0 h-7 gap-1 text-xs border-amber-200 text-amber-700 hover:bg-amber-100 dark:border-amber-800 dark:text-amber-400 dark:hover:bg-amber-950/40"
                             onClick={() => {
                               setSelectedDriver(item.report);
                               setDriverDetailOpen(true);
