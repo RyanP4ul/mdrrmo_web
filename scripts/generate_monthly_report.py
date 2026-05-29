@@ -15,6 +15,9 @@ from reportlab.platypus import (
     SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle,
     PageBreak, KeepTogether, HRFlowable
 )
+from reportlab.graphics.shapes import Drawing
+from reportlab.graphics.charts.piecharts import Pie
+from reportlab.graphics.widgets.markers import makeMarker
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase.pdfmetrics import registerFontFamily
@@ -41,7 +44,19 @@ TABLE_HEADER_TEXT  = colors.white
 TABLE_ROW_EVEN     = colors.white
 TABLE_ROW_ODD      = BG_SURFACE
 
-
+# Pie chart slice colors
+PIE_COLORS = [
+    colors.HexColor('#dc2626'),  # red - Fire
+    colors.HexColor('#16a34a'),  # green - Medical Emergency
+    colors.HexColor('#1a7897'),  # teal - Disaster
+    colors.HexColor('#d97706'),  # amber - Vehicular
+    colors.HexColor('#db2777'),  # pink - Trauma
+    colors.HexColor('#0891b2'),  # cyan - Ambulance
+    colors.HexColor('#727a7e'),  # gray - Service
+    colors.HexColor('#6d28d9'),  # violet - Others
+    colors.HexColor('#ca8a04'),  # yellow - extra
+    colors.HexColor('#0d9488'),  # teal2 - extra
+]
 
 # ─── Styles ─────────────────────────────────────────────────────
 styles = getSampleStyleSheet()
@@ -210,6 +225,40 @@ def generate_report(data_json_path, output_pdf_path):
     type_table.setStyle(make_table_style(len(type_data)))
     story.append(type_table)
     story.append(Paragraph('Table 1: Incident Type Breakdown', caption_style))
+
+    # Pie Chart for Incident Type Breakdown
+    sorted_types = sorted(type_counts.items(), key=lambda x: -x[1])
+    pie_labels = [t for t, c in sorted_types]
+    pie_data = [c for t, c in sorted_types]
+
+    pie_w = 280
+    pie_h = 200
+    drawing = Drawing(pie_w, pie_h)
+
+    pie = Pie()
+    pie.x = 40
+    pie.y = 20
+    pie.width = 140
+    pie.height = 140
+    pie.data = pie_data
+    pie.labels = [f'{label} ({val})' for label, val in zip(pie_labels, pie_data)]
+
+    for i in range(len(pie_data)):
+        pie.slices[i].fillColor = PIE_COLORS[i % len(PIE_COLORS)]
+        pie.slices[i].strokeWidth = 0.5
+        pie.slices[i].strokeColor = colors.white
+        pie.slices[i].popout = 3 if i == 0 else 0
+
+    pie.slices.fontName = 'DejaVuSans'
+    pie.slices.fontSize = 7
+    pie.sideLabels = True
+    pie.simpleLabels = False
+    pie.slices.labelRadius = 1.25
+
+    drawing.add(pie)
+    story.append(Spacer(1, 8))
+    story.append(drawing)
+    story.append(Paragraph('Figure 1: Incident Type Distribution', caption_style))
 
     # ─── Section 2: Driver/Responder Summary ───────────────────
     story.append(Paragraph('<b>Section 2: Drivers / Responders</b>', h1_style))
