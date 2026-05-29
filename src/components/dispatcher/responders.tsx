@@ -504,7 +504,7 @@ export function Responders() {
       </p>
 
       {/* Teams List */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         {paginatedTeams.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12">
@@ -518,7 +518,7 @@ export function Responders() {
             <Card key={team.id} className="overflow-hidden">
               <CardContent className="p-0">
                 {/* Team Header */}
-                <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between border-b bg-muted/30">
+                <div className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between border-b bg-muted/30">
                   <div className="flex items-center gap-3">
                     <div className="flex size-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
                       <ShieldCheck className="size-5 text-blue-600 dark:text-blue-400" />
@@ -554,18 +554,18 @@ export function Responders() {
                 </div>
 
                 {/* Team Content */}
-                <div className="p-4 space-y-3">
+                <div className="p-3 space-y-2">
                   {/* Members */}
                   <div className="space-y-1.5">
                     <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
                       <Users className="size-3" />
                       Members ({team.members.length})
                     </p>
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex flex-wrap gap-2">
                       {team.members.map((member) => (
                         <span
                           key={member.id}
-                          className="inline-flex items-center rounded-md bg-muted/50 px-3 py-1.5 text-sm font-medium"
+                          className="inline-flex items-center rounded-md bg-muted/50 px-2.5 py-1 text-xs font-medium"
                         >
                           {member.name}
                         </span>
