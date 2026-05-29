@@ -41,10 +41,7 @@ TABLE_HEADER_TEXT  = colors.white
 TABLE_ROW_EVEN     = colors.white
 TABLE_ROW_ODD      = BG_SURFACE
 
-# Semantic colors
-RED_CRITICAL  = colors.HexColor('#dc2626')
-AMBER_DRIVER  = colors.HexColor('#d97706')
-GREEN_RESOLVED = colors.HexColor('#16a34a')
+
 
 # ─── Styles ─────────────────────────────────────────────────────
 styles = getSampleStyleSheet()
@@ -163,7 +160,6 @@ def generate_report(data_json_path, output_pdf_path):
 
     reports = data.get('reports', [])
     drivers_data = data.get('drivers', [])
-    stats = data.get('stats', {})
     month_label = data.get('monthLabel', 'Monthly')
 
     doc = SimpleDocTemplate(
@@ -191,31 +187,6 @@ def generate_report(data_json_path, output_pdf_path):
     )))
     story.append(Paragraph('Emergency Incidents and Driver/Responder Summary', subtitle_style))
 
-    # ─── Quick Stats ──────────────────────────────────────────
-    story.append(Spacer(1, 12))
-    col_w = available_width / 4
-    stats_data = [
-        [ph('Pending'), ph('Active'), ph('Resolved'), ph('Drivers')],
-        [
-            p(str(stats.get('pending', 0)), ParagraphStyle('StatNum', fontName='DejaVuSerif', fontSize=18, leading=22, alignment=TA_CENTER, textColor=RED_CRITICAL)),
-            p(str(stats.get('active', 0)), ParagraphStyle('StatNum2', fontName='DejaVuSerif', fontSize=18, leading=22, alignment=TA_CENTER, textColor=ACCENT)),
-            p(str(stats.get('resolved', 0)), ParagraphStyle('StatNum3', fontName='DejaVuSerif', fontSize=18, leading=22, alignment=TA_CENTER, textColor=GREEN_RESOLVED)),
-            p(str(stats.get('drivers', 0)), ParagraphStyle('StatNum4', fontName='DejaVuSerif', fontSize=18, leading=22, alignment=TA_CENTER, textColor=AMBER_DRIVER)),
-        ],
-    ]
-    stats_table = Table(stats_data, colWidths=[col_w] * 4, hAlign='CENTER')
-    stats_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), TABLE_HEADER_COLOR),
-        ('TEXTCOLOR', (0, 0), (-1, 0), TABLE_HEADER_TEXT),
-        ('BACKGROUND', (0, 1), (-1, 1), colors.white),
-        ('GRID', (0, 0), (-1, -1), 0.5, TEXT_MUTED),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('TOPPADDING', (0, 0), (-1, -1), 8),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-    ]))
-    story.append(stats_table)
-    story.append(Paragraph('Table 1: Monthly Overview Statistics', caption_style))
-
     # ─── Section 1: Emergency Reports ─────────────────────────
     story.append(Paragraph('<b>Section 1: Emergency Reports</b>', h1_style))
     story.append(HRFlowable(width='100%', thickness=0.5, color=ACCENT, spaceAfter=8))
@@ -238,7 +209,7 @@ def generate_report(data_json_path, output_pdf_path):
     type_table = Table(type_data, colWidths=[available_width * 0.50, available_width * 0.25, available_width * 0.25], hAlign='CENTER')
     type_table.setStyle(make_table_style(len(type_data)))
     story.append(type_table)
-    story.append(Paragraph('Table 2: Incident Type Breakdown', caption_style))
+    story.append(Paragraph('Table 1: Incident Type Breakdown', caption_style))
 
     # ─── Section 2: Driver/Responder Summary ───────────────────
     story.append(Paragraph('<b>Section 2: Drivers / Responders</b>', h1_style))
@@ -263,7 +234,7 @@ def generate_report(data_json_path, output_pdf_path):
     dr_table = Table(dr_data, colWidths=dr_col_widths, hAlign='CENTER')
     dr_table.setStyle(make_table_style(len(dr_data)))
     story.append(dr_table)
-    story.append(Paragraph('Table 3: Driver/Responder Summary', caption_style))
+    story.append(Paragraph('Table 2: Driver/Responder Summary', caption_style))
 
     # Gasoline Usage Table
     story.append(Paragraph('<b>2.2 Gasoline Usage by Driver</b>', h2_style))
@@ -293,7 +264,7 @@ def generate_report(data_json_path, output_pdf_path):
     gas_table = Table(gas_data, colWidths=gas_col_widths, hAlign='CENTER')
     gas_table.setStyle(make_table_style(len(gas_data)))
     story.append(gas_table)
-    story.append(Paragraph('Table 4: Gasoline Usage by Driver (Liters)', caption_style))
+    story.append(Paragraph('Table 3: Gasoline Usage by Driver (Liters)', caption_style))
 
     # ─── Build PDF ─────────────────────────────────────────────
     doc.build(story, onFirstPage=header_footer, onLaterPages=header_footer)
