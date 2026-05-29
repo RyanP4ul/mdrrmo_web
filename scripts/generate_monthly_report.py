@@ -346,22 +346,74 @@ def generate_report(data_json_path, output_pdf_path):
 
     # Total Consumed Fuel per Ambulances
     story.append(Paragraph('<b>2.3 Total Consumed Fuel per Ambulances</b>', h2_style))
-    fuel_summary_cols = [0.40, 0.30, 0.30]
-    fuel_summary_widths = [available_width * r for r in fuel_summary_cols]
-    fuel_summary_data = [
-        [ph('Description'), ph('Amount (Liters)'), ph('Remarks')],
-        [pl('Total Fuel Issued by Office'), p(f'{total_issued:.0f} L'), pl('From office stock')],
-        [pl('Total Fuel Purchased'), p(f'{total_purchased:.0f} L'), pl('Purchased during trips')],
-        [pl('<b>Total Fuel Supplied</b>'), p(f'<b>{total_total_l:.0f} L</b>'), pl('<b>Issued + Purchased</b>')],
-        [pl('<b>Total Fuel Consumed</b>'), p(f'<b>{total_deduct:.0f} L</b>'), pl('<b>Used during all trips</b>')],
-        [pl('Remaining Balance (End of Trips)'), p(f'{total_bal_end:.0f} L'), pl('Balance in tanks at end')],
-    ]
 
-    fuel_table = Table(fuel_summary_data, colWidths=fuel_summary_widths, hAlign='CENTER')
-    fuel_style_cmds = make_table_style(len(fuel_summary_data))
-    # Highlight the "Total Fuel Consumed" row
-    fuel_style_cmds.add('BACKGROUND', (0, 4), (-1, 4), colors.HexColor('#dc2626'))
-    fuel_style_cmds.add('TEXTCOLOR', (0, 4), (-1, 4), colors.white)
+    # Group by ambulance plate number
+    ambulance_map = {}
+    for d in drivers_data:
+        plate = d.get('governmentCardPlateNo', 'Unknown')
+        if plate not in ambulance_map:
+            ambulance_map[plate] = {
+                'drivers': [],
+                'total_issued': 0.0,
+                'total_purchased': 0.0,
+                'total_deduct': 0.0,
+                'total_supplied': 0.0,
+                'total_bal_end': 0.0,
+            }
+        gas = d.get('gasoline', {})
+        issued = float(gas.get('issuedByOffice', 0))
+        purchased = float(gas.get('asPurchased', 0))
+        deduct = float(gas.get('deductUsed', 0))
+        bal_end = float(gas.get('balanceEndTrip', 0))
+        supplied = issued + purchased
+        ambulance_map[plate]['drivers'].append(d.get('driverName', ''))
+        ambulance_map[plate]['total_issued'] += issued
+        ambulance_map[plate]['total_purchased'] += purchased
+        ambulance_map[plate]['total_deduct'] += deduct
+        ambulance_map[plate]['total_supplied'] += supplied
+        ambulance_map[plate]['total_bal_end'] += bal_end
+
+    fuel_cols = [0.28, 0.14, 0.14, 0.14, 0.16, 0.14]
+    fuel_col_widths = [available_width * r for r in fuel_cols]
+    fuel_header = [ph('Ambulance (Plate No.)'), ph('Issued<br/>By Office'), ph('Purchased'), ph('Consumed<br/>(Used)'), ph('Total Supplied<br/>(Issued+Purchased)'), ph('Remaining<br/>Balance')]
+    fuel_data = [fuel_header]
+
+    grand_issued = 0.0
+    grand_purchased = 0.0
+    grand_deduct = 0.0
+    grand_supplied = 0.0
+    grand_bal_end = 0.0
+
+    for plate, info in sorted(ambulance_map.items()):
+        fuel_data.append([
+            pl(f'<b>{plate}</b>'),
+            p(f'{info["total_issued"]:.0f} L'),
+            p(f'{info["total_purchased"]:.0f} L'),
+            p(f'{info["total_deduct"]:.0f} L'),
+            p(f'{info["total_supplied"]:.0f} L'),
+            p(f'{info["total_bal_end"]:.0f} L'),
+        ])
+        grand_issued += info['total_issued']
+        grand_purchased += info['total_purchased']
+        grand_deduct += info['total_deduct']
+        grand_supplied += info['total_supplied']
+        grand_bal_end += info['total_bal_end']
+
+    # Total row
+    fuel_data.append([
+        pl('<b>GRAND TOTAL</b>'),
+        p(f'<b>{grand_issued:.0f} L</b>'),
+        p(f'<b>{grand_purchased:.0f} L</b>'),
+        p(f'<b>{grand_deduct:.0f} L</b>'),
+        p(f'<b>{grand_supplied:.0f} L</b>'),
+        p(f'<b>{grand_bal_end:.0f} L</b>'),
+    ])
+
+    fuel_table = Table(fuel_data, colWidths=fuel_col_widths, hAlign='CENTER')
+    fuel_style_cmds = make_table_style(len(fuel_data))
+    # Highlight the grand total row
+    fuel_style_cmds.add('BACKGROUND', (0, len(fuel_data) - 1), (-1, len(fuel_data) - 1), ACCENT)
+    fuel_style_cmds.add('TEXTCOLOR', (0, len(fuel_data) - 1), (-1, len(fuel_data) - 1), colors.white)
     fuel_table.setStyle(fuel_style_cmds)
     story.append(fuel_table)
     story.append(Paragraph('Table 4: Total Consumed Fuel per Ambulances (Liters)', caption_style))
