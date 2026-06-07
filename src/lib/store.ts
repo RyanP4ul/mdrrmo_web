@@ -1,12 +1,15 @@
 import { create } from 'zustand';
 import { PageKey, Role, User } from './types';
-import { mockUsers } from './mock-data';
+import { mockUsers, mockResidents } from './mock-data';
 
 interface AppState {
   // Auth
   currentUser: User | null;
   isAuthenticated: boolean;
+  isGuest: boolean;
   login: (email: string, password: string) => boolean;
+  loginAsGuest: () => void;
+  loginAsResident: (email: string, password: string) => boolean;
   register: (data: Partial<User>) => boolean;
   logout: () => void;
 
@@ -23,18 +26,26 @@ interface AppState {
   setSidebarOpen: (open: boolean) => void;
 }
 
+const allUsers = [...mockUsers, ...mockResidents];
+
 export const useAppStore = create<AppState>((set) => ({
   // Auth
   currentUser: null,
   isAuthenticated: false,
+  isGuest: false,
 
   login: (email: string, _password: string) => {
-    const user = mockUsers.find((u) => u.email === email);
+    const user = allUsers.find((u) => u.email === email);
     if (user) {
+      const startPage: PageKey = user.role === 'admin' ? 'admin-dashboard' 
+        : user.role === 'dispatcher' ? 'dispatcher-dashboard'
+        : user.role === 'driver/responder' ? 'driver-dashboard'
+        : 'resident-dashboard';
       set({
         currentUser: user,
         isAuthenticated: true,
-        currentPage: user.role === 'admin' ? 'admin-dashboard' : 'dispatcher-dashboard',
+        isGuest: false,
+        currentPage: startPage,
       });
       return true;
     }
@@ -43,6 +54,7 @@ export const useAppStore = create<AppState>((set) => ({
       set({
         currentUser: mockUsers[0],
         isAuthenticated: true,
+        isGuest: false,
         currentPage: 'admin-dashboard',
       });
       return true;
@@ -51,11 +63,65 @@ export const useAppStore = create<AppState>((set) => ({
       set({
         currentUser: mockUsers[1],
         isAuthenticated: true,
+        isGuest: false,
         currentPage: 'dispatcher-dashboard',
       });
       return true;
     }
+    if (email === 'driver@mdrrmo.gov') {
+      set({
+        currentUser: mockUsers[12], // Roberto Guzman
+        isAuthenticated: true,
+        isGuest: false,
+        currentPage: 'driver-dashboard',
+      });
+      return true;
+    }
     return false;
+  },
+
+  loginAsResident: (email: string, _password: string) => {
+    const resident = mockResidents.find((r) => r.email === email);
+    if (resident) {
+      set({
+        currentUser: resident,
+        isAuthenticated: true,
+        isGuest: false,
+        currentPage: 'resident-dashboard',
+      });
+      return true;
+    }
+    if (email === 'resident@mdrrmo.gov') {
+      set({
+        currentUser: mockResidents[0],
+        isAuthenticated: true,
+        isGuest: false,
+        currentPage: 'resident-dashboard',
+      });
+      return true;
+    }
+    return false;
+  },
+
+  loginAsGuest: () => {
+    set({
+      currentUser: {
+        id: 'GUEST',
+        firstName: 'Guest',
+        lastName: 'User',
+        email: '',
+        contactNumber: '',
+        dateOfBirth: '',
+        address: { houseNo: '', street: '', barangay: '', city: '', province: '' },
+        idType: '',
+        role: 'resident',
+        status: 'active',
+        registeredAt: new Date().toISOString(),
+      },
+      isAuthenticated: true,
+      isGuest: true,
+      currentPage: 'resident-dashboard',
+    });
   },
 
   register: (_data: Partial<User>) => {
@@ -66,6 +132,7 @@ export const useAppStore = create<AppState>((set) => ({
     set({
       currentUser: null,
       isAuthenticated: false,
+      isGuest: false,
       currentPage: 'login',
       selectedReportId: null,
     });

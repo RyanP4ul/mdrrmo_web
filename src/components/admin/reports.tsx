@@ -60,7 +60,6 @@ import type { AdminReport, PriorityLevel, ReportStatus } from '@/lib/types';
 const ITEMS_PER_PAGE = 8;
 
 // ─── Unified list item type ─────────────────────────────────────
-type ListItemType = 'emergency' | 'driver';
 
 interface EmergencyListItem {
   _type: 'emergency';
@@ -554,15 +553,6 @@ export function AdminReports() {
     currentPage * ITEMS_PER_PAGE
   );
 
-  // Stats
-  const pendingCount = mockAdminReports.filter((r) => r.status === 'pending').length;
-  const activeCount = mockAdminReports.filter((r) => r.status === 'dispatched' || r.status === 'acknowledged').length;
-  const resolvedCount = mockAdminReports.filter((r) => r.status === 'resolved').length;
-  const driverCount = useMemo(() => {
-    const names = new Set(mockAdminReports.map((r) => r.driver.driverName));
-    return names.size;
-  }, []);
-
   const emergencyCount = filteredItems.filter((i) => i._type === 'emergency').length;
   const driverItemCount = filteredItems.filter((i) => i._type === 'driver').length;
 
@@ -575,93 +565,102 @@ export function AdminReports() {
             <FileText className="size-5 text-blue-600 dark:text-blue-400" />
           </div>
           <div>
-            <h2 className="text-xl font-bold">Reports & Drivers</h2>
-            <p className="text-sm text-muted-foreground">Monitor emergency reports and driver/responder status</p>
+            <h2 className="text-xl font-bold">Reports</h2>
+            <p className="text-sm text-muted-foreground">Monitor emergency reports and driver/responder records</p>
           </div>
         </div>
-        <Button
-          className="gap-2 bg-blue-600 hover:bg-blue-700 text-white"
-          disabled={generating}
-          onClick={async () => {
-            setGenerating(true);
-            try {
-              const now = new Date();
-              const monthLabel = now.toLocaleString('default', { month: 'long', year: 'numeric' });
-              const res = await fetch('/api/admin/generate-monthly-report', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ month: monthLabel }),
-              });
-              if (!res.ok) throw new Error('Failed to generate report');
-              const blob = await res.blob();
-              const url = window.URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = `MDRRMO_Monthly_Report_${monthLabel.replace(/\s+/g, '_')}.pdf`;
-              document.body.appendChild(a);
-              a.click();
-              a.remove();
-              window.URL.revokeObjectURL(url);
-            } catch (err) {
-              console.error('Report generation failed:', err);
-            } finally {
-              setGenerating(false);
-            }
-          }}
-        >
-          {generating ? (
-            <>
-              <Loader2 className="size-4 animate-spin" />
-              Generating...
-            </>
-          ) : (
-            <>
-              <Download className="size-4" />
-              Generate Monthly Report
-            </>
-          )}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="gap-2 border-blue-200 text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950/40"
+            disabled={generating}
+            onClick={async () => {
+              setGenerating(true);
+              try {
+                const now = new Date();
+                const weekStart = new Date(now);
+                weekStart.setDate(now.getDate() - now.getDay());
+                const weekLabel = `Week of ${weekStart.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+                const res = await fetch('/api/admin/generate-weekly-report', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ week: weekLabel }),
+                });
+                if (!res.ok) throw new Error('Failed to generate report');
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `MDRRMO_Weekly_Report_${weekLabel.replace(/[\s,/]+/g, '_')}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+              } catch (err) {
+                console.error('Weekly report generation failed:', err);
+              } finally {
+                setGenerating(false);
+              }
+            }}
+          >
+            {generating ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Generating...
+              </>
+            ) : (
+              <>
+                <Download className="size-4" />
+                Generate Weekly Report
+              </>
+            )}
+          </Button>
+          <Button
+            className="gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+            disabled={generating}
+            onClick={async () => {
+              setGenerating(true);
+              try {
+                const now = new Date();
+                const monthLabel = now.toLocaleString('default', { month: 'long', year: 'numeric' });
+                const res = await fetch('/api/admin/generate-monthly-report', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ month: monthLabel }),
+                });
+                if (!res.ok) throw new Error('Failed to generate report');
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `MDRRMO_Monthly_Report_${monthLabel.replace(/\s+/g, '_')}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+              } catch (err) {
+                console.error('Report generation failed:', err);
+              } finally {
+                setGenerating(false);
+              }
+            }}
+          >
+            {generating ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Generating...
+              </>
+            ) : (
+              <>
+                <Download className="size-4" />
+                Generate Monthly Report
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="size-4 text-red-500" />
-              <span className="text-sm text-muted-foreground">Pending</span>
-            </div>
-            <p className="mt-1 text-2xl font-bold">{pendingCount}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <Truck className="size-4 text-blue-500" />
-              <span className="text-sm text-muted-foreground">Active</span>
-            </div>
-            <p className="mt-1 text-2xl font-bold">{activeCount}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <MapPin className="size-4 text-green-500" />
-              <span className="text-sm text-muted-foreground">Resolved</span>
-            </div>
-            <p className="mt-1 text-2xl font-bold">{resolvedCount}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="size-4 text-amber-500" />
-              <span className="text-sm text-muted-foreground">Drivers</span>
-            </div>
-            <p className="mt-1 text-2xl font-bold">{driverCount}</p>
-          </CardContent>
-        </Card>
-      </div>
+
 
       {/* Unified List */}
       <Card>
@@ -669,7 +668,7 @@ export function AdminReports() {
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
               <ClipboardList className="size-5 text-blue-500" />
-              <CardTitle>All Reports & Drivers</CardTitle>
+              <CardTitle>All Reports</CardTitle>
               <div className="flex items-center gap-1.5">
                 <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border-0 text-[10px]">
                   {emergencyCount} Emergency

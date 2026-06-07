@@ -1,20 +1,16 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
 import {
   AlertTriangle,
-  Clock,
   CheckCircle,
-  Activity,
-  Map,
-  AlertOctagon,
-  ShieldCheck,
-  Filter,
-  Eye,
-  EyeOff,
-  Flame,
   Siren,
-  FileWarning,
+  Users,
+  Activity,
+  ShieldCheck,
+  UserPlus,
+  MapPin,
 } from 'lucide-react';
 import {
   Card,
@@ -23,423 +19,323 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { Separator } from '@/components/ui/separator';
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
-} from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
 import {
   reportsByType,
   recentActivity,
   mockReports,
+  mockResidents,
+  mockHeatmapData,
 } from '@/lib/mock-data';
-import type { PriorityLevel } from '@/lib/types';
-import { Heatmap, INCIDENT_COLORS, INCIDENT_TYPES } from '@/components/maps/heatmap';
+import dynamic from 'next/dynamic';
 
-const chartConfig = {
-  Fire: { label: 'Fire', color: '#ef4444' },
-  'Medical Emergency': { label: 'Medical Emergency', color: '#22c55e' },
-  Disaster: { label: 'Disaster', color: '#3b82f6' },
-  Vehicular: { label: 'Vehicular', color: '#f59e0b' },
-  Trauma: { label: 'Trauma', color: '#ec4899' },
-  Service: { label: 'Service', color: '#6b7280' },
-} satisfies ChartConfig;
+// Dynamically import map to avoid SSR issues with Leaflet
+const MapContainer = dynamic(
+  () => import('react-leaflet').then((mod) => mod.MapContainer),
+  { ssr: false }
+);
+const TileLayer = dynamic(
+  () => import('react-leaflet').then((mod) => mod.TileLayer),
+  { ssr: false }
+);
+const CircleMarker = dynamic(
+  () => import('react-leaflet').then((mod) => mod.CircleMarker),
+  { ssr: false }
+);
 
-const activityIcons: Record<string, React.ReactNode> = {
-  report: <AlertTriangle className="size-4 text-sky-500" />,
-  dispatch: <ShieldCheck className="size-4 text-blue-500" />,
-  resolve: <CheckCircle className="size-4 text-green-500" />,
-  user: <Activity className="size-4 text-blue-500" />,
+// ── Animation variants ──────────────────────────────────────────────
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.07 },
+  },
 };
 
-function getPriorityBadge(priority: PriorityLevel) {
-  const styles: Record<PriorityLevel, string> = {
-    low: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-    medium: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-    high: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-    critical: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-  };
-  return (
-    <Badge className={`${styles[priority]} border-0 capitalize`}>
-      {priority}
-    </Badge>
-  );
-}
+const itemVariants = {
+  hidden: { opacity: 0, y: 18 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
+};
 
-// Incident Type Filter Component
-function IncidentTypeFilter({
-  hiddenTypes,
-  onToggleType,
-  onToggleAll,
-  allTypes,
+// ── Color maps ──────────────────────────────────────────────────────
+const INCIDENT_COLORS: Record<string, string> = {
+  Fire: '#ef4444',
+  'Medical Emergency': '#22c55e',
+  Disaster: '#3b82f6',
+  Vehicular: '#f59e0b',
+  Trauma: '#ec4899',
+  Service: '#6b7280',
+};
+
+// ── Activity icons ──────────────────────────────────────────────────
+const activityIcons: Record<string, React.ReactNode> = {
+  report: <AlertTriangle className="size-4 text-amber-500" />,
+  dispatch: <ShieldCheck className="size-4 text-violet-500" />,
+  resolve: <CheckCircle className="size-4 text-green-500" />,
+  user: <Activity className="size-4 text-sky-500" />,
+};
+
+// ── Custom pie label ────────────────────────────────────────────────
+const RADIAN = Math.PI / 180;
+function renderCustomLabel({
+  cx,
+  cy,
+  midAngle,
+  innerRadius,
+  outerRadius,
+  percent,
 }: {
-  hiddenTypes: Set<string>;
-  onToggleType: (type: string) => void;
-  onToggleAll: () => void;
-  allTypes: string[];
+  cx: number;
+  cy: number;
+  midAngle: number;
+  innerRadius: number;
+  outerRadius: number;
+  percent: number;
 }) {
-  const allHidden = hiddenTypes.size === allTypes.length;
-  const noneHidden = hiddenTypes.size === 0;
-
+  if (percent < 0.05) return null;
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
-          <Filter className="size-3.5" />
-          Filter Types
-          {hiddenTypes.size > 0 && (
-            <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-[10px]">
-              {hiddenTypes.size} hidden
-            </Badge>
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-64 p-0" align="end">
-        <div className="p-3">
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold">Incident Types</p>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 text-xs gap-1 px-2"
-              onClick={onToggleAll}
-            >
-              {allHidden ? (
-                <>
-                  <Eye className="size-3" />
-                  Show All
-                </>
-              ) : (
-                <>
-                  <EyeOff className="size-3" />
-                  Hide All
-                </>
-              )}
-            </Button>
-          </div>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Toggle visibility of each type
-          </p>
-        </div>
-        <Separator />
-        <div className="p-2 max-h-64 overflow-y-auto custom-scrollbar">
-          {allTypes.map((type) => {
-            const isHidden = hiddenTypes.has(type);
-            const color = INCIDENT_COLORS[type] || '#6b7280';
-            return (
-              <label
-                key={type}
-                className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted/50 cursor-pointer transition-colors"
-              >
-                <Checkbox
-                  checked={!isHidden}
-                  onCheckedChange={() => onToggleType(type)}
-                  className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                />
-                <span
-                  className="size-2.5 rounded-full shrink-0"
-                  style={{ backgroundColor: color }}
-                />
-                <span className={`text-sm ${isHidden ? 'text-muted-foreground line-through' : ''}`}>
-                  {type}
-                </span>
-              </label>
-            );
-          })}
-        </div>
-      </PopoverContent>
-    </Popover>
+    <text
+      x={x}
+      y={y}
+      fill="white"
+      textAnchor="middle"
+      dominantBaseline="central"
+      className="text-xs font-semibold"
+    >
+      {`${(percent * 100).toFixed(0)}%`}
+    </text>
   );
 }
 
-export function AdminDashboard() {
-  const [hiddenTypes, setHiddenTypes] = useState<Set<string>>(new Set());
-
-  const toggleType = (type: string) => {
-    setHiddenTypes((prev) => {
-      const next = new Set(prev);
-      if (next.has(type)) {
-        next.delete(type);
-      } else {
-        next.add(type);
-      }
-      return next;
-    });
-  };
-
-  const toggleAll = () => {
-    setHiddenTypes((prev) => {
-      if (prev.size === INCIDENT_TYPES.length) {
-        return new Set(); // show all
-      }
-      return new Set(INCIDENT_TYPES); // hide all
-    });
-  };
-
-  // Filter chart data based on hidden types
-  const filteredChartData = useMemo(
-    () => reportsByType.filter((entry) => !hiddenTypes.has(entry.type)),
-    [hiddenTypes]
+// ── Heat Map Component ──────────────────────────────────────────────
+function IncidentHeatMap() {
+  return (
+    <div className="h-[350px] w-full rounded-lg overflow-hidden relative">
+      <MapContainer
+        center={[16.0433, 120.3372]}
+        zoom={13}
+        style={{ height: '100%', width: '100%' }}
+        zoomControl={false}
+        attributionControl={false}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        {mockHeatmapData.map((point, idx) => (
+          <CircleMarker
+            key={idx}
+            center={[point.lat, point.lng]}
+            radius={Math.max(8, point.intensity * 25)}
+            pathOptions={{
+              fillColor: INCIDENT_COLORS[point.type] || '#6b7280',
+              fillOpacity: point.intensity * 0.5,
+              color: INCIDENT_COLORS[point.type] || '#6b7280',
+              weight: 1,
+              opacity: 0.6,
+            }}
+          />
+        ))}
+      </MapContainer>
+      {/* Legend overlay */}
+      <div className="absolute bottom-3 left-3 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-lg p-2.5 shadow-lg z-[1000]">
+        <p className="text-[10px] font-semibold text-muted-foreground mb-1.5 uppercase tracking-wider">Incident Types</p>
+        <div className="flex flex-col gap-1">
+          {Object.entries(INCIDENT_COLORS).map(([type, color]) => (
+            <div key={type} className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
+              <span className="text-[10px] text-muted-foreground">{type}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
+}
 
-  // Compute report statistics from mock data
+// ── Main component ──────────────────────────────────────────────────
+export function AdminDashboard() {
+  // Period toggle for pie chart: today, weekly, monthly
+  const [period, setPeriod] = useState<'today' | 'weekly' | 'monthly'>('monthly');
+
+  // Compute stats
   const reportStats = useMemo(() => {
     const pending = mockReports.filter((r) => r.status === 'pending').length;
     const acknowledged = mockReports.filter((r) => r.status === 'acknowledged').length;
     const dispatched = mockReports.filter((r) => r.status === 'dispatched').length;
     const resolved = mockReports.filter((r) => r.status === 'resolved').length;
     const invalid = mockReports.filter((r) => r.status === 'invalid').length;
-    const critical = mockReports.filter((r) => r.priority === 'critical').length;
-    const high = mockReports.filter((r) => r.priority === 'high').length;
     const activeReports = pending + acknowledged + dispatched;
-    return { pending, acknowledged, dispatched, resolved, invalid, critical, high, activeReports, total: mockReports.length };
+    return { pending, acknowledged, dispatched, resolved, invalid, activeReports, total: mockReports.length };
   }, []);
 
-  const latestCriticalReport = mockReports
-    .filter((r) => r.status === 'pending' || r.priority === 'critical')
-    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
+  const totalResidents = mockResidents.length;
+  const pendingApprovals = useMemo(
+    () => mockResidents.filter((r) => r.registrationStatus === 'pending').length,
+    [],
+  );
+
+  // Pie chart data: Incident Type
+  const incidentTypeData = useMemo(() => {
+    const data = reportsByType.map((entry) => {
+      let value = entry.count;
+      if (period === 'today') value = Math.max(1, Math.round(entry.count / 30));
+      else if (period === 'weekly') value = Math.max(1, Math.round(entry.count / 4));
+      return {
+        name: entry.type,
+        value,
+        color: INCIDENT_COLORS[entry.type] || entry.color,
+      };
+    });
+    return data;
+  }, [period]);
+
+  // Stat card definitions
+  const statCards = [
+    {
+      title: 'Active Reports',
+      value: reportStats.activeReports,
+      subtitle: `${reportStats.pending} pending · ${reportStats.dispatched} dispatched`,
+      icon: <Siren className="size-6 text-red-600 dark:text-red-400" />,
+      bg: 'bg-red-100 dark:bg-red-900/30',
+    },
+    {
+      title: 'Resolved Today',
+      value: reportStats.resolved,
+      subtitle: `${reportStats.invalid} invalid · ${reportStats.total} total`,
+      icon: <CheckCircle className="size-6 text-green-600 dark:text-green-400" />,
+      bg: 'bg-green-100 dark:bg-green-900/30',
+    },
+    {
+      title: 'Total Residents',
+      value: totalResidents,
+      subtitle: `${mockResidents.filter((r) => r.status === 'active').length} active`,
+      icon: <Users className="size-6 text-sky-600 dark:text-sky-400" />,
+      bg: 'bg-sky-100 dark:bg-sky-900/30',
+    },
+    {
+      title: 'Pending Approvals',
+      value: pendingApprovals,
+      subtitle: `of ${totalResidents} total registrations`,
+      icon: <UserPlus className="size-6 text-amber-600 dark:text-amber-400" />,
+      bg: 'bg-amber-100 dark:bg-amber-900/30',
+    },
+  ];
 
   return (
-    <div className="space-y-6">
-      {/* Report-Focused Stat Cards */}
+    <motion.div
+      className="space-y-6"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      {/* ── Top Row: Key Stats ─────────────────────────────────────── */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Active Reports</p>
-                <p className="text-3xl font-bold">{reportStats.activeReports}</p>
-                <p className="text-xs text-muted-foreground">
-                  {reportStats.pending} pending · {reportStats.dispatched} dispatched
-                </p>
-              </div>
-              <div className="flex size-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
-                <Siren className="size-6 text-red-600 dark:text-red-400" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Resolved</p>
-                <p className="text-3xl font-bold">{reportStats.resolved}</p>
-                <p className="text-xs text-muted-foreground">
-                  {reportStats.invalid} invalid · {reportStats.total} total
-                </p>
-              </div>
-              <div className="flex size-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-                <CheckCircle className="size-6 text-green-600 dark:text-green-400" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Critical / High Priority</p>
-                <p className="text-3xl font-bold">{reportStats.critical + reportStats.high}</p>
-                <p className="text-xs text-muted-foreground">
-                  {reportStats.critical} critical · {reportStats.high} high
-                </p>
-              </div>
-              <div className="flex size-12 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/30">
-                <Flame className="size-6 text-orange-600 dark:text-orange-400" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Acknowledged</p>
-                <p className="text-3xl font-bold">{reportStats.acknowledged}</p>
-                <p className="text-xs text-muted-foreground">
-                  Awaiting dispatch
-                </p>
-              </div>
-              <div className="flex size-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
-                <Clock className="size-6 text-blue-600 dark:text-blue-400" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Incident Heat Map - Full Width */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Map className="size-5 text-blue-500" />
-              <CardTitle>Incident Heat Map</CardTitle>
-            </div>
-            <IncidentTypeFilter
-              hiddenTypes={hiddenTypes}
-              onToggleType={toggleType}
-              onToggleAll={toggleAll}
-              allTypes={INCIDENT_TYPES}
-            />
-          </div>
-          <CardDescription>Geographic distribution of incidents</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Heatmap height="500px" hiddenTypes={hiddenTypes} />
-        </CardContent>
-      </Card>
-
-      {/* Bottom Row: Incident Types Chart, Latest Report & Recent Activity */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Reports Type Chart */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Incident Types — Last 7 Days</CardTitle>
-                <CardDescription>Breakdown of emergency reports by type</CardDescription>
-              </div>
-              <IncidentTypeFilter
-                hiddenTypes={hiddenTypes}
-                onToggleType={toggleType}
-                onToggleAll={toggleAll}
-                allTypes={INCIDENT_TYPES}
-              />
-            </div>
-          </CardHeader>
-          <CardContent>
-            {filteredChartData.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-[300px] text-muted-foreground">
-                <EyeOff className="size-10 mb-2 opacity-40" />
-                <p className="text-sm">All incident types are hidden</p>
-                <Button
-                  variant="link"
-                  size="sm"
-                  className="text-blue-500 mt-1"
-                  onClick={() => setHiddenTypes(new Set())}
-                >
-                  Show all types
-                </Button>
-              </div>
-            ) : (
-              <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
-                <BarChart data={filteredChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis
-                    dataKey="type"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    fontSize={12}
-                  />
-                  <YAxis
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    fontSize={12}
-                    allowDecimals={false}
-                  />
-                  <ChartTooltip
-                    content={<ChartTooltipContent />}
-                  />
-                  <Bar
-                    dataKey="count"
-                    radius={[4, 4, 0, 0]}
-                  >
-                    {filteredChartData.map((entry, index) => (
-                      <rect key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ChartContainer>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Latest Emergency Report + Recent Activity stacked */}
-        <div className="space-y-6">
-          {latestCriticalReport && (
-            <Card className="border-blue-200 dark:border-blue-900/50">
-              <CardHeader className="pb-3">
-                <div className="flex items-center gap-2">
-                  <AlertOctagon className="size-5 text-red-500" />
-                  <CardTitle className="text-base">Latest Emergency Report</CardTitle>
-                </div>
-                <CardDescription>Most recent pending or critical report</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <h4 className="text-lg font-semibold">{latestCriticalReport.type}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {latestCriticalReport.location}
-                    </p>
+        {statCards.map((card) => (
+          <motion.div key={card.title} variants={itemVariants}>
+            <Card className="hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">{card.title}</p>
+                    <p className="text-3xl font-bold">{card.value}</p>
+                    <p className="text-xs text-muted-foreground">{card.subtitle}</p>
                   </div>
-                  {getPriorityBadge(latestCriticalReport.priority)}
-                </div>
-
-                <div className="rounded-lg bg-muted/50 p-3">
-                  <p className="text-sm leading-relaxed">
-                    {latestCriticalReport.description}
-                  </p>
-                </div>
-
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>ID: {latestCriticalReport.id}</span>
-                  <span>
-                    {new Date(latestCriticalReport.timestamp).toLocaleString('en-PH', {
-                      month: 'short',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <span>Reported by: {latestCriticalReport.reportedBy.name}</span>
+                  <div className={`flex size-12 items-center justify-center rounded-full ${card.bg}`}>
+                    {card.icon}
+                  </div>
                 </div>
               </CardContent>
             </Card>
-          )}
+          </motion.div>
+        ))}
+      </div>
 
-          {/* Recent Activity */}
-          <Card>
-            <CardHeader className="pb-3">
+      {/* ── Second Row: Incident Type Distribution (80%) + Recent Activity (20%) ── */}
+      <motion.div variants={itemVariants}>
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+          {/* Incident Type Distribution — 80% */}
+          <Card className="lg:col-span-4">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <div className="space-y-1">
+                <CardTitle className="text-base">Incident Type Distribution</CardTitle>
+                <CardDescription className="text-xs">Breakdown of emergency reports by incident type</CardDescription>
+              </div>
+              <Tabs value={period} onValueChange={(v) => setPeriod(v as 'today' | 'weekly' | 'monthly')}>
+                <TabsList className="h-8">
+                  <TabsTrigger value="today" className="text-xs px-2.5 py-1">Today</TabsTrigger>
+                  <TabsTrigger value="weekly" className="text-xs px-2.5 py-1">Weekly</TabsTrigger>
+                  <TabsTrigger value="monthly" className="text-xs px-2.5 py-1">Monthly</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[280px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={incidentTypeData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={renderCustomLabel}
+                      outerRadius={100}
+                      dataKey="value"
+                      stroke="none"
+                    >
+                      {incidentTypeData.map((entry, index) => (
+                        <Cell key={`incident-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value: number, name: string) => [`${value} reports`, name]}
+                      contentStyle={{ borderRadius: '8px', fontSize: '13px' }}
+                    />
+                    <Legend
+                      verticalAlign="bottom"
+                      iconType="circle"
+                      iconSize={10}
+                      formatter={(value: string) => (
+                        <span className="text-xs text-muted-foreground">{value}</span>
+                      )}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Recent Activity — 20% */}
+          <Card className="lg:col-span-1">
+            <CardHeader className="pb-2">
               <CardTitle className="text-base">Recent Activity</CardTitle>
-              <CardDescription>Latest system events</CardDescription>
+              <CardDescription className="text-xs">Latest events</CardDescription>
             </CardHeader>
             <CardContent className="p-0">
-              <ScrollArea className="h-[300px]">
-                <div className="space-y-1 px-6">
+              <ScrollArea className="h-[280px]">
+                <div className="space-y-0.5 px-4 pb-3">
                   {recentActivity.map((activity) => (
                     <div
                       key={activity.id}
-                      className="flex items-start gap-3 rounded-lg p-3 transition-colors hover:bg-muted/50"
+                      className="flex items-start gap-2 rounded-lg p-2 transition-colors hover:bg-muted/50"
                     >
-                      <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-muted">
-                        {activityIcons[activity.type] || <Activity className="size-4 text-muted-foreground" />}
+                      <div className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-muted">
+                        {activityIcons[activity.type] || <Activity className="size-3 text-muted-foreground" />}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium leading-tight">{activity.action}</p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs font-medium leading-tight line-clamp-2">{activity.action}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
                           {activity.user} &middot; {activity.time}
                         </p>
                       </div>
@@ -450,7 +346,25 @@ export function AdminDashboard() {
             </CardContent>
           </Card>
         </div>
-      </div>
-    </div>
+      </motion.div>
+
+      {/* ── Third Row: Incident Heat Map ──────────────────────────── */}
+      <motion.div variants={itemVariants}>
+        <Card>
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-2">
+              <MapPin className="size-5 text-red-500" />
+              <div className="space-y-0.5">
+                <CardTitle className="text-base">Incident Heat Map</CardTitle>
+                <CardDescription className="text-xs">Geographic distribution of reported incidents</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <IncidentHeatMap />
+          </CardContent>
+        </Card>
+      </motion.div>
+    </motion.div>
   );
 }

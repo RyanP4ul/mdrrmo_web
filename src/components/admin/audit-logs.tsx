@@ -181,7 +181,7 @@ export function AuditLogs() {
                 <TableHead className="w-[160px]">User</TableHead>
                 <TableHead className="w-[180px]">Action</TableHead>
                 <TableHead>Details</TableHead>
-                <TableHead className="w-[140px]">IP Address</TableHead>
+                <TableHead className="w-[140px]">Local ID</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -203,7 +203,7 @@ export function AuditLogs() {
                       {log.details}
                     </TableCell>
                     <TableCell className="text-sm font-mono text-muted-foreground">
-                      {log.ipAddress}
+                      {log.localId}
                     </TableCell>
                   </TableRow>
                 ))

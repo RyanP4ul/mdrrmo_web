@@ -112,3 +112,60 @@ Stage Summary:
 - User Management uses Phone Number instead of Email
 - Status editing removed (auto-managed: inactive by default, Active on mobile app login)
 - Dispatcher changes verified as already implemented
+---
+Task ID: 1
+Agent: Main
+Task: Admin Operations page redesign + Sidebar profile removal
+
+Work Log:
+- Renamed "Dashboard" to "Operations" in admin sidebar nav (app-sidebar.tsx)
+- Renamed page title in header from "Dashboard" to "Operations" (app-header.tsx)
+- Redesigned Admin Dashboard layout:
+  - Incident Type Distribution (80%, lg:col-span-4) + Recent Activity (20%, lg:col-span-1) in same row
+  - Added "Today" option to period toggle (Today/Weekly/Monthly)
+  - Made Incident Type Distribution chart smaller (outerRadius: 100, h-[280px])
+  - Made Recent Activity compact with smaller icons and text
+- Added Incident Heat Map section with Leaflet map showing colored circle markers for incidents
+- Removed profile section (avatar, name, role) from sidebar footer, keeping only "Log out" button
+- Cleaned up stale dispatcher-vehicle-tracking entry from pageTitles
+
+Stage Summary:
+- Admin sidebar now shows "Operations" instead of "Dashboard"
+- Header title shows "Operations"
+- Incident Type Distribution and Recent Activity share a row (80/20 split)
+- "Today" filter added to incident type pie chart
+- Incident Heat Map with Leaflet + colored circle markers added below
+- Sidebar footer simplified to just logout button
+- All lint checks pass, no runtime errors
+---
+Task ID: 2
+Agent: Main
+Task: Dispatcher Module redesign + Responder team member changes
+
+Work Log:
+- Removed "Mobile App" source badge from Incoming Reports cards (only "Emergency Call" badge shown)
+- Removed Priority selector from New Emergency Call form (priority auto-determined from incident type)
+- Made Description field optional in the dispatch form
+- Removed Victim Information and Witness Information sections entirely
+- Added Victim/Witness toggle buttons for reporter type selection
+- Changed "Address" label to "Incident Location" in the form
+- Integrated dispatcher input fields with report information (no separation)
+- Auto-fill from mobile app: Reporter Name, Incident Location, Contact Number get AUTO badges
+- Auto-assigned team displays with AUTO-ASSIGNED badge
+- Submit button: "Dispatch" for mobile app reports, "Create & Dispatch" for emergency calls
+- Priority shown as read-only display with "auto-set from incident type" note
+- Updated mock data: teams now have exactly 2 members each
+- Added online/offline status indicators for team members in Responder page
+- Cleaned up shift data to match 2-member teams
+
+Stage Summary:
+- Dispatcher Operations page fully redesigned per user requirements
+- No Mobile App badge in incoming reports
+- Priority auto-set from incident type, no manual selection
+- No Victim/Witness info sections - replaced with Victim/Witness toggle
+- Form uses "Incident Location" instead of "Address"
+- Description is optional
+- Mobile app reports auto-fill name, location, contact; show "Dispatch" button
+- Emergency calls show "Create & Dispatch" button
+- Responder teams show exactly 2 members with online/offline status
+- All lint checks pass, no runtime errors

@@ -189,7 +189,7 @@ function VehicleTrackerInner({
                     <span className="text-lg">{VEHICLE_TYPE_ICONS[vehicle.vehicleType]}</span>
                     <div>
                       <p className="font-bold text-sm">{vehicle.teamName}</p>
-                      <p className="text-xs text-gray-500">{vehicle.id}</p>
+                      <p className="text-xs text-gray-500">{vehicle.plateNumber || vehicle.id}</p>
                     </div>
                   </div>
                   <div className="space-y-1 text-xs">

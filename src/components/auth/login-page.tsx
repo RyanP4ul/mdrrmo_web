@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { Eye, EyeOff, AlertCircle, Shield } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle, Shield, Phone, Truck } from 'lucide-react';
 import { useAppStore } from '@/lib/store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { toast } from 'sonner';
 
 export function LoginPage() {
-  const { login, navigateTo } = useAppStore();
+  const { login, loginAsGuest, navigateTo } = useAppStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -210,6 +210,34 @@ export function LoginPage() {
                   <div className="min-w-0">
                     <p className="text-xs font-semibold text-sky-700 dark:text-sky-400">Dispatcher</p>
                     <p className="text-[10px] text-muted-foreground truncate">dispatcher@mdrrmo.gov</p>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleDemoLogin('driver@mdrrmo.gov')}
+                  className="flex items-center gap-2 p-2.5 rounded-lg border border-indigo-200 dark:border-gray-700 hover:bg-indigo-50 dark:hover:bg-gray-800 transition-colors text-left group"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+                    <Truck className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-indigo-700 dark:text-indigo-400">Driver</p>
+                    <p className="text-[10px] text-muted-foreground truncate">driver@mdrrmo.gov</p>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => { loginAsGuest(); }}
+                  className="flex items-center gap-2 p-2.5 rounded-lg border border-emerald-200 dark:border-gray-700 hover:bg-emerald-50 dark:hover:bg-gray-800 transition-colors text-left group"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                    <Phone className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">Resident</p>
+                    <p className="text-[10px] text-muted-foreground truncate">Guest Access</p>
                   </div>
                 </button>
               </div>

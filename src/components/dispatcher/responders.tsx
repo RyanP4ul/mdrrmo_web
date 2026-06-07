@@ -15,6 +15,7 @@ import {
   UserPlus,
   Check,
   ChevronsUpDown,
+  Circle,
 } from 'lucide-react';
 import {
   Card,
@@ -67,7 +68,7 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Input } from '@/components/ui/input';
-import { mockResponseTeams } from '@/lib/mock-data';
+import { mockResponseTeams, mockShifts } from '@/lib/mock-data';
 import type { ResponseTeam, MemberStatus } from '@/lib/types';
 import { toast } from 'sonner';
 
@@ -115,6 +116,15 @@ function getStatusLabel(status: MemberStatus): string {
   return TEAM_STATUS_OPTIONS.find((s) => s.value === status)?.label ?? status;
 }
 
+// Check if a member is online (on-shift in mockShifts)
+function isMemberOnline(teamId: string, memberId: string): boolean {
+  const shiftData = mockShifts.find((s) => s.teamId === teamId);
+  if (!shiftData) return false;
+  const onShift = shiftData.shifts.find((shift) => shift.status === 'on-shift');
+  if (!onShift) return false;
+  return onShift.members.some((m) => m.id === memberId);
+}
+
 interface MemberForm {
   id: string;
   name: string;
@@ -129,7 +139,10 @@ interface TeamForm {
 
 const emptyTeamForm: TeamForm = {
   teamName: '',
-  members: [{ id: `M-${Date.now()}`, name: '', status: 'active' }],
+  members: [
+    { id: `M-${Date.now()}`, name: '', status: 'active' },
+    { id: `M-${Date.now() + 1}`, name: '', status: 'active' },
+  ],
   status: 'active',
 };
 
@@ -178,11 +191,14 @@ export function Responders() {
 
   const handleFilterChange = () => setCurrentPage(1);
 
-  // Add Team
+  // Add Team — default to 2 members
   const openAddDialog = () => {
     setTeamForm({
       ...emptyTeamForm,
-      members: [{ id: `M-${Date.now()}`, name: '', status: 'active' }],
+      members: [
+        { id: `M-${Date.now()}`, name: '', status: 'active' },
+        { id: `M-${Date.now() + 1}`, name: '', status: 'active' },
+      ],
     });
     setShowAddDialog(true);
   };
@@ -513,68 +529,90 @@ export function Responders() {
             </CardContent>
           </Card>
         ) : (
-          paginatedTeams.map((team) => (
-            <Card key={team.id} className="overflow-hidden">
-              <CardContent className="p-0">
-                {/* Team Header */}
-                <div className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between border-b bg-muted/30">
-                  <div className="flex items-center gap-3">
-                    <div className="flex size-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                      <ShieldCheck className="size-5 text-blue-600 dark:text-blue-400" />
+          paginatedTeams.map((team) => {
+            // Show only first 2 members
+            const displayMembers = team.members.slice(0, 2);
+            return (
+              <Card key={team.id} className="overflow-hidden">
+                <CardContent className="p-0">
+                  {/* Team Header */}
+                  <div className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between border-b bg-muted/30">
+                    <div className="flex items-center gap-3">
+                      <div className="flex size-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                        <ShieldCheck className="size-5 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold">{team.teamName}</h3>
+                        <p className="text-xs text-muted-foreground">{team.id}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-semibold">{team.teamName}</h3>
-                      <p className="text-xs text-muted-foreground">{team.id}</p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Badge className={`border-0 text-xs ${getStatusBadgeStyles(team.status)}`}>
+                        {getStatusLabel(team.status)}
+                      </Badge>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openEditDialog(team.id)}
+                        className="gap-1 text-blue-600 hover:text-blue-700"
+                      >
+                        <Pencil className="size-3" />
+                        Edit
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openDeleteDialog(team.id)}
+                        className="gap-1 text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="size-3" />
+                        Delete
+                      </Button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Badge className={`border-0 text-xs ${getStatusBadgeStyles(team.status)}`}>
-                      {getStatusLabel(team.status)}
-                    </Badge>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => openEditDialog(team.id)}
-                      className="gap-1 text-blue-600 hover:text-blue-700"
-                    >
-                      <Pencil className="size-3" />
-                      Edit
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => openDeleteDialog(team.id)}
-                      className="gap-1 text-red-600 hover:text-red-700"
-                    >
-                      <Trash2 className="size-3" />
-                      Delete
-                    </Button>
-                  </div>
-                </div>
 
-                {/* Team Content */}
-                <div className="p-3 space-y-2">
-                  {/* Members */}
-                  <div className="space-y-1.5">
+                  {/* Team Content — 2 Members with online status */}
+                  <div className="p-3 space-y-2">
                     <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
                       <Users className="size-3" />
-                      Members ({team.members.length})
+                      Members
                     </p>
-                    <div className="flex flex-wrap gap-2">
-                      {team.members.map((member) => (
-                        <span
-                          key={member.id}
-                          className="inline-flex items-center rounded-md bg-muted/50 px-2.5 py-1 text-xs font-medium"
-                        >
-                          {member.name}
-                        </span>
-                      ))}
+                    <div className="space-y-2">
+                      {displayMembers.map((member) => {
+                        const online = isMemberOnline(team.id, member.id);
+                        return (
+                          <div
+                            key={member.id}
+                            className="flex items-center gap-2.5 rounded-lg border border-border/50 px-3 py-2"
+                          >
+                            <div className="relative">
+                              <div className="flex size-8 items-center justify-center rounded-full bg-muted">
+                                <Users className="size-4 text-muted-foreground" />
+                              </div>
+                              {/* Online indicator dot */}
+                              <span className={`absolute -bottom-0.5 -right-0.5 flex size-3 rounded-full border-2 border-white dark:border-gray-950 ${
+                                online ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-600'
+                              }`} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{member.name}</p>
+                              <p className="text-[10px] text-muted-foreground">{member.role}</p>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className={`size-1.5 rounded-full ${online ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-600'}`} />
+                              <span className={`text-[10px] font-medium ${online ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-500 dark:text-gray-400'}`}>
+                                {online ? 'Online' : 'Offline'}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))
+                </CardContent>
+              </Card>
+            );
+          })
         )}
       </div>
 
@@ -616,7 +654,7 @@ export function Responders() {
               Add Response Team
             </DialogTitle>
             <DialogDescription>
-              Create a new emergency response team with members.
+              Create a new emergency response team with 2 members.
             </DialogDescription>
           </DialogHeader>
           {renderTeamForm()}
